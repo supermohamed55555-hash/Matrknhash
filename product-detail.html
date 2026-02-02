@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تفاصيل المنتج - متركنهاش</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a237e;
+            --accent: #ffb300;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #f3f4f6;
+            --text: #1f2937;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding-bottom: 80px;
+            color: var(--text);
+        }
+
+        .header {
+            background: #1a237e;
+            color: white;
+            padding: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            text-decoration: none;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 30px;
+        }
+
+        /* Image Section */
+        .product-img-box {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 400px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .product-img-box img {
+            max-width: 100%;
+            max-height: 400px;
+        }
+
+        /* Details Section */
+        .product-details-box {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .sku {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin: 0 0 10px;
+            font-weight: 800;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .price-note {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        /* AI Fitment Box */
+        .ai-fitment {
+            background: #eef2ff;
+            border: 2px solid #c7d2fe;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .ai-title {
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+
+        .fit-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+        }
+
+        select {
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-family: 'Cairo';
+            width: 100%;
+            font-size: 0.95rem;
+        }
+
+        .check-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .check-btn:hover {
+            background: #151b60;
+        }
+
+        .fit-result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            display: none;
+            line-height: 1.6;
+        }
+
+        .fit-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .fit-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        /* Trust Box */
+        .trust-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .trust-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: #14532d;
+            align-items: center;
+        }
+
+        .trust-item svg {
+            min-width: 20px;
+        }
+
+        /* Sellers List Enhanced */
+        .sellers-header {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 30px 0 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .seller-card {
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: 0.2s;
+            background: white;
+        }
+
+        .seller-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .seller-info h4 {
+            margin: 0;
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .trusted-badge {
+            background: #e0f2f1;
+            color: #00695c;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .rating {
+            color: #f59e0b;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .meta {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 4px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .seller-price-box {
+            text-align: left;
+            min-width: 100px;
+        }
+
+        .s-price {
+            color: #166534;
+            font-weight: 800;
+            font-size: 1.3rem;
+        }
+
+        .buy-seller-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            width: 100%;
+            transition: 0.2s;
+            font-family: 'Cairo';
+        }
+
+        .buy-seller-btn.outline {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .buy-seller-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Actions */
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .expert-btn {
+            flex: 1;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+
+        .expert-btn:hover {
+            background: #f0f4ff;
+        }
+
+        /* Smart Chat Widget */
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            overflow: hidden;
+            display: none;
+            border: 1px solid #eee;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: #128c7e;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-body {
+            height: 300px;
+            padding: 15px;
+            background: #efeae2;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .msg {
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .msg-bot {
+            background: white;
+            align-self: flex-start;
+            border-top-left-radius: 0;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-footer {
+            padding: 10px;
+            background: #f0f0f0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            outline: none;
+            font-family: 'Cairo';
+        }
+
+        .send-btn {
+            background: #128c7e;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media(max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .fit-form {
+                grid-template-columns: 1fr;
+            }
+
+            .seller-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .seller-price-box {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .buy-seller-btn {
+                width: auto;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="test1.html" class="logo">متركنهاش</a>
+            <a href="profile.html" style="color:white; text-decoration:none; font-weight:bold;">👤 حسابي</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Image -->
+        <div class="product-img-box">
+            <img id="pImg" src="https://via.placeholder.com/500" alt="Product">
+            <span
+                style="position: absolute; top:20px; right:20px; background:#4caf50; color:white; padding:5px 15px; border-radius:20px; font-size:0.8rem; font-weight:bold;">أصلي
+                100%</span>
+        </div>
+
+        <!-- Details -->
+        <div class="product-details-box">
+            <div class="sku">SKU: MRK-9921</div>
+            <h1 id="pName">جاري التحميل...</h1>
+            <div class="price" id="pPrice">-- ج.م</div>
+            <div class="price-note">يبدأ من هذا السعر (قارن عروض التجار بالأسفل)</div>
+
+            <!-- Smart Fitment AI -->
+            <div class="ai-fitment">
+                <div class="ai-title">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path
+                            d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+                    </svg>
+                    AI Fitment Check (تأكد أن القطعة تناسب سيارتك)
+                </div>
+                <div class="fit-form">
+                    <select id="brandSelect" onchange="updateModels()">
+                        <option value="">ماركة السيارة</option>
+                        <option value="BYD">BYD</option>
+                        <option value="Toyota">Toyota</option>
+                        <option value="Hyundai">Hyundai</option>
+                        <option value="Nissan">Nissan</option>
+                        <option value="Cherry">Cherry</option>
+                        <option value="Kia">Kia</option>
+                    </select>
+                    <select id="modelSelect">
+                        <option value="">اختار الموديل</option>
+                    </select>
+                    <button class="check-btn" onclick="checkFitAI()">افحص</button>
+                </div>
+                <div id="fitResult" class="fit-result"></div>
+            </div>
+
+            <!-- Trust Indicators -->
+            <div class="trust-box">
+                <div class="trust-item">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path
+                            d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+                    </svg>
+                    <strong>نظام Escrow:</strong> فلوسك مش هتوصل للتاجر غير لما تستلم وتوافق على القطعة.
+                </div>
+                <div class="trust-item">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path
+                            d="M1.5 1.5A.5.5 0 0 0 1 2v4.8a2.5 2.5 0 0 0 2.5 2.5h9.793l-3.347 3.346a.5.5 0 0 0 .708.708l4.2-4.2a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 8.3H3.5A1.5 1.5 0 0 1 2 6.8V2a.5.5 0 0 0-.5-.5z" />
+                    </svg>
+                    <strong>ضمان 14 يوم:</strong> استرجاع مجاني 100% لو القطعة فيها عيب.
+                </div>
+            </div>
+
+            <!-- Sellers List Enhanced -->
+            <h3 class="sellers-header">قارن الأسعار من 3 تجار</h3>
+
+            <!-- Seller 1 -->
+            <div class="seller-card">
+                <div class="seller-info">
+                    <h4>محلات التوفيق للسيارات <span class="trusted-badge">موثوق ✅</span></h4>
+                    <div class="rating">⭐⭐⭐⭐⭐ 4.9 (500+ طلب)</div>
+                    <div class="meta">📍 مصر الجديدة، القاهرة • 🚚 شحن مجاني</div>
+                </div>
+                <div class="seller-price-box">
+                    <div class="s-price">450 ج.م</div>
+                    <button class="buy-seller-btn" onclick="addToCart('محلات التوفيق')">شراء الآن</button>
+                </div>
+            </div>
+
+            <!-- Seller 2 -->
+            <div class="seller-card">
+                <div class="seller-info">
+                    <h4>أولاد رجب لقطع الغيار</h4>
+                    <div class="rating">⭐⭐⭐⭐ 4.2</div>
+                    <div class="meta">📍 الحرفيين • 🚚 شحن 50 ج.م</div>
+                </div>
+                <div class="seller-price-box">
+                    <div class="s-price">440 ج.م</div>
+                    <button class="buy-seller-btn outline" onclick="addToCart('أولاد رجب')">شراء</button>
+                </div>
+            </div>
+
+            <!-- Seller 3 -->
+            <div class="seller-card">
+                <div class="seller-info">
+                    <h4>El-Masry Auto Parts</h4>
+                    <div class="rating">⭐⭐⭐⭐⭐ 4.7</div>
+                    <div class="meta">📍 الدقي، الجيزة • ⚡ شحن سريع</div>
+                </div>
+                <div class="seller-price-box">
+                    <div class="s-price">465 ج.م</div>
+                    <button class="buy-seller-btn outline" onclick="addToCart('المصري أوتو')">شراء</button>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions">
+                <button class="expert-btn" onclick="openChat()">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                        <path
+                            d="M16 8c0 3.866-3.582 7-8 7a9.06 9.06 0 0 1-2.347-.306c-.584.234-1.953.109-2.888-.813C4.911 2.71 12.685 0 16 8zm-8 4.743A7.051 7.051 0 0 1 2.485 10.4c.664-.95 1.776-3.953 5.432-5.719C10.741 3.522 13 5.093 13 8c0 2.227-1.789 4.223-4.916 4.743z" />
+                    </svg>
+                    اسأل مهندس مختص (واتساب مباشر)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Widget -->
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-header">
+            <span>مهندس متركنهاش 👷‍♂️</span>
+            <span onclick="document.getElementById('chatWidget').style.display='none'" style="cursor:pointer;">✖</span>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="msg msg-bot">
+                أهلاً بيك!
+                أنا المهندس المسؤول. عشان أساعدك صح، ياريت تبعتلي صورة الرخصة أو رقم الشاسيه هنا وهرد عليك فوراً.
+            </div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" class="chat-input" placeholder="اكتب رسالتك..."
+                onkeypress="if(event.key==='Enter') sendToWhatsApp()">
+            <button class="send-btn" onclick="sendToWhatsApp()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. Data Setup
+        const urlParams = new URLSearchParams(window.location.search);
+        const partName = urlParams.get('part') || "منتج عام";
+        const imgUrl = urlParams.get('img') || "https://via.placeholder.com/500?text=AutoPart";
+
+        document.getElementById('pName').innerText = partName;
+        document.getElementById('pImg').src = imgUrl;
+        document.getElementById('pPrice').innerText = "450 ج.م";
+
+        // 2. Models Database
+        const cars = {
+            "BYD": ["F3 (2010-2015)", "F3 (2016-2025)", "L3", "F0"],
+            "Toyota": ["Corolla (الجمل 2003-2007)", "Corolla (2014-2019)", "Corolla (2020-2024)", "Yaris"],
+            "Hyundai": ["Elantra AD (2017-2020)", "Elantra CN7 (2021-2025)", "Accent RB", "Tucson"],
+            "Nissan": ["Sunny N16", "Sunny N17 (الشكل الجديد)", "Sentra", "Qashqai"],
+            "Cherry": ["Arrizo 5", "Tiggo 3", "Tiggo 7"],
+            "Kia": ["Cerato K3", "Sportage QL", "Sportage NQ5"]
+        };
+
+        function updateModels() {
+            const brand = document.getElementById('brandSelect').value;
+            const modelSelect = document.getElementById('modelSelect');
+            modelSelect.innerHTML = '<option value="">اختار الموديل</option>';
+            if (brand && cars[brand]) {
+                cars[brand].forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m;
+                    opt.innerText = m;
+                    modelSelect.appendChild(opt);
+                });
+            }
+        }
+
+        // 3. AI Fitment Logic
+        function checkFitAI() {
+            const brand = document.getElementById('brandSelect').value;
+            const model = document.getElementById('modelSelect').value;
+            const resultBox = document.getElementById('fitResult');
+
+            if (!brand || !model) { alert("من فضلك اختار العربية الأول!"); return; }
+
+            resultBox.style.display = 'block';
+            resultBox.innerHTML = "جاري تحليل التوافق...";
+            resultBox.className = "fit-result";
+
+            setTimeout(() => {
+                const pName = partName.toLowerCase();
+                const bName = brand.toLowerCase();
+
+                let isCompatible = true;
+                let reason = "";
+
+                const allBrands = ["toyota", "byd", "hyundai", "nissan", "kia", "cherry"];
+
+                for (let otherBrand of allBrands) {
+                    if (pName.includes(otherBrand) && otherBrand !== bName) {
+                        isCompatible = false;
+                        reason = `المنتج ده مخصص لعربيات <b>${otherBrand.toUpperCase()}</b>، وأنت اخترت <b>${brand}</b>.`;
+                        break;
+                    }
+                }
+
+                if (isCompatible) {
+                    resultBox.className = "fit-result fit-success";
+                    resultBox.innerHTML = `✅ <strong>متوافقة!</strong> القطعة دي تركب على (${brand} ${model}) بدون مشاكل.`;
+                } else {
+                    resultBox.className = "fit-result fit-error";
+                    resultBox.innerHTML = `❌ <strong>غير متوافقة!</strong><br>${reason}<br><a href="#" onclick="openChat()" style="color:inherit">دوس هنا واسأل المهندس للتأكد</a>`;
+                }
+
+            }, 700);
+        }
+
+        // 4. WhatsApp Bridge
+        function openChat() { document.getElementById('chatWidget').style.display = 'flex'; }
+
+        function sendToWhatsApp() {
+            const msg = document.getElementById('chatInput').value;
+            if (!msg) return;
+            const phone = "201102233317";
+            const text = `السلام عليكم، بستفسر عن المنتج: (${partName}).\n سؤالي: ${msg}`;
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function addToCart(seller) {
+            alert(`تم إضافة المنتج للسلة من التاجر: ${seller}`);
+        }
+    </script>
+</body>
+
+</html>
