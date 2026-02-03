@@ -491,6 +491,75 @@
             margin-bottom: 2rem;
             font-weight: 700;
         }
+
+        /* Login Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .auth-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: 0.3s;
+            border: 1px solid #ddd;
+        }
+
+        .auth-btn img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .auth-btn.google {
+            background: white;
+            color: #444;
+        }
+
+        .auth-btn.facebook {
+            background: #1877F2;
+            color: white;
+            border: none;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 
@@ -503,9 +572,13 @@
                 <li><a href="#search">البحث</a></li>
                 <li><a href="#features">لماذا نحن</a></li>
                 <li><a href="profile.html">حسابي</a></li>
+                <li id="loginNavItem"><a href="javascript:void(0)" onclick="openLoginModal()"
+                        style="background:var(--accent); color:var(--primary); padding:0.5rem 1.5rem; border-radius:50px; font-weight:800; box-shadow: 0 4px 10px rgba(255,179,0,0.3);">سجل
+                        الآن</a></li>
             </ul>
         </div>
     </header>
+
 
     <section class="hero">
         <div class="hero-content">
@@ -589,7 +662,29 @@
         <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="واتساب">
     </a>
 
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeLoginModal()">&times;</span>
+            <h2 style="text-align:center; margin-bottom:1.5rem; color:var(--primary); font-weight:800;">تسجيل الدخول
+            </h2>
+            <div style="display:flex; flex-direction:column; gap:1.2rem;">
+                <a href="/auth/google" class="auth-btn google">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
+                    الدخول بواسطة جوجل
+                </a>
+                <a href="/auth/facebook" class="auth-btn facebook">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg"
+                        alt="Facebook">
+                    الدخول بواسطة فيسبوك
+                </a>
+            </div>
+            <p style="text-align:center; margin-top:1.5rem; font-size:0.85rem; color:#777;">بتسجيلك أنت توافق على شروط
+                الاستخدام</p>
+        </div>
+    </div>
+
     <script>
+
         let partsDatabase = [];
 
         async function loadProducts() {
@@ -702,10 +797,38 @@
             window.location.href = `product-detail.html?${params.toString()}`;
         }
 
+        function openLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('loginModal');
+            if (event.target == modal) {
+                closeLoginModal();
+            }
+        }
+
+        async function checkLoginStatus() {
+            try {
+                const res = await fetch('/api/current_user');
+                const user = await res.json();
+                if (user && user.name) {
+                    document.getElementById('loginNavItem').innerHTML = `<span style="color:var(--accent); font-weight:800;">أهلاً ${user.name.split(' ')[0]}</span>`;
+                }
+            } catch (err) { }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             loadProducts();
             setupSearchListeners();
+            checkLoginStatus();
         });
+
     </script>
 </body>
 
