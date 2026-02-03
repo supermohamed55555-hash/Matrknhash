@@ -1053,20 +1053,26 @@
             <h2 class="titleT ">ابحث عن قطعة سيارتك</h2>
             <div class="search-container">
                 <div class="search-form">
-                    <input type="text" class="search-input" id="partName" placeholder="اسم القطعة">
+                    <input type="text" class="search-input" id="partName"
+                        placeholder="اسم القطعة (مثلاً: جنط، مساعد، بطارية)">
                     <select class="search-select" id="carBrand">
-                        <option value="">اختر الماركة</option>
+                        <option value="">كل الماركات</option>
                         <option value="toyota">تويوتا</option>
                         <option value="nissan">نيسان</option>
                         <option value="hyundai">هيونداي</option>
+                        <option value="bmw">BMW</option>
+                        <option value="mercedes">مرسيدس</option>
+                        <option value="fiat">فيات</option>
+                        <option value="kia">كيا</option>
+                        <option value="mitsubishi">ميتسوبيشي</option>
                     </select>
-                    <select class="search-select" id="carYear">
-                        <option value="">سنة الصنع</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
-                        <option value="2022">2022</option>
+                    <select class="search-select" id="carCategory">
+                        <option value="">كل الفئات</option>
+                        <option value="Wheels">جنوط</option>
+                        <option value="Tires">كاوتش</option>
+                        <option value="Accessories">اكسسوارات</option>
                     </select>
-                    <button type="button" class="search-button" onclick="searchParts()">بحث</button>
+                    <button type="button" class="search-button" onclick="searchParts()">بحث سريع</button>
                 </div>
 
                 <div class="search-controls"
@@ -1192,47 +1198,76 @@
             // renderVendors(); // Assuming this is defined elsewhere or not needed for now
         });
 
+        // ## وظائف البحث المتقدم واللحظي ##
+        function setupSearchListeners() {
+            const inputs = ['partName', 'carBrand', 'carCategory', 'sortBy'];
+            inputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', searchParts);
+                    el.addEventListener('change', searchParts);
+                }
+            });
+        }
+
         function searchParts() {
             const partName = document.getElementById('partName').value.toLowerCase();
-            const carBrand = document.getElementById('carBrand').value;
-            // Note: Year is not in our simplified product model but can be added or ignored
+            const carBrand = document.getElementById('carBrand').value.toLowerCase();
+            const category = document.getElementById('carCategory').value;
+            const sortBy = document.getElementById('sortBy').value;
+
             let results = partsDatabase.filter(part => {
                 const nameMatch = !partName || part.name.toLowerCase().includes(partName);
-                const brandMatch = !carBrand || part.brand.toLowerCase() === carBrand.toLowerCase();
-                return nameMatch && brandMatch;
+                const brandMatch = !carBrand || part.brand.toLowerCase() === carBrand;
+                const categoryMatch = !category || part.category === category;
+                return nameMatch && brandMatch && categoryMatch;
             });
+
+            // Sorting logic
+            if (sortBy === 'price-asc') {
+                results.sort((a, b) => Number(a.price) - Number(b.price));
+            } else if (sortBy === 'price-desc') {
+                results.sort((a, b) => Number(b.price) - Number(a.price));
+            }
+
             displayResults(results);
         }
 
         function displayResults(results) {
             const resultsContainer = document.getElementById('searchResults');
-            const sortBy = document.getElementById('sortBy').value;
 
-            const numericResults = results.map(part => ({ ...part, price: Number(part.price) }));
-            if (sortBy === 'price-asc') { numericResults.sort((a, b) => a.price - b.price); }
-            else if (sortBy === 'price-desc') { numericResults.sort((a, b) => b.price - a.price); }
-
-            if (numericResults.length === 0) {
-                resultsContainer.innerHTML = `<p style="text-align:center; color:white; font-size:1.2rem;">لا توجد نتائج مطابقة لبحثك.</p>`;
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div style="text-align:center; color:white; padding: 40px;">
+                        <span style="font-size: 3rem; display:block; margin-bottom:10px;">🔍</span>
+                        <p style="font-size:1.2rem;">للأسف، ملقناش حاجة مطابقة لبحثك..</p>
+                        <p style="opacity:0.7">جرب تبحث بكلمات تانية أو ماركة مختلفة.</p>
+                    </div>`;
             } else {
-                resultsContainer.innerHTML = numericResults.map(part => `
+                resultsContainer.innerHTML = results.map(part => `
                     <div class="search-result-item">
-                        <div class="result-image"><img src="${part.image}" alt="${part.name}"></div>
+                        <div class="result-image">
+                            <img src="${part.image}" alt="${part.name}" onerror="this.src='https://placehold.co/400x300?text=Parts'">
+                        </div>
                         <div class="result-info">
+                            <span class="brand-badge" style="background:var(--accent); color:var(--primary); font-size:0.7rem; padding:2px 8px; border-radius:10px;">${part.brand.toUpperCase()}</span>
                             <h4>${part.name}</h4>
-                            <p><strong>الماركة:</strong> ${part.brand}</p>
-                            <div class="result-price">${part.price} ج.م</div>
+                            <p style="margin-bottom:0">الفئة: ${part.category || 'عام'}</p>
+                            <div class="result-price" style="color:var(--accent); font-size:1.4rem;">${part.price} ج.م</div>
                         </div>
                         <div class="result-actions">
                             <button class="result-button details" onclick="showPartDetails('${part.name}')">التفاصيل</button>
-                            <button class="result-button" onclick="addToCart('${part.name}', ${part.price})">
-                                أضف للسلة
-                            </button>
+                            <button class="result-button" onclick="addToCart('${part.name}', ${part.price})">أضف للسلة</button>
                         </div>
                     </div>`).join('');
             }
             resultsContainer.classList.add('active');
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+            setupSearchListeners();
+        });
 
         function showPartDetails(partName) {
             const part = partsDatabase.find(p => p.name === partName);
