@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - متركنهاش</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --dark: #0f172a;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--dark);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            background-image: radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(79, 172, 254, 0.05) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: white;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 12px;
+            color: var(--dark);
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 242, 254, 0.3);
+        }
+
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔧 لوحة تحكم متركنهاش</h1>
+
+        <div class="dashboard-grid">
+            <!-- Add Product Form -->
+            <div class="card">
+                <h3>إضافة منتج جديد</h3>
+                <form id="addProductForm">
+                    <div class="form-group">
+                        <label>اسم المنتج</label>
+                        <input type="text" id="name" required placeholder="مثلاً: جنط Vossen VFS-1">
+                    </div>
+                    <div class="form-group">
+                        <label>الماركة</label>
+                        <input type="text" id="brand" required placeholder="Mercedes, BMW, Vossen...">
+                    </div>
+                    <div class="form-group">
+                        <label>السعر (جنية)</label>
+                        <input type="number" id="price" required placeholder="5000">
+                    </div>
+                    <div class="form-group">
+                        <label>رابط الصورة</label>
+                        <input type="text" id="image" required placeholder="https://example.com/image.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label>الفئة</label>
+                        <select id="category">
+                            <option value="Wheels">جنوط</option>
+                            <option value="Tires">كاوتش</option>
+                            <option value="Accessories">اكسسوارات</option>
+                        </select>
+                    </div>
+                    <button type="submit">إضافة المنتج إلى الموقع</button>
+                </form>
+            </div>
+
+            <!-- Product List -->
+            <div class="card">
+                <h3>المنتجات الحالية</h3>
+                <div id="productsGrid" class="product-list">
+                    <!-- Products will lead here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('addProductForm');
+        const productsGrid = document.getElementById('productsGrid');
+
+        // Fetch and display products
+        async function fetchProducts() {
+            const res = await fetch('/api/products');
+            const products = await res.json();
+            productsGrid.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <button class="delete-btn" onclick="deleteProduct('${p._id}')">×</button>
+                    <img src="${p.image}" alt="${p.name}">
+                    <h4>${p.name}</h4>
+                    <p style="color: var(--primary)">${p.price} ج.م</p>
+                </div>
+            `).join('');
+        }
+
+        // Add Product
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('name').value,
+                brand: document.getElementById('brand').value,
+                price: document.getElementById('price').value,
+                image: document.getElementById('image').value,
+                category: document.getElementById('category').value
+            };
+
+            const res = await fetch('/api/products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                form.reset();
+                fetchProducts();
+                alert('تمت إضافة المنتج بنجاح!');
+            }
+        };
+
+        // Delete Product
+        async function deleteProduct(id) {
+            if (confirm('هل أنت متأكد من مسح هذا المنتج؟')) {
+                await fetch(`/api/products/${id}`, { method: 'DELETE' });
+                fetchProducts();
+            }
+        }
+
+        fetchProducts();
+    </script>
+</body>
+
+</html>
