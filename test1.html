@@ -1279,8 +1279,29 @@
             window.location.href = `product-detail.html?part=${encodeURIComponent(partName)}${imgParam}${priceParam}${vendorParam}${conditionParam}${warrantyParam}`;
         }
 
-        function addToCart(partName, price) {
-            alert(`تم إضافة "${partName}" للسلة بقيمة ${price} ج.م`);
+        async function addToCart(partName, price) {
+            const part = partsDatabase.find(p => p.name === partName);
+            const image = part ? part.image : '';
+
+            try {
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productName: partName, price, image })
+                });
+
+                if (res.ok) {
+                    alert(`✅ تم طلب "${partName}" بنجاح! يمكنك متابعة حالة الطلب من حسابك.`);
+                } else if (res.status === 401) {
+                    alert('⚠️ برجاء تسجيل الدخول أولاً لتتمكن من الشراء.');
+                    openModal('loginModal');
+                } else {
+                    alert('❌ حدث خطأ أثناء إتمام الطلب.');
+                }
+            } catch (err) {
+                console.error('Order Error:', err);
+                alert('❌ فشل الاتصال بالسيرفر.');
+            }
         }
     </script>
 
