@@ -168,7 +168,7 @@
                 <span style="font-size:0.85rem; color:#777;" id="userEmailLabel">mohamed@example.com</span>
             </div>
         </div>
-        <a href="test1.html" style="text-decoration:none; color:var(--primary); font-weight:bold;">العودة للرئيسية
+        <a href="/" style="text-decoration:none; color:var(--primary); font-weight:bold;">العودة للرئيسية
             🏠</a>
     </div>
 
@@ -188,40 +188,9 @@
         <!-- 1. Orders Tab -->
         <div id="orders" class="content-area">
             <div class="section-title">طلباتي السابقة</div>
-
-            <!-- Dummy Order 1 -->
-            <div class="order-card">
-                <div class="order-header">
-                    <span>رقم الطلب: #92831</span>
-                    <span class="order-status">جاري التجهيز 🚚</span>
-                </div>
-                <div class="order-item">
-                    <img src="https://via.placeholder.com/60" class="order-img">
-                    <div>
-                        <div style="font-weight:bold;">مساعدين خلفي Toyota Corolla 2019</div>
-                        <div style="font-size:0.9rem; color:#555;">عدد: 2 | السعر: 1,800 ج.م</div>
-                    </div>
-                </div>
-                <div style="margin-top:15px; text-align:left;">
-                    <button
-                        style="padding:5px 15px; border:1px solid #ddd; background:white; border-radius:5px; cursor:pointer;">تتبع
-                        الشحنة</button>
-                </div>
-            </div>
-
-            <!-- Dummy Order 2 -->
-            <div class="order-card" style="opacity: 0.7;">
-                <div class="order-header">
-                    <span>رقم الطلب: #10024</span>
-                    <span class="order-status" style="background:#d1e7dd; color:#0f5132;">تم التسليم ✅</span>
-                </div>
-                <div class="order-item">
-                    <img src="https://via.placeholder.com/60" class="order-img">
-                    <div>
-                        <div style="font-weight:bold;">فلتر زيت أصلي (نيسان صني)</div>
-                        <div style="font-size:0.9rem; color:#555;">عدد: 1 | السعر: 150 ج.م</div>
-                    </div>
-                </div>
+            <div class="orders-list">
+                <!-- داتا حقيقية ستظهر هنا -->
+                <p style="text-align:center; padding:20px; opacity:0.5;">جاري تحميل طلباتك...</p>
             </div>
         </div>
 
@@ -265,68 +234,67 @@
 
     </div>
 
-    async function loadProfile() {
-    try {
-    // 1. Check Login Status
-    const userRes = await fetch('/auth/login/success');
-    const userData = await userRes.json();
+    <script>
+        async function loadProfile() {
+            try {
+                // 1. Check Login Status
+                const userRes = await fetch('/auth/login/success');
+                const userData = await userRes.json();
 
-    if (userData.success) {
-    const user = userData.user;
-    document.getElementById('userNameLabel').innerText = 'أهلاً ' + user.name;
-    document.getElementById('userEmailLabel').innerText = user.email;
-    document.getElementById('avatarLetter').innerText = user.name.charAt(0).toUpperCase();
-    } else {
-    window.location.href = 'test1.html';
-    }
+                if (userData.success) {
+                    const user = userData.user;
+                    document.getElementById('userNameLabel').innerText = 'أهلاً ' + user.name;
+                    document.getElementById('userEmailLabel').innerText = user.email;
+                    document.getElementById('avatarLetter').innerText = user.name.charAt(0).toUpperCase();
+                } else {
+                    window.location.href = '/';
+                }
 
-    // 2. Fetch Real Orders
-    const ordersRes = await fetch('/api/user-orders');
-    const orders = await ordersRes.json();
-    const ordersContainer = document.querySelector('#orders .orders-list');
+                // 2. Fetch Real Orders
+                const ordersRes = await fetch('/api/user-orders');
+                const orders = await ordersRes.json();
+                const ordersContainer = document.querySelector('#orders .orders-list');
 
-    if (orders.length > 0) {
-    ordersContainer.innerHTML = orders.map(order => `
-    <div class="order-item">
-        <div class="order-header">
-            <span class="order-number">رقم الطلب: #${order._id.slice(-5)}</span>
-            <span
-                class="order-status ${order.status === 'تم التسليم' ? 'status-delivered' : 'status-pending'}">${order.status}</span>
-        </div>
-        <div class="order-content">
-            <img src="${order.image || 'https://via.placeholder.com/80'}" alt="${order.productName}" class="order-img">
-            <div class="order-details">
-                <h4 class="order-title">${order.productName}</h4>
-                <p class="order-meta">السعر: ${order.price} ج.م | التاريخ: ${new
-                    Date(order.createdAt).toLocaleDateString('ar-EG')}</p>
-            </div>
-            <button class="reorder-btn"
-                style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;"
-                onclick="alert('جاري تتبع الطلب مع شركة الشحن...')">تتبع الطلب</button>
-        </div>
-    </div>
-    `).join('');
-    } else {
-    ordersContainer.innerHTML = '<div style="text-align:center; padding:40px; opacity:0.6;">ليس لديك طلبات سابقة حالياً.
-    </div>';
-    }
+                if (orders.length > 0) {
+                    ordersContainer.innerHTML = orders.map(order => `
+                    <div class="order-item">
+                        <div class="order-header">
+                            <span class="order-number">رقم الطلب: #${order._id.slice(-5)}</span>
+                            <span class="order-status ${order.status === 'تم التسليم' ? 'status-delivered' : 'status-pending'}">${order.status}</span>
+                        </div>
+                        <div class="order-content">
+                            <img src="${order.image || 'https://via.placeholder.com/80'}" alt="${order.productName}" class="order-img">
+                            <div class="order-details">
+                                <h4 class="order-title">${order.productName}</h4>
+                                <p class="order-meta">السعر: ${order.price} ج.م | التاريخ: ${new Date(order.createdAt).toLocaleDateString('ar-EG')}</p>
+                            </div>
+                            <button class="reorder-btn"
+                                style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;"
+                                onclick="alert('جاري تتبع الطلب مع شركة الشحن...')">تتبع الطلب</button>
+                        </div>
+                    </div>
+                    `).join('');
+                } else {
+                    ordersContainer.innerHTML = '<div style="text-align:center; padding:40px; opacity:0.6;">ليس لديك طلبات سابقة حالياً.</div>';
+                }
 
-    } catch (err) {
-    console.error('Profile Error:', err);
-    }
-    }
+            } catch (err) {
+                console.error('Profile Error:', err);
+            }
+        }
 
-    function showTab(tabId) {
-    document.querySelectorAll('.content-area').forEach(el => el.classList.add('hidden'));
-    document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-    document.getElementById(tabId).classList.remove('hidden');
-    }
+        function showTab(tabId) {
+            document.querySelectorAll('.content-area').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.remove('hidden');
+        }
 
-    function logout() {
-    window.location.href = '/logout'; // Trigger backend logout
-    }
+        function logout() {
+            window.location.href = '/logout'; // Trigger backend logout
+        }
 
-    loadProfile();
+        loadProfile();
+    </script>
 </body>
 
 </html>
