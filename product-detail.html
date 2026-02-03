@@ -586,10 +586,11 @@
         const urlParams = new URLSearchParams(window.location.search);
         const partName = urlParams.get('part') || "منتج عام";
         const imgUrl = urlParams.get('img') || "https://via.placeholder.com/500?text=AutoPart";
+        const partPrice = urlParams.get('price') || "450";
 
         document.getElementById('pName').innerText = partName;
         document.getElementById('pImg').src = imgUrl;
-        document.getElementById('pPrice').innerText = "450 ج.م";
+        document.getElementById('pPrice').innerText = `${partPrice} ج.م`;
 
         // 2. Models Database
         const cars = {
