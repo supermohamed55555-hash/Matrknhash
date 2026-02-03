@@ -9,6 +9,39 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const User = require('./models/User');
 const Product = require('./models/Product');
+const Order = require('./models/Order');
+
+// --- Middleware لضمان تسجيل الدخول ---
+function isAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) return next();
+    res.status(401).json({ error: 'Please log in' });
+}
+
+// --- Order Routes ---
+app.post('/api/orders', isAuthenticated, async (req, res) => {
+    try {
+        const { productName, price, image } = req.body;
+        const newOrder = new Order({
+            user: req.user._id,
+            productName,
+            price,
+            image
+        });
+        await newOrder.save();
+        res.status(201).json(newOrder);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to place order' });
+    }
+});
+
+app.get('/api/user-orders', isAuthenticated, async (req, res) => {
+    try {
+        const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+});
 
 const app = express();
 
