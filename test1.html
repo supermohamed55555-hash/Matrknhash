@@ -1237,7 +1237,8 @@
         function showPartDetails(partName) {
             const part = partsDatabase.find(p => p.name === partName);
             const imgParam = part ? `&img=${encodeURIComponent(part.image)}` : '';
-            window.location.href = `product-detail.html?part=${encodeURIComponent(partName)}${imgParam}`;
+            const priceParam = part ? `&price=${encodeURIComponent(part.price)}` : '';
+            window.location.href = `product-detail.html?part=${encodeURIComponent(partName)}${imgParam}${priceParam}`;
         }
 
         function addToCart(partName, price) {
