@@ -7,6 +7,9 @@ const productSchema = new mongoose.Schema({
     image: { type: String, required: true }, // URL of the image
     category: { type: String, enum: ['Wheels', 'Tires', 'Accessories'], default: 'Wheels' },
     description: { type: String },
+    vendorName: { type: String, default: "متركنهاش" },
+    condition: { type: String, default: "جديد" },
+    warranty: { type: String, default: "لا يوجد" },
     createdAt: { type: Date, default: Date.now }
 });
 
