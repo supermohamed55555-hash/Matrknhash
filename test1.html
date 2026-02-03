@@ -1152,31 +1152,35 @@
         document.querySelectorAll('a[href^="#"]').forEach(anchor => { anchor.addEventListener('click', function (e) { e.preventDefault(); document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' }); }); });
 
         // ## تعديل: إضافة صور للمنتجات الحقيقية ##
-        const partsDatabase = [
-            { name: "طقم مكابح تويوتا كورولا", brand: "toyota", year: "2022", price: "450", availability: "متوفر", image: "طقم مكابح تويوتا كورولا.jpg" },
-            { name: "بطارية هيونداي جافة 70 أمبير", brand: "hyundai", year: "2023", price: "2600", availability: "متوفر", image: "بطارية هيونداي جافة 70 أمبير" },
-            { name: "محرك نيسان صني 1.6L V4", brand: "nissan", year: "2022", price: "15000", availability: "متوفر", image: "محرك نيسان صني 1.6L V4" },
-            { name: "ناقل حركة ميتسوبيشي لانسر", brand: "mitsubishi", year: "2021", price: "8500", availability: "غير متوفر", image: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=500&q=80" },
-            { name: "زيت محرك كاسترول 5W-30", brand: "generic", year: "2024", price: "850", availability: "متوفر", image: "https://images.unsplash.com/photo-1598209279122-8541213a0383?auto=format&fit=crop&w=500&q=80" },
-            { name: "إطارات ميشلان مقاس 16", brand: "generic", year: "2023", price: "3200", availability: "متوفر", image: "https://images.unsplash.com/photo-1578844251758-2f71da64522f?auto=format&fit=crop&w=500&q=80" },
-            { name: "فلتر هواء رياضي K&N", brand: "generic", year: "2023", price: "1200", availability: "متوفر", image: "https://images.unsplash.com/photo-1486262715619-72a607e32449?auto=format&fit=crop&w=500&q=80" },
-            { name: "مساعدين خلفي كيا سبورتاج", brand: "kia", year: "2022", price: "1800", availability: "متوفر", image: "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=500&q=80" }
-        ];
+        let partsDatabase = []; // Will be loaded from API
 
-        // ## تشغيل المنتجات المميزة في الرئيسية ##
+        async function loadProducts() {
+            try {
+                const res = await fetch('/api/products');
+                partsDatabase = await res.json();
+                renderFeaturedProducts();
+            } catch (err) {
+                console.error('Failed to load products:', err);
+            }
+        }
+
         function renderFeaturedProducts() {
             const container = document.getElementById('featuredProducts');
+            if (partsDatabase.length === 0) {
+                container.innerHTML = '<p style="text-align:center; width:100%; color: var(--text-light)">لا توجد منتجات حالياً.</p>';
+                return;
+            }
             // Show first 4 products as featured
             const featured = partsDatabase.slice(0, 4);
             container.innerHTML = featured.map(part => `
                 <div class="product-card-display">
                     <div class="p-image"><img src="${part.image}" alt="${part.name}"></div>
-                    <div class="p-content">
-                        <div class="p-cat">${part.brand} · ${part.year}</div>
-                        <div class="p-title">${part.name}</div>
-                        <div class="p-price">
+                    <div class="p-content" style="padding: 1.5rem">
+                        <div class="p-cat" style="color: var(--accent); font-weight: bold; font-size: 0.9rem; margin-bottom: 0.5rem">${part.brand} · ${part.category}</div>
+                        <div class="p-title" style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; color: var(--primary)">${part.name}</div>
+                        <div class="p-price" style="display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem; font-weight: 800; color: var(--success)">
                              ${part.price} ج.م
-                             <button class="p-btn" style="width:auto; padding:5px 15px;" onclick="showPartDetails('${part.name}')">عرض</button>
+                             <button class="p-btn" style="width:auto; padding:8px 20px; margin-top:0;" onclick="showPartDetails('${part.name}')">عرض</button>
                         </div>
                     </div>
                 </div>
@@ -1184,16 +1188,18 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            renderFeaturedProducts();
-            renderVendors(); // Existing function
+            loadProducts();
+            // renderVendors(); // Assuming this is defined elsewhere or not needed for now
         });
 
         function searchParts() {
             const partName = document.getElementById('partName').value.toLowerCase();
             const carBrand = document.getElementById('carBrand').value;
-            const carYear = document.getElementById('carYear').value;
+            // Note: Year is not in our simplified product model but can be added or ignored
             let results = partsDatabase.filter(part => {
-                return (!partName || part.name.toLowerCase().includes(partName)) && (!carBrand || part.brand === carBrand) && (!carYear || part.year === carYear);
+                const nameMatch = !partName || part.name.toLowerCase().includes(partName);
+                const brandMatch = !carBrand || part.brand.toLowerCase() === carBrand.toLowerCase();
+                return nameMatch && brandMatch;
             });
             displayResults(results);
         }
@@ -1202,7 +1208,6 @@
             const resultsContainer = document.getElementById('searchResults');
             const sortBy = document.getElementById('sortBy').value;
 
-            // ## تعديل: إضافة منطق الترتيب (مع تحويل السعر لرقم) ##
             const numericResults = results.map(part => ({ ...part, price: Number(part.price) }));
             if (sortBy === 'price-asc') { numericResults.sort((a, b) => a.price - b.price); }
             else if (sortBy === 'price-desc') { numericResults.sort((a, b) => b.price - a.price); }
@@ -1215,13 +1220,13 @@
                         <div class="result-image"><img src="${part.image}" alt="${part.name}"></div>
                         <div class="result-info">
                             <h4>${part.name}</h4>
-                            <p><strong>الحالة:</strong> ${part.availability}</p>
+                            <p><strong>الماركة:</strong> ${part.brand}</p>
                             <div class="result-price">${part.price} ج.م</div>
                         </div>
                         <div class="result-actions">
                             <button class="result-button details" onclick="showPartDetails('${part.name}')">التفاصيل</button>
-                            <button class="result-button" onclick="addToCart('${part.name}', ${part.price})" ${part.availability === 'غير متوفر' ? 'disabled style="opacity:0.5"' : ''}>
-                                ${part.availability === 'متوفر' ? 'أضف للسلة' : 'غير متوفر'}
+                            <button class="result-button" onclick="addToCart('${part.name}', ${part.price})">
+                                أضف للسلة
                             </button>
                         </div>
                     </div>`).join('');
@@ -1229,17 +1234,14 @@
             resultsContainer.classList.add('active');
         }
 
-        // ## تعديل: دالة التفاصيل بتفتح صفحة جديدة ##
-        // ## تعديل: دالة التفاصيل بتفتح صفحة جديدة ##
         function showPartDetails(partName) {
-            // Find part to get image
             const part = partsDatabase.find(p => p.name === partName);
             const imgParam = part ? `&img=${encodeURIComponent(part.image)}` : '';
             window.location.href = `product-detail.html?part=${encodeURIComponent(partName)}${imgParam}`;
         }
 
         function addToCart(partName, price) {
-            alert(`تم إضافة "${part.name}" للسلة بقيمة ${price} ج.م`);
+            alert(`تم إضافة "${partName}" للسلة بقيمة ${price} ج.م`);
         }
     </script>
 
