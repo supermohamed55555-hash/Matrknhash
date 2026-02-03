@@ -1273,7 +1273,10 @@
             const part = partsDatabase.find(p => p.name === partName);
             const imgParam = part ? `&img=${encodeURIComponent(part.image)}` : '';
             const priceParam = part ? `&price=${encodeURIComponent(part.price)}` : '';
-            window.location.href = `product-detail.html?part=${encodeURIComponent(partName)}${imgParam}${priceParam}`;
+            const vendorParam = part ? `&vendor=${encodeURIComponent(part.vendorName)}` : '';
+            const conditionParam = part ? `&condition=${encodeURIComponent(part.condition)}` : '';
+            const warrantyParam = part ? `&warranty=${encodeURIComponent(part.warranty)}` : '';
+            window.location.href = `product-detail.html?part=${encodeURIComponent(partName)}${imgParam}${priceParam}${vendorParam}${conditionParam}${warrantyParam}`;
         }
 
         function addToCart(partName, price) {
