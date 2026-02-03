@@ -67,51 +67,61 @@ passport.deserializeUser((id, done) => {
     User.findById(id).then(user => done(null, user));
 });
 
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback",
-    proxy: true
-},
-    async (accessToken, refreshToken, profile, done) => {
-        try {
-            const existingUser = await User.findOne({ googleId: profile.id });
-            if (existingUser) return done(null, existingUser);
+if (process.env.GOOGLE_CLIENT_ID) {
+    passport.use(new GoogleStrategy({
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: "/auth/google/callback",
+        proxy: true
+    },
+        async (accessToken, refreshToken, profile, done) => {
+            try {
+                const existingUser = await User.findOne({ googleId: profile.id });
+                if (existingUser) return done(null, existingUser);
 
-            const newUser = await new User({
-                googleId: profile.id,
-                name: profile.displayName,
-                email: profile.emails[0].value
-            }).save();
-            done(null, newUser);
-        } catch (err) {
-            done(err, null);
+                const newUser = await new User({
+                    googleId: profile.id,
+                    name: profile.displayName,
+                    email: profile.emails[0].value
+                }).save();
+                done(null, newUser);
+            } catch (err) {
+                done(err, null);
+            }
         }
-    }
-));
+    ));
+} else {
+    console.warn('⚠️ Google Client ID is missing. Google Login will not work.');
+}
 
-passport.use(new FacebookStrategy({
-    clientID: process.env.FACEBOOK_APP_ID,
-    clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "/auth/facebook/callback",
-    profileFields: ['id', 'displayName', 'emails']
-},
-    async (accessToken, refreshToken, profile, done) => {
-        try {
-            const existingUser = await User.findOne({ facebookId: profile.id });
-            if (existingUser) return done(null, existingUser);
 
-            const newUser = await new User({
-                facebookId: profile.id,
-                name: profile.displayName,
-                email: profile.emails ? profile.emails[0].value : ''
-            }).save();
-            done(null, newUser);
-        } catch (err) {
-            done(err, null);
+if (process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_ID !== 'YOUR_FACEBOOK_APP_ID_HERE') {
+    passport.use(new FacebookStrategy({
+        clientID: process.env.FACEBOOK_APP_ID,
+        clientSecret: process.env.FACEBOOK_APP_SECRET,
+        callbackURL: "/auth/facebook/callback",
+        profileFields: ['id', 'displayName', 'emails']
+    },
+        async (accessToken, refreshToken, profile, done) => {
+            try {
+                const existingUser = await User.findOne({ facebookId: profile.id });
+                if (existingUser) return done(null, existingUser);
+
+                const newUser = await new User({
+                    facebookId: profile.id,
+                    name: profile.displayName,
+                    email: profile.emails ? profile.emails[0].value : ''
+                }).save();
+                done(null, newUser);
+            } catch (err) {
+                done(err, null);
+            }
         }
-    }
-));
+    ));
+} else {
+    console.warn('⚠️ Facebook App ID is missing or placeholder. Facebook Login will not work.');
+}
+
 
 
 // 4. Routes
