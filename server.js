@@ -11,6 +11,8 @@ const User = require('./models/User');
 const Product = require('./models/Product');
 const Order = require('./models/Order');
 
+const app = express();
+
 // --- Middleware لضمان تسجيل الدخول ---
 function isAuthenticated(req, res, next) {
     if (req.isAuthenticated()) return next();
@@ -42,8 +44,6 @@ app.get('/api/user-orders', isAuthenticated, async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch orders' });
     }
 });
-
-const app = express();
 
 // 1. Middleware Setup
 app.use(cors());
