@@ -2,1336 +2,329 @@
 <html lang="ar" dir="rtl">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>متركنهاش - قطع السيارات الأصلية</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حسابي - متركنهاش</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #1a237e;
-            --primary-dark: #121858;
-            --accent: #ffb300;
-            --accent-hover: #ffca28;
-            --text-dark: #1f2937;
-            --text-light: #6b7280;
-            --white: #ffffff;
-            --bg-light: #f3f4f6;
-            --success: #10b981;
-            --danger: #ef4444;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --glass: rgba(255, 255, 255, 0.95);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --bg: #f5f5f5;
         }
 
         body {
             font-family: 'Cairo', sans-serif;
-            line-height: 1.7;
-            color: var(--text-dark);
-            direction: rtl;
-            background: var(--bg-light);
-            overflow-x: hidden;
+            background: var(--bg);
+            margin: 0;
         }
 
         .header {
-            background: rgba(26, 35, 126, 0.95);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 1rem 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s ease;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            padding: 0 2rem;
         }
 
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #fff;
-            text-decoration: none;
-            letter-spacing: -0.5px;
-        }
-
-        .nav-menu {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        .nav-menu a {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-            font-size: 1rem;
-            position: relative;
-        }
-
-        .nav-menu a::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -5px;
-            right: 0;
-            background: var(--accent);
-            transition: width 0.3s;
-        }
-
-        .nav-menu a:hover::after {
-            width: 100%;
-        }
-
-        .nav-menu a:hover {
-            color: var(--accent);
-        }
-
-        .hero {
-            background: linear-gradient(135deg, rgba(26, 35, 126, 0.9), rgba(57, 73, 171, 0.85)), url('https://images.unsplash.com/photo-1486262715619-72a607e32449?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
-            background-size: cover;
-            background-position: center;
-            height: 90vh;
+        .user-blok {
             display: flex;
             align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-            margin-top: 0;
-            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
-        }
-
-        .hero-content h1 {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            font-weight: 800;
-            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            line-height: 1.2;
-        }
-
-        .hero-content p {
-            font-size: 1.5rem;
-            margin-bottom: 2.5rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .cta-button {
-            background: var(--accent);
-            color: var(--primary);
-            padding: 1rem 3rem;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.4);
-            border: 2px solid transparent;
-            display: inline-block;
-        }
-
-        .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 179, 0, 0.6);
-            background: #fff;
-            color: var(--primary);
-            border-color: var(--accent);
-        }
-
-        .features {
-            padding: 6rem 0;
-            background: var(--white);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.8rem;
-            margin-bottom: 4rem;
-            color: var(--primary);
-            font-weight: 800;
-            position: relative;
-        }
-
-        .section-title::after {
-            content: '';
-            display: block;
-            width: 60px;
-            height: 4px;
-            background: var(--accent);
-            margin: 1rem auto 0;
-            border-radius: 2px;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2.5rem;
-            margin-top: 3rem;
-        }
-
-        .feature-card {
-            background: white;
-            padding: 3rem 2rem;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: var(--shadow-lg);
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: 1px solid #eee;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
-            border-color: var(--accent);
-        }
-
-        .feature-icon {
-            width: 90px;
-            height: 90px;
-            background: linear-gradient(135deg, var(--primary), #3949ab);
-            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            margin: 0 auto 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            color: white;
-            box-shadow: 0 10px 20px rgba(26, 35, 126, 0.3);
-            animation: morph 5s infinite ease-in-out;
-        }
-
-        @keyframes morph {
-            0% {
-                border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            }
-
-            50% {
-                border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
-            }
-
-            100% {
-                border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            }
-        }
-
-        .feature-card h3 {
-            margin-bottom: 1rem;
-            color: var(--primary);
-            font-size: 1.5rem;
-        }
-
-        .search-section {
-            padding: 6rem 0;
-            background: linear-gradient(135deg, #1a237e 0%, #0d1440 100%);
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .search-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 3rem;
-            margin-top: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .search-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .search-input,
-        .search-select {
-            padding: 1.2rem;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            background: rgba(255, 255, 255, 0.95);
-            color: #333;
-            font-family: 'Cairo', sans-serif;
-            transition: 0.3s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-
-        .search-input:focus,
-        .search-select:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(255, 179, 0, 0.4);
-            transform: scale(1.02);
-        }
-
-        .search-button {
-            background: var(--accent);
-            color: var(--primary);
-            border: none;
-            padding: 1.2rem 2rem;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.3);
-        }
-
-        .search-button:hover {
-            background: #fff;
-            transform: translateY(-2px);
-        }
-
-        .search-results {
-            margin-top: 2rem;
-            display: none;
-            transition: 0.4s;
-        }
-
-        .search-results.active {
-            display: block;
-            animation: slideUp 0.5s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .search-result-item {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
-            gap: 1.5rem;
-            color: #333;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid transparent;
-        }
-
-        .search-result-item:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .result-image {
-            width: 140px;
-            height: 105px;
-            background-color: #f0f0f0;
-            border-radius: 12px;
-            overflow: hidden;
-            flex-shrink: 0;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .result-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: 0.3s;
-        }
-
-        .search-result-item:hover .result-image img {
-            transform: scale(1.1);
-        }
-
-        .result-info h4 {
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
-
-        .result-info p {
-            opacity: 0.7;
-            margin-bottom: 0.2rem;
-            font-size: 0.95rem;
-        }
-
-        .result-price {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--success);
-            margin-top: 0.5rem;
-        }
-
-        .result-actions {
-            display: flex;
-            gap: 1rem;
-            flex-direction: column;
-            min-width: 140px;
-        }
-
-        .result-button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .result-button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .result-button.details {
-            background: rgba(26, 35, 126, 0.1);
-            color: var(--primary);
-        }
-
-        .result-button.details:hover {
-            background: rgba(26, 35, 126, 0.2);
-        }
-
-        .result-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .products {
-            padding: 6rem 0;
-            background: #fff;
-        }
-
-        .vendor-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-        }
-
-        .vendor-card {
-            background: white;
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s;
-            border: 1px solid #eee;
-            cursor: pointer;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .vendor-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: var(--primary);
-            transform: scaleX(0);
-            transition: 0.3s;
-            transform-origin: left;
-        }
-
-        .vendor-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .vendor-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .vendor-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .vendor-loc {
-            color: var(--text-light);
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .about {
-            padding: 6rem 0;
-            background: var(--bg-light);
-        }
-
-        .about-content {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 4rem;
-            align-items: center;
-        }
-
-        .about-content p {
-            font-size: 1.2rem;
-            line-height: 1.9;
-            color: var(--text-dark);
-        }
-
-        .about-image {
-            height: 400px;
-            background: linear-gradient(45deg, var(--primary), #3949ab);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 3rem;
-            box-shadow: 20px 20px 0 rgba(0, 0, 0, 0.05);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .about-image::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('https://www.transparenttextures.com/patterns/cubes.png');
-            opacity: 0.1;
-        }
-
-        .contact {
-            padding: 6rem 0;
-            background: #111827;
-            color: white;
-            text-align: center;
-        }
-
-        .contact p {
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            opacity: 0.8;
-            transition: 0.3s;
-        }
-
-        .contact p:hover {
-            opacity: 1;
-            color: var(--accent);
-        }
-
-        .footer {
-            background: #000;
-            color: rgba(255, 255, 255, 0.6);
-            text-align: center;
-            padding: 2rem 0;
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* Modal & Floating */
-        #signupOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            backdrop-filter: blur(5px);
-        }
-
-        .signup-box {
-            background: #fff;
-            padding: 2.5rem;
-            width: 400px;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            animation: zoomIn 0.3s ease;
-        }
-
-        @keyframes zoomIn {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .signup-box h2 {
-            margin-bottom: 1.5rem;
-            color: var(--primary);
-            text-align: center;
-            font-weight: 700;
-        }
-
-        .tabs {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            background: #f3f4f6;
-            padding: 5px;
-            border-radius: 12px;
-        }
-
-        .tabs button {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-            background: transparent;
-            color: #666;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: 0.3s;
-            font-family: 'Cairo';
-        }
-
-        .tabs button.active {
-            background: white;
-            color: var(--primary);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .p-btn {
-            width: 100%;
-            padding: 10px;
-            margin-top: 1rem;
-            border: none;
-            background: var(--primary);
-            color: white;
-            font-weight: 700;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 4px 6px rgba(26, 35, 126, 0.2);
-        }
-
-        .p-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(26, 35, 126, 0.3);
-        }
-
-        .social-login button {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border: none;
-            cursor: pointer;
-            border-radius: 10px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: 0.3s;
-            font-family: 'Cairo';
-        }
-
-        .social-login button:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        .google {
-            background: #db4437;
-            color: #fff;
-        }
-
-        .facebook {
-            background: #1877f2;
-            color: #fff;
-        }
-
-        form input {
-            width: 100%;
-            padding: 12px 15px;
-            margin: 8px 0;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            transition: 0.3s;
-            font-family: 'Cairo';
-            font-size: 1rem;
-        }
-
-        form input:focus {
-            border-color: var(--primary);
-            outline: none;
-        }
-
-        form button {
-            width: 100%;
-            padding: 14px;
-            background: var(--accent);
-            color: var(--primary);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-top: 1rem;
-            transition: 0.3s;
-        }
-
-        form button:hover {
-            background: var(--accent-hover);
-            transform: translateY(-2px);
-        }
-
-        .whatsapp-float {
-            position: fixed;
-            width: 65px;
-            height: 65px;
-            bottom: 30px;
-            left: 30px;
-            background-color: #25d366;
-            color: #FFF;
-            border-radius: 50%;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: 0.3s;
-        }
-
-        .whatsapp-float:hover {
-            transform: scale(1.1) rotate(10deg);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        .whatsapp-float img {
-            width: 38px;
-            height: 38px;
-        }
-
-        .search-controls {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-bottom: 1rem;
             gap: 15px;
         }
 
-        .titleT {
-            color: #fff;
-            font-size: 2.5rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            font-weight: 700;
+        .avatar {
+            width: 60px;
+            height: 60px;
+            background: #eee;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: bold;
         }
 
-        /* New Classes for JS replacements */
-        .vendor-part-row {
-            border-bottom: 1px solid #f0f0f0;
-            padding: 1rem 0;
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 15px;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            height: fit-content;
+        }
+
+        .menu-item {
+            padding: 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: #eef2ff;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            min-height: 500px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        /* Orders Style */
+        .order-card {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .order-header {
             display: flex;
             justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        .order-status {
+            background: #fff3cd;
+            color: #856404;
+            padding: 2px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        .order-item {
+            display: flex;
+            gap: 15px;
             align-items: center;
-            transition: 0.2s;
         }
 
-        .vendor-part-row:last-child {
-            border-bottom: none;
-        }
-
-        .vendor-part-row:hover {
-            background: #fafafa;
-            padding-right: 10px;
-            padding-left: 10px;
+        .order-img {
+            width: 60px;
+            height: 60px;
+            background: #f9f9f9;
             border-radius: 8px;
+            object-fit: contain;
         }
 
-        .status-badge {
-            padding: 0.2rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: white;
-            display: inline-block;
+        .hidden {
+            display: none;
         }
 
-        .status-available {
-            background-color: var(--success);
-        }
-
-        .status-unavailable {
-            background-color: var(--danger);
-        }
-
-        .price-tag {
-            margin-right: 1rem;
-            font-weight: 800;
-            color: var(--primary);
-            font-size: 1.1rem;
-        }
-
-        /* Responsive */
-        /* Responsive */
-        @media (max-width: 768px) {
-            .search-result-item {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .result-actions {
-                width: 100%;
-                flex-direction: row;
-            }
-
-            .result-button {
-                flex: 1;
-            }
-
-            .about-content {
+        @media(max-width: 768px) {
+            .container {
                 grid-template-columns: 1fr;
             }
 
-            .nav-menu {
-                display: none;
+            .sidebar {
+                display: flex;
+                overflow-x: auto;
+                padding: 10px;
+                gap: 10px;
             }
 
-            /* Simplified mobile handling */
-        }
-
-        /* Mascot Styles */
-        .mascot-container {
-            height: 120px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            margin-bottom: 20px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .mascot-svg {
-            width: 220px;
-            height: 120px;
-        }
-
-        .mascot-group {
-            transition: transform 0.3s ease;
-            transform-origin: center bottom;
-        }
-
-        .eye-ball {
-            transition: transform 0.1s;
-        }
-
-        .mascot-face {
-            transition: opacity 0.3s, transform 0.3s;
-        }
-
-        .is-shy .mascot-face {
-            opacity: 0;
-            transform: translateX(20px);
-        }
-
-        /* Simulate turning away */
-        .is-shy .mascot-back {
-            opacity: 1;
-        }
-
-        .mascot-back {
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        /* Improved Sort Styles */
-        .sort-container {
-            background: white;
-            padding: 1rem;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 2rem;
-            border: 1px solid #eee;
-        }
-
-        .sort-label {
-            font-weight: 700;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .sort-select {
-            padding: 0.8rem 2rem 0.8rem 1rem;
-            border: 2px solid #eee;
-            border-radius: 8px;
-            font-family: 'Cairo';
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            appearance: none;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%231a237e' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") no-repeat left 1rem center;
-            background-color: #fff;
-            min-width: 200px;
-        }
-
-        .sort-select:focus {
-            border-color: var(--accent);
-            outline: none;
-        }
-
-        /* Featured Products Section */
-        .product-grid-display {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 2rem;
-        }
-
-        .product-card-display {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
-            transition: 0.3s;
-            border: 1px solid #eee;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-card-display:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--accent);
-        }
-
-        .p-image {
-            height: 180px;
-            width: 100%;
-            background: #f9f9f9;
-            overflow: hidden;
-        }
-
-        .p-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: 0.5s;
-        }
-
-        .product-card-display:hover .p-image img {
-            transform: scale(1.1);
+            .menu-item {
+                min-width: 100px;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 
 <body>
-    <header class="header">
-        <div class="nav-container"> <a href="#" class="logo">متركنهاش</a>
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="#home">الرئيسية</a></li>
-                    <li><a href="#search">البحث</a></li>
-                    <li><a href="#products">المنتجات</a></li>
-                    <li><a href="#vendorsSection">التجار</a></li>
-                    <li><a href="#about">من نحن</a></li>
-                    <li><a href="#contact">اتصل بنا</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
 
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <h1>متركنهاش</h1>
-            <p>أفضل قطع السيارات الأصلية بأسعار منافسة</p> <a href="#" id="openSignup" class="cta-button">سجل الآن</a>
-        </div>
-    </section>
-
-    <div id="signupOverlay">
-        <div class="signup-box">
-            <!-- Cute Car Mascot SVG -->
-
-
-            <h2>تسجيل الدخول / إنشاء حساب</h2>
-            <div class="tabs"> <button id="userTab" class="active" onclick="switchTab('user')">مستخدم</button> <button
-                    id="vendorTab" onclick="switchTab('vendor')">تاجر</button> </div>
-            <div class="social-login">
-                <a href="/auth/google" style="text-decoration:none; display:block;">
-                    <button class="google" type="button">تسجيل بحساب Google</button>
-                </a>
-                <button class="facebook">تسجيل بحساب Facebook</button>
+    <div class="header">
+        <div class="user-blok">
+            <div class="avatar" id="avatarLetter">م</div>
+            <div>
+                <h3 style="margin:0" id="userNameLabel">أهلاً محمد</h3>
+                <span style="font-size:0.85rem; color:#777;" id="userEmailLabel">mohamed@example.com</span>
             </div>
-
-            <form id="signupForm"> <input type="text" id="name" placeholder="الاسم" required /> <input type="email"
-                    id="email" placeholder="الإيميل" required /> <input type="password" id="password"
-                    placeholder="كلمة السر" required />
-                <div id="vendorFields" style="display: none">
-                    <input type="text" id="shopName" placeholder="اسم المحل" /> <input type="text" id="shopLocation"
-                        placeholder="المكان" />
-                </div> <button type="submit">تسجيل</button>
-            </form>
         </div>
+        <a href="test1.html" style="text-decoration:none; color:var(--primary); font-weight:bold;">العودة للرئيسية
+            🏠</a>
     </div>
-    <script>
-        document.getElementById("openSignup").addEventListener("click", function (e) { e.preventDefault(); document.getElementById("signupOverlay").style.display = "flex"; });
-        document.getElementById("signupOverlay").addEventListener("click", function (e) { if (e.target === this) { this.style.display = "none"; } });
-        function switchTab(tab) {
-            const vendorFields = document.getElementById('vendorFields');
-            if (tab === 'vendor') {
-                document.getElementById('vendorTab').classList.add('active');
-                document.getElementById('userTab').classList.remove('active');
-                vendorFields.style.display = 'block';
-            } else {
-                document.getElementById('userTab').classList.add('active');
-                document.getElementById('vendorTab').classList.remove('active');
-                vendorFields.style.display = 'none';
-            }
-        }
-    </script>
 
-
-
-    <section id="products" class="products" style="background:var(--bg-light); padding-top:0;">
-        <div class="container">
-            <h2 class="section-title">أحدث المنتجات</h2>
-            <div id="featuredProducts" class="product-grid-display">
-                <!-- Products will be injected here -->
-            </div>
-            <div style="text-align:center; margin-top:3rem;">
-                <a href="#search" class="cta-button" style="padding:0.8rem 2rem; font-size:1rem;">عرض كل المنتجات</a>
-            </div>
+    <div class="container">
+        <!-- Sidebar Menu -->
+        <div class="sidebar">
+            <div class="menu-item active" onclick="showTab('orders')">� الطلبات</div>
+            <div class="menu-item" onclick="showTab('returns')">↩️ المرتجعات</div>
+            <div class="menu-item" onclick="showTab('addresses')">📍 العناوين</div>
+            <div class="menu-item" onclick="showTab('wallet')">� المحفظة</div>
+            <div class="menu-item" onclick="showTab('settings')">⚙️ الإعدادات</div>
+            <div class="menu-item" onclick="logout()" style="color:red; margin-top:20px;">🚪 تسجيل خروج</div>
         </div>
-    </section>
 
-    <section id="search" class="search-section">
-        <div class="container">
-            <h2 class="titleT ">ابحث عن قطعة سيارتك</h2>
-            <div class="search-container">
-                <div class="search-form">
-                    <input type="text" class="search-input" id="partName"
-                        placeholder="اسم القطعة (مثلاً: جنط، مساعد، بطارية)">
-                    <select class="search-select" id="carBrand">
-                        <option value="">كل الماركات</option>
-                        <option value="toyota">تويوتا</option>
-                        <option value="nissan">نيسان</option>
-                        <option value="hyundai">هيونداي</option>
-                        <option value="bmw">BMW</option>
-                        <option value="mercedes">مرسيدس</option>
-                        <option value="fiat">فيات</option>
-                        <option value="kia">كيا</option>
-                        <option value="mitsubishi">ميتسوبيشي</option>
-                    </select>
-                    <select class="search-select" id="carCategory">
-                        <option value="">كل الفئات</option>
-                        <option value="Wheels">جنوط</option>
-                        <option value="Tires">كاوتش</option>
-                        <option value="Accessories">اكسسوارات</option>
-                    </select>
-                    <button type="button" class="search-button" onclick="searchParts()">بحث سريع</button>
+        <!-- Content Content -->
+
+        <!-- 1. Orders Tab -->
+        <div id="orders" class="content-area">
+            <div class="section-title">طلباتي السابقة</div>
+
+            <!-- Dummy Order 1 -->
+            <div class="order-card">
+                <div class="order-header">
+                    <span>رقم الطلب: #92831</span>
+                    <span class="order-status">جاري التجهيز 🚚</span>
                 </div>
-
-                <div class="search-controls"
-                    style="width: 100%; justify-content: space-between; margin-bottom: 2rem; background: transparent;">
-                    <div class="sort-container" style="margin-bottom:0; width:100%;">
-                        <label class="sort-label">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                viewBox="0 0 16 16">
-                                <path fill-rule="evenodd"
-                                    d="M11.5 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L11 2.707V14.5a.5.5 0 0 0 .5.5zm-7-14a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5z" />
-                            </svg>
-                            ترتيب النتائج حسب:
-                        </label>
-                        <select id="sortBy" class="sort-select" onchange="searchParts()">
-                            <option value="default">الأكثر تطابقاً</option>
-                            <option value="price-asc">الأقل سعراً</option>
-                            <option value="price-desc">الأعلى سعراً</option>
-                        </select>
+                <div class="order-item">
+                    <img src="https://via.placeholder.com/60" class="order-img">
+                    <div>
+                        <div style="font-weight:bold;">مساعدين خلفي Toyota Corolla 2019</div>
+                        <div style="font-size:0.9rem; color:#555;">عدد: 2 | السعر: 1,800 ج.م</div>
                     </div>
                 </div>
-
-                <div class="search-results" id="searchResults"></div>
-            </div>
-        </div>
-    </section>
-
-    <section id="features" class="features">
-        <div class="container">
-            <h2 class="section-title">لماذا تختار متركنهاش؟</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">⚙️</div>
-                    <h3>قطع أصلية</h3>
-                    <p>جميع قطع السيارات لدينا أصلية ومضمونة من المصنع مباشرة</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🚗</div>
-                    <h3>توصيل سريع</h3>
-                    <p>نوصل طلبك في نفس اليوم داخل المدينة وخلال 24 ساعة للمدن الأخرى</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔧</div>
-                    <h3>خدمة التركيب</h3>
-                    <p>نوفر خدمة التركيب بواسطة فنيين مختصين ومدربين</p>
+                <div style="margin-top:15px; text-align:left;">
+                    <button
+                        style="padding:5px 15px; border:1px solid #ddd; background:white; border-radius:5px; cursor:pointer;">تتبع
+                        الشحنة</button>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <section id="about" class="about">
-        <div class="container">
-            <h2 class="section-title">من نحن</h2>
-            <div class="about-content">
-                <div>
-                    <p>متركنهاش هي شركة رائدة في مجال توريد قطع السيارات الأصلية في المنطقة. نؤمن بأن كل عميل يستحق
-                        الأفضل، لذلك نحرص على توفير قطع مضمونة وخدمة عملاء متميزة.</p>
+            <!-- Dummy Order 2 -->
+            <div class="order-card" style="opacity: 0.7;">
+                <div class="order-header">
+                    <span>رقم الطلب: #10024</span>
+                    <span class="order-status" style="background:#d1e7dd; color:#0f5132;">تم التسليم ✅</span>
                 </div>
-                <div class="about-image"> 🏢 </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="contact" class="contact">
-        <div class="container">
-            <h2 class="section-title" style="color:white">تواصل معنا</h2>
-            <div style="text-align:center;">
-                <p>📞 الهاتف: 201148311900</p>
-                <p>📧 البريد الإلكتروني: info@متركنهاش.com</p>
-            </div>
-        </div>
-    </section>
-
-    <footer class="footer">
-        <p>&copy; 2025 متركنهاش. جميع الحقوق محفوظة.</p>
-    </footer>
-
-    <a href="https://wa.me/201148311900?text=أهلاً%20متركنهاش،%20عندي%20استفسار%20بخصوص%20قطعة%20غيار"
-        class="whatsapp-float" target="_blank">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="تواصل معنا عبر الواتساب">
-    </a>
-
-    <script>
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => { anchor.addEventListener('click', function (e) { e.preventDefault(); document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' }); }); });
-
-        // ## تعديل: إضافة صور للمنتجات الحقيقية ##
-        let partsDatabase = []; // Will be loaded from API
-
-        async function loadProducts() {
-            try {
-                const res = await fetch('/api/products');
-                partsDatabase = await res.json();
-                renderFeaturedProducts();
-            } catch (err) {
-                console.error('Failed to load products:', err);
-            }
-        }
-
-        function renderFeaturedProducts() {
-            const container = document.getElementById('featuredProducts');
-            if (partsDatabase.length === 0) {
-                container.innerHTML = '<p style="text-align:center; width:100%; color: var(--text-light)">لا توجد منتجات حالياً.</p>';
-                return;
-            }
-            // Show first 4 products as featured
-            const featured = partsDatabase.slice(0, 4);
-            container.innerHTML = featured.map(part => `
-                <div class="product-card-display">
-                    <div class="p-image"><img src="${part.image}" alt="${part.name}"></div>
-                    <div class="p-content" style="padding: 1.5rem">
-                        <div class="p-cat" style="color: var(--accent); font-weight: bold; font-size: 0.9rem; margin-bottom: 0.5rem">${part.brand} · ${part.category}</div>
-                        <div class="p-title" style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; color: var(--primary)">${part.name}</div>
-                        <div class="p-price" style="display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem; font-weight: 800; color: var(--success)">
-                             ${part.price} ج.م
-                             <button class="p-btn" style="width:auto; padding:8px 20px; margin-top:0;" onclick="showPartDetails('${part.name}')">عرض</button>
-                        </div>
+                <div class="order-item">
+                    <img src="https://via.placeholder.com/60" class="order-img">
+                    <div>
+                        <div style="font-weight:bold;">فلتر زيت أصلي (نيسان صني)</div>
+                        <div style="font-size:0.9rem; color:#555;">عدد: 1 | السعر: 150 ج.م</div>
                     </div>
                 </div>
-            `).join('');
-        }
+            </div>
+        </div>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadProducts();
-            // renderVendors(); // Assuming this is defined elsewhere or not needed for now
-        });
+        <!-- 2. Returns Tab -->
+        <div id="returns" class="content-area hidden">
+            <div class="section-title">المرتجعات</div>
+            <div style="text-align:center; margin-top:50px; color:#777;">
+                <div style="font-size:3rem; margin-bottom:10px;">�</div>
+                لا يوجد طلبات استرجاع حالياً.
+            </div>
+        </div>
 
-        // ## وظائف البحث المتقدم واللحظي ##
-        function setupSearchListeners() {
-            const inputs = ['partName', 'carBrand', 'carCategory', 'sortBy'];
-            inputs.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.addEventListener('input', searchParts);
-                    el.addEventListener('change', searchParts);
-                }
-            });
-        }
+        <!-- 3. Addresses Tab -->
+        <div id="addresses" class="content-area hidden">
+            <div class="section-title">العناوين المحفوظة</div>
+            <div style="padding:15px; border:1px solid #ddd; border-radius:10px; position:relative;">
+                <strong>المنزل</strong>
+                <p style="margin:5px 0; color:#555; font-size:0.9rem;">12 شارع التحرير، الدقي، الجيزة، الدور الثالث.</p>
+                <span
+                    style="position:absolute; top:15px; left:15px; background:#eee; padding:2px 8px; border-radius:5px; font-size:0.8rem;">افتراضي</span>
+            </div>
+            <button
+                style="margin-top:15px; padding:10px; width:100%; border:1px dashed #primary; color:var(--primary); background:#f0f4ff; cursor:pointer;">+
+                إضافة عنوان جديد</button>
+        </div>
 
-        function searchParts() {
-            const partName = document.getElementById('partName').value.toLowerCase();
-            const carBrand = document.getElementById('carBrand').value.toLowerCase();
-            const category = document.getElementById('carCategory').value;
-            const sortBy = document.getElementById('sortBy').value;
+        <!-- Other Tabs Sim -->
+        <div id="wallet" class="content-area hidden">
+            <div class="section-title">المحفظة (VIP)</div>
+            <div
+                style="background:linear-gradient(45deg, #1a237e, #3949ab); color:white; padding:30px; border-radius:15px; text-align:center;">
+                <div style="font-size:0.9rem; opacity:0.8;">رصيدك الحالي</div>
+                <div style="font-size:2.5rem; font-weight:bold;">0.00 <span style="font-size:1rem;">ج.م</span></div>
+            </div>
+        </div>
+        <div id="settings" class="content-area hidden">
+            <div class="section-title">الإعدادات والشحن</div>
+            <p>تغيير كلمة المرور</p>
+            <p>اللغة (العربية)</p>
+        </div>
 
-            let results = partsDatabase.filter(part => {
-                const nameMatch = !partName || part.name.toLowerCase().includes(partName);
-                const brandMatch = !carBrand || part.brand.toLowerCase() === carBrand;
-                const categoryMatch = !category || part.category === category;
-                return nameMatch && brandMatch && categoryMatch;
-            });
+    </div>
 
-            // Sorting logic
-            if (sortBy === 'price-asc') {
-                results.sort((a, b) => Number(a.price) - Number(b.price));
-            } else if (sortBy === 'price-desc') {
-                results.sort((a, b) => Number(b.price) - Number(a.price));
-            }
-
-            displayResults(results);
-        }
-
-        function displayResults(results) {
-            const resultsContainer = document.getElementById('searchResults');
-
-            if (results.length === 0) {
-                resultsContainer.innerHTML = `
-                    <div style="text-align:center; color:white; padding: 40px;">
-                        <span style="font-size: 3rem; display:block; margin-bottom:10px;">🔍</span>
-                        <p style="font-size:1.2rem;">للأسف، ملقناش حاجة مطابقة لبحثك..</p>
-                        <p style="opacity:0.7">جرب تبحث بكلمات تانية أو ماركة مختلفة.</p>
-                    </div>`;
-            } else {
-                resultsContainer.innerHTML = results.map(part => `
-                    <div class="search-result-item">
-                        <div class="result-image">
-                            <img src="${part.image}" alt="${part.name}" onerror="this.src='https://placehold.co/400x300?text=Parts'">
-                        </div>
-                        <div class="result-info">
-                            <span class="brand-badge" style="background:var(--accent); color:var(--primary); font-size:0.7rem; padding:2px 8px; border-radius:10px;">${part.brand.toUpperCase()}</span>
-                            <h4>${part.name}</h4>
-                            <p style="margin-bottom:0">الفئة: ${part.category || 'عام'}</p>
-                            <div class="result-price" style="color:var(--accent); font-size:1.4rem;">${part.price} ج.م</div>
-                        </div>
-                        <div class="result-actions">
-                            <button class="result-button details" onclick="showPartDetails('${part.name}')">التفاصيل</button>
-                            <button class="result-button" onclick="addToCart('${part.name}', ${part.price})">أضف للسلة</button>
-                        </div>
-                    </div>`).join('');
-            }
-            resultsContainer.classList.add('active');
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadProducts();
-            setupSearchListeners();
-        });
-
-        function showPartDetails(partName) {
-            const part = partsDatabase.find(p => p.name === partName);
-            const imgParam = part ? `&img=${encodeURIComponent(part.image)}` : '';
-            const priceParam = part ? `&price=${encodeURIComponent(part.price)}` : '';
-            const vendorParam = part ? `&vendor=${encodeURIComponent(part.vendorName)}` : '';
-            const conditionParam = part ? `&condition=${encodeURIComponent(part.condition)}` : '';
-            const warrantyParam = part ? `&warranty=${encodeURIComponent(part.warranty)}` : '';
-            window.location.href = `product-detail.html?part=${encodeURIComponent(partName)}${imgParam}${priceParam}${vendorParam}${conditionParam}${warrantyParam}`;
-        }
-
-        async function addToCart(partName, price) {
-            const part = partsDatabase.find(p => p.name === partName);
-            const image = part ? part.image : '';
-
+    <script>
+        async function loadProfile() {
             try {
-                const res = await fetch('/api/orders', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ productName: partName, price, image })
-                });
+                // 1. Check Login Status
+                const userRes = await fetch('/auth/login/success');
+                const userData = await userRes.json();
 
-                if (res.ok) {
-                    alert(`✅ تم طلب "${partName}" بنجاح! يمكنك متابعة حالة الطلب من حسابك.`);
-                } else if (res.status === 401) {
-                    alert('⚠️ برجاء تسجيل الدخول أولاً لتتمكن من الشراء.');
-                    openModal('loginModal');
+                if (userData.success) {
+                    const user = userData.user;
+                    document.getElementById('userNameLabel').innerText = 'أهلاً ' + user.name;
+                    document.getElementById('userEmailLabel').innerText = user.email;
+                    document.getElementById('avatarLetter').innerText = user.name.charAt(0).toUpperCase();
                 } else {
-                    alert('❌ حدث خطأ أثناء إتمام الطلب.');
+                    window.location.href = 'test1.html';
                 }
+
+                // 2. Fetch Real Orders
+                const ordersRes = await fetch('/api/user-orders');
+                const orders = await ordersRes.json();
+                const ordersContainer = document.querySelector('#orders .orders-list');
+
+                if (orders.length > 0) {
+                    ordersContainer.innerHTML = orders.map(order => `
+                    <div class="order-item">
+                        <div class="order-header">
+                            <span class="order-number">رقم الطلب: #${order._id.slice(-5)}</span>
+                            <span class="order-status ${order.status === 'تم التسليم' ? 'status-delivered' : 'status-pending'}">${order.status}</span>
+                        </div>
+                        <div class="order-content">
+                            <img src="${order.image || 'https://via.placeholder.com/80'}" alt="${order.productName}" class="order-img">
+                            <div class="order-details">
+                                <h4 class="order-title">${order.productName}</h4>
+                                <p class="order-meta">السعر: ${order.price} ج.م | التاريخ: ${new Date(order.createdAt).toLocaleDateString('ar-EG')}</p>
+                            </div>
+                            <button class="reorder-btn"
+                                style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;"
+                                onclick="alert('جاري تتبع الطلب مع شركة الشحن...')">تتبع الطلب</button>
+                        </div>
+                    </div>
+                    `).join('');
+                } else {
+                    ordersContainer.innerHTML = '<div style="text-align:center; padding:40px; opacity:0.6;">ليس لديك طلبات سابقة حالياً.</div>';
+                }
+
             } catch (err) {
-                console.error('Order Error:', err);
-                alert('❌ فشل الاتصال بالسيرفر.');
+                console.error('Profile Error:', err);
             }
         }
-    </script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // 1. Navbar Logic
-            const currentUser = localStorage.getItem('mtrkUser') || new URLSearchParams(window.location.search).get('user');
-            if (currentUser) localStorage.setItem('mtrkUser', currentUser);
+        function showTab(tabId) {
+            document.querySelectorAll('.content-area').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.remove('hidden');
+        }
 
-            const navMenu = document.querySelector('nav ul');
-            const loginBtn = document.querySelector('.nav-links .login-btn'); // Assuming login button is inside nav-links or similar
+        function logout() {
+            window.location.href = '/logout'; // Trigger backend logout
+        }
 
-            if (currentUser && navMenu) {
-                // Create Account Link
-                const li = document.createElement('li');
-                li.innerHTML = `<a href="profile.html" style="color:#ffca28; font-weight:bold; border:2px solid #ffca28; padding:5px 15px; border-radius:20px;">👤 ${currentUser}</a>`;
-
-                // Remove Login Button if found inside list, or just append
-                // Better: Append to end of list
-                navMenu.appendChild(li);
-
-                // Hide old "Login" button if it was a list item
-                const allLinks = navMenu.querySelectorAll('a');
-                allLinks.forEach(link => {
-                    if (link.innerText.includes('تسجيل') || link.innerText.includes('دخول')) {
-                        link.parentElement.style.display = 'none';
-                    }
-                });
-            }
-        });
+        loadProfile();
     </script>
 </body>
 
