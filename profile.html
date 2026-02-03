@@ -265,45 +265,68 @@
 
     </div>
 
-    <script>
-        // Check Auth
-        const urlParams = new URLSearchParams(window.location.search);
-        let user = urlParams.get('user');
+    async function loadProfile() {
+    try {
+    // 1. Check Login Status
+    const userRes = await fetch('/auth/login/success');
+    const userData = await userRes.json();
 
-        // Persist User Check
-        if (user) {
-            localStorage.setItem('mtrkUser', user);
-        } else {
-            user = localStorage.getItem('mtrkUser');
-        }
+    if (userData.success) {
+    const user = userData.user;
+    document.getElementById('userNameLabel').innerText = 'أهلاً ' + user.name;
+    document.getElementById('userEmailLabel').innerText = user.email;
+    document.getElementById('avatarLetter').innerText = user.name.charAt(0).toUpperCase();
+    } else {
+    window.location.href = 'test1.html';
+    }
 
-        if (!user) {
-            alert('يجب تسجيل الدخول أولاً!');
-            window.location.href = 'test1.html';
-        }
+    // 2. Fetch Real Orders
+    const ordersRes = await fetch('/api/user-orders');
+    const orders = await ordersRes.json();
+    const ordersContainer = document.querySelector('#orders .orders-list');
 
-        // Setup User Info
-        document.getElementById('userNameLabel').innerText = 'أهلاً ' + user;
-        document.getElementById('userEmailLabel').innerText = user.replace(/\s+/g, '').toLowerCase() + '@gmail.com';
-        document.getElementById('avatarLetter').innerText = user.charAt(0).toUpperCase();
+    if (orders.length > 0) {
+    ordersContainer.innerHTML = orders.map(order => `
+    <div class="order-item">
+        <div class="order-header">
+            <span class="order-number">رقم الطلب: #${order._id.slice(-5)}</span>
+            <span
+                class="order-status ${order.status === 'تم التسليم' ? 'status-delivered' : 'status-pending'}">${order.status}</span>
+        </div>
+        <div class="order-content">
+            <img src="${order.image || 'https://via.placeholder.com/80'}" alt="${order.productName}" class="order-img">
+            <div class="order-details">
+                <h4 class="order-title">${order.productName}</h4>
+                <p class="order-meta">السعر: ${order.price} ج.م | التاريخ: ${new
+                    Date(order.createdAt).toLocaleDateString('ar-EG')}</p>
+            </div>
+            <button class="reorder-btn"
+                style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;"
+                onclick="alert('جاري تتبع الطلب مع شركة الشحن...')">تتبع الطلب</button>
+        </div>
+    </div>
+    `).join('');
+    } else {
+    ordersContainer.innerHTML = '<div style="text-align:center; padding:40px; opacity:0.6;">ليس لديك طلبات سابقة حالياً.
+    </div>';
+    }
 
-        // Tabs Logic
-        function showTab(tabId) {
-            // Hide all tabs
-            document.querySelectorAll('.content-area').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+    } catch (err) {
+    console.error('Profile Error:', err);
+    }
+    }
 
-            // Show target
-            document.getElementById(tabId).classList.remove('hidden');
-            // Active Button (simple logic, assuming order matches)
-            // You can enhance this by passing `this` if needed, but simple is fine.
-        }
+    function showTab(tabId) {
+    document.querySelectorAll('.content-area').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.remove('hidden');
+    }
 
-        function logout() {
-            localStorage.removeItem('mtrkUser');
-            window.location.href = 'test1.html';
-        }
-    </script>
+    function logout() {
+    window.location.href = '/logout'; // Trigger backend logout
+    }
+
+    loadProfile();
 </body>
 
 </html>
