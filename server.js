@@ -90,6 +90,30 @@ passport.use(new GoogleStrategy({
     }
 ));
 
+passport.use(new FacebookStrategy({
+    clientID: process.env.FACEBOOK_APP_ID,
+    clientSecret: process.env.FACEBOOK_APP_SECRET,
+    callbackURL: "/auth/facebook/callback",
+    profileFields: ['id', 'displayName', 'emails']
+},
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+            const existingUser = await User.findOne({ facebookId: profile.id });
+            if (existingUser) return done(null, existingUser);
+
+            const newUser = await new User({
+                facebookId: profile.id,
+                name: profile.displayName,
+                email: profile.emails ? profile.emails[0].value : ''
+            }).save();
+            done(null, newUser);
+        } catch (err) {
+            done(err, null);
+        }
+    }
+));
+
+
 // 4. Routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'test1.html'));
@@ -103,6 +127,15 @@ app.get('/auth/google/callback',
         res.redirect('/?user=' + encodeURIComponent(req.user.name));
     }
 );
+
+app.get('/auth/facebook', passport.authenticate('facebook', { scope: ['email'] }));
+app.get('/auth/facebook/callback',
+    passport.authenticate('facebook', { failureRedirect: '/' }),
+    (req, res) => {
+        res.redirect('/?user=' + encodeURIComponent(req.user.name));
+    }
+);
+
 
 // --- Product APIs ---
 app.get('/api/products', async (req, res) => {
