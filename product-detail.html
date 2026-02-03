@@ -24,7 +24,7 @@
             color: var(--text);
         }
 
-        .header {
+        header {
             background: #1a237e;
             color: white;
             padding: 15px;
@@ -582,15 +582,66 @@
     </div>
 
     <script>
-        // 1. Data Setup
+        // 1. Data Setup from URL
         const urlParams = new URLSearchParams(window.location.search);
         const partName = urlParams.get('part') || "منتج عام";
         const imgUrl = urlParams.get('img') || "https://via.placeholder.com/500?text=AutoPart";
         const partPrice = urlParams.get('price') || "450";
+        const partVendor = urlParams.get('vendor') || "متركنهاش";
+        const partCondition = urlParams.get('condition') || "جديد";
+        const partWarranty = urlParams.get('warranty') || "لا يوجد";
 
         document.getElementById('pName').innerText = partName;
         document.getElementById('pImg').src = imgUrl;
         document.getElementById('pPrice').innerText = `${partPrice} ج.م`;
+
+        // 2. Fetch Other Sellers (Dynamic Comparison)
+        async function fetchOtherSellers() {
+            try {
+                const res = await fetch('/api/products');
+                const products = await res.json();
+
+                // Find products with similar names to show as other sellers
+                // exclude the current one if possible, but for simplicity we show all matches
+                const others = products.filter(p => p.name.includes(partName.split(' ')[0])); // Match first word
+
+                const sellersContainer = document.querySelector('.sellers-header').nextElementSibling;
+                // Clear the static entries (we'll replace them all)
+                let html = '';
+
+                others.forEach(p => {
+                    html += `
+                        <div class="seller-card">
+                            <div class="seller-info">
+                                <h4>${p.vendorName} <span class="trusted-badge">موثوق ✅</span></h4>
+                                <div class="rating">⭐⭐⭐⭐⭐ 4.9 (متوفر حالياً)</div>
+                                <div class="meta">📍 حالة القطعة: ${p.condition} • 🛡️ ضمان: ${p.warranty}</div>
+                            </div>
+                            <div class="seller-price-box">
+                                <div class="s-price">${p.price} ج.م</div>
+                                <button class="buy-seller-btn" onclick="addToCart('${p.vendorName}')">شراء الآن</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                if (others.length > 0) {
+                    // Replace the static content starting from the first seller card
+                    const sellersHeader = document.querySelector('.sellers-header');
+                    let next = sellersHeader.nextElementSibling;
+                    while (next && next.classList.contains('seller-card')) {
+                        let toDelete = next;
+                        next = next.nextElementSibling;
+                        toDelete.remove();
+                    }
+                    sellersHeader.insertAdjacentHTML('afterend', html);
+                }
+            } catch (err) {
+                console.error('Failed to load other sellers:', err);
+            }
+        }
+
+        fetchOtherSellers();
 
         // 2. Models Database
         const cars = {
