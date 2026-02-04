@@ -60,9 +60,16 @@ app.post('/api/register', async (req, res) => {
 });
 
 app.post('/api/login', (req, res, next) => {
+    console.log('Login attempt body:', req.body); // Debugging line
     passport.authenticate('local', (err, user, info) => {
-        if (err) return res.status(500).json({ error: 'حدث خطأ ما' });
-        if (!user) return res.status(401).json({ error: info.message });
+        if (err) {
+            console.error('Passport Error:', err);
+            return res.status(500).json({ error: 'حدث خطأ ما' });
+        }
+        if (!user) {
+            console.log('Login failed info:', info); // Debugging line
+            return res.status(401).json({ error: info.message || 'بيانات الدخول غير صحيحة' });
+        }
 
         req.logIn(user, (err) => {
             if (err) return res.status(500).json({ error: 'فشل تسجيل الدخول' });
@@ -114,6 +121,7 @@ app.get('/api/user-orders', isAuthenticated, async (req, res) => {
 // 1. Middleware Setup
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 app.use(session({ secret: 'mtrknhash_secret_key', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
