@@ -176,7 +176,7 @@ passport.use(new GoogleStrategy({
 
 // 4. Routes
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'test1.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Auth Routes
