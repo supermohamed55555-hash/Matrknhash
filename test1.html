@@ -656,13 +656,16 @@
         <div class="nav-container">
             <a href="test1.html" class="logo">متركنهاش</a>
             <ul class="nav-menu">
-                <li><a href="test1.html">الرئيسية</a></li>
+                <li><a href="/">الرئيسية</a></li>
                 <li><a href="#search">البحث</a></li>
                 <li><a href="#features">لماذا نحن</a></li>
-                <li><a href="profile.html">حسابي</a></li>
-                <li id="loginNavItem"><a href="javascript:void(0)" onclick="openLoginModal()"
-                        style="background:var(--accent); color:var(--primary); padding:0.5rem 1.5rem; border-radius:50px; font-weight:800; box-shadow: 0 4px 10px rgba(255,179,0,0.3);">سجل
-                        الآن</a></li>
+                <li><a href="profile.html" onclick="handleAccountClick(event)">حسابي</a></li>
+                <li id="loginNavItem" style="display: block !important;">
+                    <a href="javascript:void(0)" onclick="openLoginModal()"
+                        style="background:var(--accent); color:var(--primary); padding:0.5rem 1.5rem; border-radius:50px; font-weight:800; box-shadow: 0 4px 10px rgba(255,179,0,0.3); display: inline-block;">
+                        سجل الآن
+                    </a>
+                </li>
             </ul>
         </div>
     </header>
@@ -759,11 +762,12 @@
             <!-- Social Login -->
             <div id="socialAuth" style="display:flex; flex-direction:column; gap:0.8rem;">
                 <a href="/auth/google" class="auth-btn google">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.png/32px-Google_%22G%22_logo.png"
+                        alt="Google">
                     جوجل
                 </a>
                 <a href="/auth/facebook" class="auth-btn facebook">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg"
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_2023.png/32px-Facebook_Logo_2023.png"
                         alt="Facebook">
                     فيسبوك
                 </a>
@@ -976,11 +980,19 @@
             try {
                 const res = await fetch('/auth/login/success');
                 const data = await res.json();
+                window.currentUser = data.success ? data.user : null;
                 if (data.success && data.user) {
                     const user = data.user;
                     document.getElementById('loginNavItem').innerHTML = `<span style="color:var(--accent); font-weight:800;">أهلاً ${user.name.split(' ')[0]}</span>`;
                 }
             } catch (err) { }
+        }
+
+        function handleAccountClick(e) {
+            if (!window.currentUser) {
+                e.preventDefault();
+                openLoginModal();
+            }
         }
 
         // Handle Login Form Submission
@@ -1035,9 +1047,9 @@
         };
 
         document.addEventListener('DOMContentLoaded', () => {
+            checkLoginStatus();
             loadProducts();
             setupSearchListeners();
-            checkLoginStatus();
         });
 
     </script>
