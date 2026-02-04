@@ -39,7 +39,7 @@ function isAuthenticated(req, res, next) {
 // --- Auth Routes (Email/Password) ---
 app.post('/api/register', async (req, res) => {
     try {
-        const { name, email, password, phone, role } = req.body;
+        const { name, email, password, phone, role, shopName, location } = req.body;
         const existingUser = await User.findOne({ email });
         if (existingUser) return res.status(400).json({ error: 'البريد الإلكتروني مسجل بالفعل' });
 
@@ -49,12 +49,15 @@ app.post('/api/register', async (req, res) => {
             email,
             password: hashedPassword,
             phone,
-            role: role || 'user'
+            role: role || 'user',
+            shopName,
+            location
         });
 
         await newUser.save();
         res.status(201).json({ success: true, message: 'تم التسجيل بنجاح' });
     } catch (err) {
+        console.error('Registration Error:', err);
         res.status(500).json({ error: 'فشل عملية التسجيل' });
     }
 });
@@ -73,7 +76,14 @@ app.post('/api/login', (req, res, next) => {
 
         req.logIn(user, (err) => {
             if (err) return res.status(500).json({ error: 'فشل تسجيل الدخول' });
-            return res.json({ success: true, user: { name: user.name, role: user.role } });
+            return res.json({
+                success: true,
+                user: {
+                    name: user.name,
+                    role: user.role,
+                    shopName: user.shopName
+                }
+            });
         });
     })(req, res, next);
 });
