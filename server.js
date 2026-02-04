@@ -7,17 +7,83 @@ const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 const Product = require('./models/Product');
 const Order = require('./models/Order');
 
 const app = express();
 
+// --- Passport Local Strategy ---
+passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
+    try {
+        const user = await User.findOne({ email });
+        if (!user || !user.password) return done(null, false, { message: 'بيانات الدخول غير صحيحة' });
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return done(null, false, { message: 'بيانات الدخول غير صحيحة' });
+
+        return done(null, user);
+    } catch (err) {
+        return done(err);
+    }
+}));
+
 // --- Middleware لضمان تسجيل الدخول ---
 function isAuthenticated(req, res, next) {
     if (req.isAuthenticated()) return next();
     res.status(401).json({ error: 'Please log in' });
 }
+
+// --- Auth Routes (Email/Password) ---
+app.post('/api/register', async (req, res) => {
+    try {
+        const { name, email, password, phone, role } = req.body;
+        const existingUser = await User.findOne({ email });
+        if (existingUser) return res.status(400).json({ error: 'البريد الإلكتروني مسجل بالفعل' });
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({
+            name,
+            email,
+            password: hashedPassword,
+            phone,
+            role: role || 'user'
+        });
+
+        await newUser.save();
+        res.status(201).json({ success: true, message: 'تم التسجيل بنجاح' });
+    } catch (err) {
+        res.status(500).json({ error: 'فشل عملية التسجيل' });
+    }
+});
+
+app.post('/api/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) return res.status(500).json({ error: 'حدث خطأ ما' });
+        if (!user) return res.status(401).json({ error: info.message });
+
+        req.logIn(user, (err) => {
+            if (err) return res.status(500).json({ error: 'فشل تسجيل الدخول' });
+            return res.json({ success: true, user: { name: user.name, role: user.role } });
+        });
+    })(req, res, next);
+});
+
+app.get('/auth/login/success', (req, res) => {
+    if (req.user) {
+        res.json({ success: true, user: req.user });
+    } else {
+        res.json({ success: false });
+    }
+});
+
+app.get('/logout', (req, res) => {
+    req.logout(() => {
+        res.redirect('/');
+    });
+});
 
 // --- Order Routes ---
 app.post('/api/orders', isAuthenticated, async (req, res) => {
