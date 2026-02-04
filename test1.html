@@ -7,8 +7,47 @@
     <title>متركنهاش - قطع السيارات الأصلية</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Cairo:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        .premium-glass {
+            backdrop-filter: blur(12px) saturate(160%);
+            -webkit-backdrop-filter: blur(12px) saturate(160%);
+            background-color: var(--glass);
+            border: 1px solid var(--glass-border);
+        }
+
+        .auth-gradient-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            transition: all 0.3s ease;
+        }
+
+        .auth-gradient-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .form-error {
+            color: #f87171;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            min-height: 1rem;
+        }
+
+        .is-invalid {
+            border-color: #f87171 !important;
+            box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.2);
+        }
+
         :root {
             --primary: #1a237e;
             --primary-dark: #121858;
@@ -673,9 +712,9 @@
 
     <section class="hero">
         <div class="hero-content">
-            <h1>قطع غيار سيارتك.. بلمسة واحدة</h1>
-            <p>أكبر تجمع لتجار قطع الغيار في مصر (جديد واستيراد). ابحث، قارن، واشتري وأنت في مكانك.</p>
-            <a href="#search" class="cta-button">ابدأ البحث الآن</a>
+            <h1>متركنهاش - قطع غيار سيارتك أونلاين</h1>
+            <p>سجل الآن كعميل للحصول على أفضل القطع، أو كتاجر لبيع منتجاتك.</p>
+            <a href="javascript:void(0)" onclick="openLoginModal()" class="cta-button">سجل الآن</a>
         </div>
     </section>
 
@@ -754,65 +793,124 @@
     </a>
 
     <div id="loginModal" class="modal">
-        <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
-            <span class="close-modal" onclick="closeLoginModal()">&times;</span>
-            <h2 id="modalTitle" style="text-align:center; margin-bottom:1.5rem; color:var(--primary); font-weight:800;">
-                تسجيل الدخول</h2>
+        <div class="min-h-screen bg-transparent flex items-center justify-center p-4">
+            <main class="w-full max-w-md mx-auto premium-glass p-8 rounded-3xl relative"
+                style="background: rgba(15, 23, 42, 0.8);">
+                <span class="close-modal text-white/50 hover:text-white" onclick="closeLoginModal()">&times;</span>
 
-            <!-- Social Login -->
-            <div id="socialAuth" style="display:flex; flex-direction:column; gap:0.8rem;">
-                <a href="/auth/google" class="auth-btn google">
-                    <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google">
-                    جوجل
-                </a>
-                <a href="/auth/facebook" class="auth-btn facebook">
-                    <img src="https://img.icons8.com/color/48/000000/facebook-new.png" alt="Facebook">
-                    فيسبوك
-                </a>
-            </div>
+                <div id="authCard" class="text-white">
+                    <div class="mb-6 text-center">
+                        <h2 id="authTitle" class="text-3xl font-bold">تسجيل الدخول</h2>
+                        <p id="authSubtitle" class="text-slate-300">سجل دخولك باستخدام البريد الإلكتروني</p>
+                    </div>
 
-            <div class="auth-divider">أو</div>
+                    <!-- Social buttons -->
+                    <div class="flex gap-3 mb-6">
+                        <a href="/auth/google"
+                            class="flex-1 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition inline-flex items-center justify-center gap-2 no-underline text-white">
+                            <svg width="20" height="20" viewBox="0 0 48 48">
+                                <path fill="#FFC107"
+                                    d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C33.7 6.3 29.1 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c10.1 0 19-7.3 19-20 0-1.3-.1-2.7-.4-3.5z">
+                                </path>
+                                <path fill="#FF3D00"
+                                    d="M6.3 14.7l6.6 4.8C14.6 16.3 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C33.7 6.3 29.1 4 24 4c-7.9 0-14.6 4.6-17.7 11.3z">
+                                </path>
+                                <path fill="#4CAF50"
+                                    d="M24 44c5.1 0 9.7-1.9 13.1-5.1l-6.1-5.1C29.2 36 26.8 37 24 37c-5.2 0-9.6-3.2-11.3-7.7l-6.5 5c3.1 6.6 9.8 11.7 17.8 11.7z">
+                                </path>
+                                <path fill="#1976D2"
+                                    d="M43.6 20.5H42V20H24v8h11.3c-1.3 3.1-4.1 5.5-7.3 6.3l6.1 5.1C37.1 36.9 40 31.9 40 24c0-1.3-.1-2.7-.4-3.5z">
+                                </path>
+                            </svg>
+                            جوجل
+                        </a>
+                        <a href="/auth/facebook"
+                            class="flex-1 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition inline-flex items-center justify-center gap-2 no-underline text-white">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2">
+                                <path
+                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                            </svg>
+                            فيسبوك
+                        </a>
+                    </div>
 
-            <!-- Email Login Form -->
-            <form id="loginForm">
-                <div class="auth-form-group">
-                    <input type="email" id="loginEmail" class="auth-input" placeholder="البريد الإلكتروني" required>
-                </div>
-                <div class="auth-form-group">
-                    <input type="password" id="loginPassword" class="auth-input" placeholder="كلمة المرور" required>
-                </div>
-                <button type="submit" class="auth-submit">تسجيل الدخول</button>
-            </form>
+                    <!-- Separator -->
+                    <div class="flex items-center gap-3 my-6">
+                        <div class="h-px flex-1 bg-white/10"></div>
+                        <span class="text-xs text-slate-400">أو تواصل باستخدام البريد</span>
+                        <div class="h-px flex-1 bg-white/10"></div>
+                    </div>
 
-            <!-- Email Register Form (Hidden by default) -->
-            <form id="registerForm" style="display: none;">
-                <div class="auth-form-group">
-                    <input type="text" id="regName" class="auth-input" placeholder="الاسم بالكامل" required>
-                </div>
-                <div class="auth-form-group">
-                    <input type="email" id="regEmail" class="auth-input" placeholder="البريد الإلكتروني" required>
-                </div>
-                <div class="auth-form-group">
-                    <input type="password" id="regPassword" class="auth-input" placeholder="كلمة المرور" required>
-                </div>
-                <div class="auth-form-group">
-                    <input type="tel" id="regPhone" class="auth-input" placeholder="رقم الهاتف" required>
-                </div>
-                <div class="role-selector">
-                    <div class="role-option active" onclick="setRole('user', this)">عميل</div>
-                    <div class="role-option" onclick="setRole('vendor', this)">تاجر</div>
-                </div>
-                <input type="hidden" id="regRole" value="user">
-                <button type="submit" class="auth-submit">إنشاء حساب</button>
-            </form>
+                    <!-- Form -->
+                    <form id="authForm" class="space-y-4">
+                        <!-- Role Selector -->
+                        <div id="roleSelector" class="hidden">
+                            <div class="flex gap-2 mb-4">
+                                <div id="roleUser"
+                                    class="flex-1 text-center py-2 rounded-xl border border-white/10 bg-indigo-600 cursor-pointer"
+                                    onclick="setPremiumRole('user')">عميل</div>
+                                <div id="roleVendor"
+                                    class="flex-1 text-center py-2 rounded-xl border border-white/10 bg-white/5 cursor-pointer"
+                                    onclick="setPremiumRole('vendor')">تاجر</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="regRole" value="user">
 
-            <div class="auth-toggle">
-                <span id="toggleText">ليس لديك حساب؟</span>
-                <a href="javascript:void(0)" id="toggleAction" onclick="toggleAuthMode()">سجل الآن</a>
-            </div>
+                        <!-- Name (Register only) -->
+                        <div id="nameField" class="hidden">
+                            <input id="regName" type="text"
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                                placeholder="الاسم بالكامل">
+                        </div>
 
-            <p style="text-align:center; margin-top:1.5rem; font-size:0.75rem; color:#777;">بتسجيلك أنت توافق على شروط
-                الاستخدام</p>
+                        <!-- Email -->
+                        <div>
+                            <input id="authEmail" type="email" required
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                                placeholder="البريد الإلكتروني">
+                        </div>
+
+                        <!-- Merchant Fields (Register & Vendor only) -->
+                        <div id="vendorFields" class="hidden space-y-4">
+                            <input id="regShopName" type="text"
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                                placeholder="اسم المحل">
+                            <input id="regLocation" type="text"
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                                placeholder="المكان (المحافظة/الحي)">
+                        </div>
+
+                        <!-- Password -->
+                        <div class="relative">
+                            <input id="authPassword" type="password" required
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                                placeholder="كلمة المرور">
+
+                            <div id="passwordStrength" class="h-1 mt-2 rounded bg-white/10 overflow-hidden hidden">
+                                <div id="strengthBar" class="h-full w-0 bg-indigo-500 transition-all"></div>
+                            </div>
+                        </div>
+
+                        <!-- Phone (Register only) -->
+                        <div id="phoneField" class="hidden">
+                            <input id="regPhone" type="tel"
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                                placeholder="رقم الهاتف">
+                        </div>
+
+                        <button id="submitBtn" type="submit"
+                            class="w-full py-3 rounded-xl auth-gradient-btn font-bold text-white shadow-lg">
+                            تسجيل الدخول
+                        </button>
+                    </form>
+
+                    <p id="toggleText" class="mt-6 text-sm text-slate-300 text-center">
+                        ليس لديك حساب؟
+                        <button onclick="togglePremiumAuth('register')" class="text-indigo-300 underline font-bold">سجل
+                            الآن</button>
+                    </p>
+                </div>
+            </main>
         </div>
     </div>
 
@@ -930,49 +1028,120 @@
             window.location.href = `product-detail.html?${params.toString()}`;
         }
 
+        // Premium Auth Logic
+        let currentAuthMode = 'login';
+
         function openLoginModal() {
             document.getElementById('loginModal').style.display = 'block';
+            togglePremiumAuth('login');
         }
 
         function closeLoginModal() {
             document.getElementById('loginModal').style.display = 'none';
         }
 
-        function toggleAuthMode() {
-            const loginForm = document.getElementById('loginForm');
-            const regForm = document.getElementById('registerForm');
-            const title = document.getElementById('modalTitle');
-            const toggleText = document.getElementById('toggleText');
-            const toggleAction = document.getElementById('toggleAction');
+        function togglePremiumAuth(mode) {
+            currentAuthMode = mode;
+            const isReg = mode === 'register';
 
-            if (loginForm.style.display === 'none') {
-                loginForm.style.display = 'block';
-                regForm.style.display = 'none';
-                title.innerText = 'تسجيل الدخول';
-                toggleText.innerText = 'ليس لديك حساب؟';
-                toggleAction.innerText = 'سجل الآن';
+            document.getElementById('authTitle').innerText = isReg ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
+            document.getElementById('authSubtitle').innerText = isReg ? 'سجل بياناتك للبدء' : 'سجل دخولك باستخدام البريد الإلكتروني';
+            document.getElementById('submitBtn').innerText = isReg ? 'إنشاء حساب' : 'تسجيل الدخول';
+            document.getElementById('toggleText').innerHTML = isReg ?
+                `لديك حساب بالفعل؟ <button onclick="togglePremiumAuth('login')" class="text-indigo-300 underline font-bold">تسجيل دخول</button>` :
+                `ليس لديك حساب؟ <button onclick="togglePremiumAuth('register')" class="text-indigo-300 underline font-bold">سجل الآن</button>`;
+
+            // Toggle logic fields
+            document.getElementById('roleSelector').classList.toggle('hidden', !isReg);
+            document.getElementById('nameField').classList.toggle('hidden', !isReg);
+            document.getElementById('phoneField').classList.toggle('hidden', !isReg);
+            document.getElementById('passwordStrength').classList.toggle('hidden', !isReg);
+
+            if (!isReg) {
+                document.getElementById('vendorFields').classList.add('hidden');
             } else {
-                loginForm.style.display = 'none';
-                regForm.style.display = 'block';
-                title.innerText = 'إنشاء حساب جديد';
-                toggleText.innerText = 'لديك حساب بالفعل؟';
-                toggleAction.innerText = 'تسجيل دخول';
+                const role = document.getElementById('regRole').value;
+                document.getElementById('vendorFields').classList.toggle('hidden', role !== 'vendor');
             }
         }
 
-        function setRole(role, el) {
+        function setPremiumRole(role) {
             document.getElementById('regRole').value = role;
-            document.querySelectorAll('.role-option').forEach(opt => opt.classList.remove('active'));
-            el.classList.add('active');
+            document.getElementById('roleUser').style.background = role === 'user' ? '#4f46e5' : 'rgba(255,255,255,0.05)';
+            document.getElementById('roleVendor').style.background = role === 'vendor' ? '#4f46e5' : 'rgba(255,255,255,0.05)';
+            document.getElementById('vendorFields').classList.toggle('hidden', role !== 'vendor');
         }
 
-        // Close modal when clicking outside
-        window.onclick = function (event) {
-            const modal = document.getElementById('loginModal');
-            if (event.target == modal) {
-                closeLoginModal();
+        // Live Password Strength
+        document.getElementById('authPassword').addEventListener('input', function (e) {
+            if (currentAuthMode !== 'register') return;
+            const val = e.target.value;
+            let strength = 0;
+            if (val.length > 5) strength += 20;
+            if (/[A-Z]/.test(val)) strength += 20;
+            if (/[a-z]/.test(val)) strength += 20;
+            if (/[0-9]/.test(val)) strength += 20;
+            if (/[^A-Za-z0-9]/.test(val)) strength += 20;
+
+            const strengthBar = document.getElementById('strengthBar');
+            strengthBar.style.width = strength + '%';
+            if (strength < 40) strengthBar.style.backgroundColor = '#f87171';
+            else if (strength < 80) strengthBar.style.backgroundColor = '#fbbf24';
+            else strengthBar.style.backgroundColor = '#10b981';
+        });
+
+        // Form Submission
+        document.getElementById('authForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerText;
+
+            submitBtn.innerText = 'جاري العمل...';
+            submitBtn.disabled = true;
+
+            try {
+                if (currentAuthMode === 'login') {
+                    const res = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        alert('✅ تم تسجيل الدخول بنجاح');
+                        location.reload();
+                    } else {
+                        alert('❌ ' + (data.error || 'خطأ في تسجيل الدخول'));
+                    }
+                } else {
+                    const name = document.getElementById('regName').value;
+                    const phone = document.getElementById('regPhone').value;
+                    const role = document.getElementById('regRole').value;
+                    const shopName = document.getElementById('regShopName').value;
+                    const location = document.getElementById('regLocation').value;
+
+                    const res = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, email, password, phone, role, shopName, location })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        alert('✅ تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.');
+                        togglePremiumAuth('login');
+                    } else {
+                        alert('❌ ' + (data.error || 'فشل التسجيل'));
+                    }
+                }
+            } catch (err) {
+                alert('❌ حدث خطأ في الاتصال بالسيرفر');
+            } finally {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
             }
-        }
+        };
 
         async function checkLoginStatus() {
             try {
@@ -981,7 +1150,15 @@
                 window.currentUser = data.success ? data.user : null;
                 if (data.success && data.user) {
                     const user = data.user;
-                    document.getElementById('loginNavItem').innerHTML = `<span style="color:var(--accent); font-weight:800;">أهلاً ${user.name.split(' ')[0]}</span>`;
+                    // Updated Header to match mock-up (Name + Profile Icon)
+                    document.getElementById('loginNavItem').innerHTML = `
+                        <div class="flex items-center gap-2 px-6 py-2 rounded-full border border-accent/30 bg-accent/5 hover:bg-accent/10 transition cursor-pointer" onclick="window.location.href='/profile.html'">
+                            <span class="text-accent font-bold">${user.name}</span>
+                            <div class="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                            </div>
+                        </div>
+                    `;
                 }
             } catch (err) { }
         }
@@ -993,56 +1170,13 @@
             }
         }
 
-        // Handle Login Form Submission
-        document.getElementById('loginForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            try {
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert('تم تسجيل الدخول بنجاح!');
-                    location.reload();
-                } else {
-                    alert(data.error);
-                }
-            } catch (err) {
-                alert('حدث خطأ في الاتصال بالسيرفر');
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('loginModal');
+            if (event.target == modal) {
+                closeLoginModal();
             }
-        };
-
-        // Handle Register Form Submission
-        document.getElementById('registerForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const phone = document.getElementById('regPhone').value;
-            const role = document.getElementById('regRole').value;
-
-            try {
-                const res = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password, phone, role })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.');
-                    toggleAuthMode();
-                } else {
-                    alert(data.error);
-                }
-            } catch (err) {
-                alert('حدث خطأ في الاتصال بالسيرفر');
-            }
-        };
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             checkLoginStatus();
