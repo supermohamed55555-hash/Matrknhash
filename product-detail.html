@@ -441,7 +441,7 @@
 <body>
     <header class="header">
         <div class="nav-container">
-            <a href="test1.html" class="logo">متركنهاش</a>
+            <a href="index.html" class="logo">متركنهاش</a>
             <a href="profile.html" style="color:white; text-decoration:none; font-weight:bold;">👤 حسابي</a>
         </div>
     </header>
@@ -471,20 +471,18 @@
                     </svg>
                     AI Fitment Check (تأكد أن القطعة تناسب سيارتك)
                 </div>
-                <div class="fit-form">
-                    <select id="brandSelect" onchange="updateModels()">
-                        <option value="">ماركة السيارة</option>
-                        <option value="BYD">BYD</option>
-                        <option value="Toyota">Toyota</option>
-                        <option value="Hyundai">Hyundai</option>
-                        <option value="Nissan">Nissan</option>
-                        <option value="Cherry">Cherry</option>
-                        <option value="Kia">Kia</option>
-                    </select>
-                    <select id="modelSelect">
-                        <option value="">اختار الموديل</option>
-                    </select>
-                    <button class="check-btn" onclick="checkFitAI()">افحص</button>
+                <div class="fit-form" style="display: block;">
+                    <div style="position: relative; margin-bottom: 10px;">
+                        <input type="text" id="userVehicleText" placeholder="مثلاً: بتركب على تويوتا كورولا ٢٠١٥؟"
+                            style="width: 100%; padding: 15px 45px 15px 15px; border-radius: 30px; border: 1.5px solid #c7d2fe; box-sizing: border-box; font-family: 'Cairo';">
+                        <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #6366f1;"
+                            width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path
+                                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                        </svg>
+                    </div>
+                    <button class="check-btn" onclick="checkFitAI()"
+                        style="width: 100%; padding:15px; border-radius:30px;">افحص بالذكاء الاصطناعي</button>
                 </div>
                 <div id="fitResult" class="fit-result"></div>
             </div>
@@ -643,69 +641,57 @@
 
         fetchOtherSellers();
 
-        // 2. Models Database
-        const cars = {
-            "BYD": ["F3 (2010-2015)", "F3 (2016-2025)", "L3", "F0"],
-            "Toyota": ["Corolla (الجمل 2003-2007)", "Corolla (2014-2019)", "Corolla (2020-2024)", "Yaris"],
-            "Hyundai": ["Elantra AD (2017-2020)", "Elantra CN7 (2021-2025)", "Accent RB", "Tucson"],
-            "Nissan": ["Sunny N16", "Sunny N17 (الشكل الجديد)", "Sentra", "Qashqai"],
-            "Cherry": ["Arrizo 5", "Tiggo 3", "Tiggo 7"],
-            "Kia": ["Cerato K3", "Sportage QL", "Sportage NQ5"]
-        };
+        // 3. AI Fitment Logic (Hybrid API Call)
+        async function checkFitAI() {
+            const userText = document.getElementById('userVehicleText').value;
+            const resultBox = document.getElementById('fitResult');
+            const productId = urlParams.get('id'); // Ensure we have the product ID
 
-        function updateModels() {
-            const brand = document.getElementById('brandSelect').value;
-            const modelSelect = document.getElementById('modelSelect');
-            modelSelect.innerHTML = '<option value="">اختار الموديل</option>';
-            if (brand && cars[brand]) {
-                cars[brand].forEach(m => {
-                    const opt = document.createElement('option');
-                    opt.value = m;
-                    opt.innerText = m;
-                    modelSelect.appendChild(opt);
+            if (!userText) { alert("من فضلك اكتب بيانات عربيتك الأول!"); return; }
+
+            resultBox.style.display = 'block';
+            resultBox.innerHTML = '<div style="display:flex; align-items:center; gap:10px;"> <div class="spinner" style="width:15px; height:15px; border:2px solid #ccc; border-top-color:#6366f1; border-radius:50%; animation:spin 0.8s linear infinite;"></div> جاري تحليل التوافق بالذكاء الاصطناعي...</div>';
+            resultBox.className = "fit-result";
+
+            try {
+                // Get productId from URL if not already there, or from a data attribute
+                // for now we'll assume the URL has it or we just check against the name (simpler for this demo)
+                // In production, we should pass the actual _id.
+                // Let's try to get it from the URL first
+                const pid = new URLSearchParams(window.location.search).get('productId');
+
+                const res = await fetch('/api/check-fitment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId: pid, userText: userText })
                 });
+
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    resultBox.className = "fit-result fit-success";
+                } else if (data.status === 'warning') {
+                    resultBox.className = "fit-result"; // Neutrual
+                    resultBox.style.background = "#fffbeb";
+                    resultBox.style.color = "#92400e";
+                    resultBox.style.border = "1px solid #fde68a";
+                } else {
+                    resultBox.className = "fit-result fit-error";
+                }
+
+                resultBox.innerHTML = `<strong>${data.reason}</strong>`;
+
+            } catch (err) {
+                console.error('Fitment API Error:', err);
+                resultBox.className = "fit-result fit-error";
+                resultBox.innerHTML = "❌ فشل الاتصال بخدمة الذكاء الاصطناعي. جرب تاني كمان شوية.";
             }
         }
 
-        // 3. AI Fitment Logic
-        function checkFitAI() {
-            const brand = document.getElementById('brandSelect').value;
-            const model = document.getElementById('modelSelect').value;
-            const resultBox = document.getElementById('fitResult');
-
-            if (!brand || !model) { alert("من فضلك اختار العربية الأول!"); return; }
-
-            resultBox.style.display = 'block';
-            resultBox.innerHTML = "جاري تحليل التوافق...";
-            resultBox.className = "fit-result";
-
-            setTimeout(() => {
-                const pName = partName.toLowerCase();
-                const bName = brand.toLowerCase();
-
-                let isCompatible = true;
-                let reason = "";
-
-                const allBrands = ["toyota", "byd", "hyundai", "nissan", "kia", "cherry"];
-
-                for (let otherBrand of allBrands) {
-                    if (pName.includes(otherBrand) && otherBrand !== bName) {
-                        isCompatible = false;
-                        reason = `المنتج ده مخصص لعربيات <b>${otherBrand.toUpperCase()}</b>، وأنت اخترت <b>${brand}</b>.`;
-                        break;
-                    }
-                }
-
-                if (isCompatible) {
-                    resultBox.className = "fit-result fit-success";
-                    resultBox.innerHTML = `✅ <strong>متوافقة!</strong> القطعة دي تركب على (${brand} ${model}) بدون مشاكل.`;
-                } else {
-                    resultBox.className = "fit-result fit-error";
-                    resultBox.innerHTML = `❌ <strong>غير متوافقة!</strong><br>${reason}<br><a href="#" onclick="openChat()" style="color:inherit">دوس هنا واسأل المهندس للتأكد</a>`;
-                }
-
-            }, 700);
-        }
+        // Add CSS for spinner
+        const style = document.createElement('style');
+        style.innerHTML = '@keyframes spin { to { transform: rotate(360deg); } }';
+        document.head.appendChild(style);
 
         // 4. WhatsApp Bridge
         function openChat() { document.getElementById('chatWidget').style.display = 'flex'; }
