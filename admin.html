@@ -254,10 +254,30 @@
         const productsGrid = document.getElementById('productsGrid');
         const countSpan = document.getElementById('count');
 
+        // Check protocol and authentication
+        async function checkAdminAuth() {
+            if (window.location.protocol === 'file:') {
+                alert('⚠️ تنبيه: إنت فاتح الملف من الجهاز مباشرة. الـ API مش هتشتغل.\nلازم تفتح الموقع من الرابط (Railway) وتكتب في آخره /admin.html');
+                return;
+            }
+
+            try {
+                const res = await fetch('/auth/login/success');
+                const data = await res.json();
+                if (!data.success) {
+                    alert('⚠️ لازم تسجل دخول الأول عشان تقدر تتحكم في المنتجات.');
+                    window.location.href = '/index.html';
+                }
+            } catch (err) {
+                console.error('Auth Check Error:', err);
+            }
+        }
+
         // Fetch and display products
         async function fetchProducts() {
             try {
                 const res = await fetch('/api/products');
+                if (!res.ok) throw new Error('Failed to fetch');
                 const products = await res.json();
                 countSpan.innerText = products.length;
 
@@ -273,11 +293,14 @@
                         <div class="brand-badge">${p.brand}</div>
                         <h4>${p.name}</h4>
                         <div class="price-text">${p.price} ج.م</div>
-                        <div style="font-size:0.8rem; opacity:0.8">${p.vendorName} | ${p.condition}</div>
+                        <div style="font-size:0.8rem; opacity:0.8">${p.vendorName || 'متركنهاش'} | ${p.condition}</div>
                     </div>
                 `).join('');
             } catch (err) {
-                console.error('Error:', err);
+                console.error('Fetch Error:', err);
+                if (window.location.protocol !== 'file:') {
+                    productsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#ff4757; padding: 40px;">❌ فشل الاتصال بالسيرفر. تأكد إنك مسجل دخول.</p>';
+                }
             }
         }
 
@@ -306,11 +329,14 @@
                     form.reset();
                     await fetchProducts();
                     alert('✅ تم إضافة المنتج بنجاح!');
+                } else if (res.status === 401) {
+                    alert('❌ غير مسموح: لازم تسجل دخول الأول.');
                 } else {
-                    alert('❌ فشل في إضافة المنتج.');
+                    const errData = await res.json();
+                    alert('❌ فشل في إضافة المنتج: ' + (errData.error || 'خطأ غير معروف'));
                 }
             } catch (err) {
-                alert('❌ حدث خطأ في الشبكة.');
+                alert('❌ حدث خطأ في الشبكة. تأكد إنك فاتح الموقع من الرابط مش من الجهاز.');
             }
         };
 
@@ -321,6 +347,10 @@
                     const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
                     if (res.ok) {
                         await fetchProducts();
+                    } else if (res.status === 401) {
+                        alert('❌ لازم تسجل دخول عشان تقدر تمسح.');
+                    } else {
+                        alert('❌ فشل المسح.');
                     }
                 } catch (err) {
                     alert('❌ حدث خطأ أثناء المسح.');
@@ -328,7 +358,11 @@
             }
         }
 
-        fetchProducts();
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAdminAuth();
+            fetchProducts();
+        });
     </script>
 </body>
 
