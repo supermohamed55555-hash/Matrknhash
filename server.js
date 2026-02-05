@@ -271,6 +271,26 @@ app.delete('/api/products/:id', isAuthenticated, async (req, res) => {
     }
 });
 
+app.put('/api/products/:id', isAuthenticated, async (req, res) => {
+    try {
+        const { name, brand, price, image, category, description, vendorName, condition, warranty, compatibility } = req.body;
+        const updatedProduct = await Product.findByIdAndUpdate(
+            req.params.id,
+            {
+                name, brand, price, image, category, description,
+                vendorName, condition, warranty,
+                compatibility: compatibility || []
+            },
+            { new: true } // Return the updated document
+        );
+        if (!updatedProduct) return res.status(404).json({ error: 'المنتج غير موجود' });
+        res.json(updatedProduct);
+    } catch (err) {
+        console.error('Update Product Error:', err);
+        res.status(500).json({ error: 'فشل تعديل المنتج' });
+    }
+});
+
 // --- Order Routes ---
 app.post('/api/orders', isAuthenticated, async (req, res) => {
     try {
