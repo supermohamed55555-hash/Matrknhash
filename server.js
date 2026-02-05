@@ -186,15 +186,79 @@ app.get('/api/products', async (req, res) => {
 
 app.post('/api/products', isAuthenticated, async (req, res) => {
     try {
-        const { name, brand, price, image, category, description, vendorName, condition, warranty } = req.body;
+        const { name, brand, price, image, category, description, vendorName, condition, warranty, compatibility } = req.body;
         const newProduct = new Product({
             name, brand, price, image, category, description,
-            vendorName, condition, warranty
+            vendorName, condition, warranty,
+            compatibility: compatibility || []
         });
         await newProduct.save();
         res.status(201).json(newProduct);
     } catch (err) {
+        console.error('Add Product Error:', err);
         res.status(500).json({ error: 'Failed to add product' });
+    }
+});
+
+// Fitment Checker API (Hybrid: Simulated AI + DB)
+app.post('/api/check-fitment', async (req, res) => {
+    try {
+        const { productId, userText } = req.body;
+        const product = await Product.findById(productId);
+        if (!product) return res.status(404).json({ error: 'المنتج غير موجود' });
+
+        // 1. Simulated AI Parsing (In a real app, this would call Gemini/OpenAI)
+        // This function extracts brand, model, and year from natural language
+        const parseVehiceInfo = (text) => {
+            const query = text.toLowerCase();
+            let brand = null, model = null, year = null;
+
+            if (query.includes('toyota') || query.includes('تويوتا') || query.includes('كورولا')) brand = 'toyota';
+            if (query.includes('hyundai') || query.includes('هيونداي') || query.includes('إلنترا')) brand = 'hyundai';
+            if (query.includes('byd') || query.includes('بي واي دي')) brand = 'byd';
+
+            if (query.includes('corolla') || query.includes('كورولا')) model = 'corolla';
+            if (query.includes('elantra') || query.includes('إلنترا') || query.includes('النترا')) model = 'elantra';
+            if (query.includes('f3')) model = 'f3';
+
+            const yearMatch = query.match(/\d{4}/);
+            if (yearMatch) year = parseInt(yearMatch[0]);
+
+            return { brand, model, year };
+        };
+
+        const vehicle = parseVehiceInfo(userText);
+
+        // 2. Database Validation
+        if (!product.compatibility || product.compatibility.length === 0) {
+            return res.json({
+                status: 'warning',
+                reason: 'التاجر لم يحدد قائمة التوافق بدقة، لكن الـ AI يرجح أنها قد تعمل. يفضل سؤال المهندس.'
+            });
+        }
+
+        const match = product.compatibility.find(c => {
+            const brandMatch = !vehicle.brand || c.brand.toLowerCase() === vehicle.brand;
+            const modelMatch = !vehicle.model || c.model.toLowerCase() === vehicle.model;
+            const yearMatch = !vehicle.year || (vehicle.year >= c.yearStart && vehicle.year <= c.yearEnd);
+            return brandMatch && modelMatch && yearMatch;
+        });
+
+        if (match) {
+            res.json({
+                status: 'success',
+                reason: `✅ متوافقة! هذه القطعة مخصصة لسيارات ${match.brand} ${match.model} في الفترة من ${match.yearStart} إلى ${match.yearEnd}.`
+            });
+        } else {
+            res.json({
+                status: 'error',
+                reason: `❌ غير متوافقة. القطعة دي مخصصة لموديلات تانية. يرجى مراجعة الوصف أو سؤال التاجر.`
+            });
+        }
+
+    } catch (err) {
+        console.error('Fitment Error:', err);
+        res.status(500).json({ error: 'حدث خطأ في فحص التوافق' });
     }
 });
 
