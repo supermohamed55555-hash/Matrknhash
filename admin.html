@@ -191,8 +191,9 @@
         <div class="dashboard-grid">
             <!-- Add Product Form -->
             <div class="card">
-                <h3 style="margin-top:0">إضافة منتج جديد</h3>
+                <h3 id="formTitle" style="margin-top:0">إضافة منتج جديد</h3>
                 <form id="addProductForm">
+                    <input type="hidden" id="editingId">
                     <div class="form-group">
                         <label>اسم المنتج</label>
                         <input type="text" id="name" required placeholder="مثلاً: جنط Vossen VFS-1">
@@ -242,7 +243,10 @@
                         <small style="color: #64748b; display: block; margin-top: 5px;">افصل بين الموديلات بـ | (العمود
                             الرأسي). الصيغة: الماركة الموديل البداية-النهاية</small>
                     </div>
-                    <button type="submit" class="submit-btn">إضافة المنتج إلى الموقع</button>
+                    <button type="submit" id="submitBtn" class="submit-btn" style="margin-bottom: 10px;">إضافة المنتج
+                        إلى الموقع</button>
+                    <button type="button" id="cancelBtn" class="submit-btn" style="background:#64748b; display:none;"
+                        onclick="resetForm()">إلغاء التعديل</button>
                 </form>
             </div>
 
@@ -295,7 +299,10 @@
 
                 productsGrid.innerHTML = products.map(p => `
                     <div class="product-card">
-                        <button class="delete-btn" onclick="deleteProduct('${p._id}')" title="مسح المنتج">×</button>
+                        <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 5px;">
+                            <button class="edit-btn" onclick="loadProductIntoForm('${p._id}')" title="تعديل المنتج" style="background:#4facfe; color:white; border:none; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:14px;">✎</button>
+                            <button class="delete-btn" onclick="deleteProduct('${p._id}')" title="مسح المنتج" style="position:static;">×</button>
+                        </div>
                         <img src="${p.image}" alt="${p.name}" onerror="this.src='https://placehold.co/400x300?text=Invalid+Image+URL'">
                         <div class="brand-badge">${p.brand}</div>
                         <h4>${p.name}</h4>
@@ -311,7 +318,55 @@
             }
         }
 
-        // Add Product
+        // Form Initialization components
+        const editingId = document.getElementById('editingId');
+        const formTitle = document.getElementById('formTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        function loadProductIntoForm(id) {
+            fetch('/api/products')
+                .then(res => res.json())
+                .then(products => {
+                    const p = products.find(x => x._id === id);
+                    if (!p) return;
+
+                    editingId.value = p._id;
+                    formTitle.innerText = "تعديل المنتج: " + p.name;
+                    submitBtn.innerText = "حفظ التعديلات";
+                    cancelBtn.style.display = 'block';
+
+                    document.getElementById('name').value = p.name;
+                    document.getElementById('brand').value = p.brand;
+                    document.getElementById('price').value = p.price;
+                    document.getElementById('image').value = p.image;
+                    document.getElementById('category').value = p.category;
+                    document.getElementById('vendorName').value = p.vendorName;
+                    document.getElementById('condition').value = p.condition;
+                    document.getElementById('warranty').value = p.warranty;
+
+                    // Format compatibility back to text
+                    if (p.compatibility && p.compatibility.length > 0) {
+                        document.getElementById('compatibilityInput').value = p.compatibility
+                            .map(c => `${c.brand} ${c.model} ${c.yearStart}-${c.yearEnd}`)
+                            .join(' | ');
+                    } else {
+                        document.getElementById('compatibilityInput').value = '';
+                    }
+
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+        }
+
+        function resetForm() {
+            form.reset();
+            editingId.value = '';
+            formTitle.innerText = "إضافة منتج جديد";
+            submitBtn.innerText = "إضافة المنتج إلى الموقع";
+            cancelBtn.style.display = 'none';
+        }
+
+        // Add/Update Product
         form.onsubmit = async (e) => {
             e.preventDefault();
 
@@ -341,25 +396,28 @@
                 compatibility: compatibility
             };
 
+            const url = editingId.value ? `/api/products/${editingId.value}` : '/api/products';
+            const method = editingId.value ? 'PUT' : 'POST';
+
             try {
-                const res = await fetch('/api/products', {
-                    method: 'POST',
+                const res = await fetch(url, {
+                    method: method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
 
                 if (res.ok) {
-                    form.reset();
+                    resetForm();
                     await fetchProducts();
-                    alert('✅ تم إضافة المنتج بنجاح!');
+                    alert(editingId.value ? '✅ تم تعديل المنتج بنجاح!' : '✅ تم إضافة المنتج بنجاح!');
                 } else if (res.status === 401) {
                     alert('❌ غير مسموح: لازم تسجل دخول الأول.');
                 } else {
                     const errData = await res.json();
-                    alert('❌ فشل في إضافة المنتج: ' + (errData.error || 'خطأ غير معروف'));
+                    alert('❌ فشل العملية: ' + (errData.error || 'خطأ غير معروف'));
                 }
             } catch (err) {
-                alert('❌ حدث خطأ في الشبكة. تأكد إنك فاتح الموقع من الرابط مش من الجهاز.');
+                alert('❌ حدث خطأ في الشبكة.');
             }
         };
 
