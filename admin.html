@@ -235,6 +235,13 @@
                             <option value="Accessories">اكسسوارات</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>التوافق (السيارات المتوافقة)</label>
+                        <textarea id="compatibilityInput"
+                            placeholder="مثلاً: Toyota Corolla 2010-2015 | BYD F3 2015-2024" rows="3"></textarea>
+                        <small style="color: #64748b; display: block; margin-top: 5px;">افصل بين الموديلات بـ | (العمود
+                            الرأسي). الصيغة: الماركة الموديل البداية-النهاية</small>
+                    </div>
                     <button type="submit" class="submit-btn">إضافة المنتج إلى الموقع</button>
                 </form>
             </div>
@@ -307,6 +314,21 @@
         // Add Product
         form.onsubmit = async (e) => {
             e.preventDefault();
+
+            // Parse compatibility
+            const compText = document.getElementById('compatibilityInput').value;
+            const compatibility = compText.split('|').map(item => {
+                const parts = item.trim().split(' ');
+                if (parts.length < 3) return null;
+                const years = parts[parts.length - 1].split('-');
+                return {
+                    brand: parts[0],
+                    model: parts.slice(1, -1).join(' '),
+                    yearStart: parseInt(years[0]),
+                    yearEnd: parseInt(years[1])
+                };
+            }).filter(i => i !== null);
+
             const data = {
                 name: document.getElementById('name').value,
                 brand: document.getElementById('brand').value,
@@ -315,7 +337,8 @@
                 category: document.getElementById('category').value,
                 vendorName: document.getElementById('vendorName').value || "متركنهاش",
                 condition: document.getElementById('condition').value,
-                warranty: document.getElementById('warranty').value || "لا يوجد"
+                warranty: document.getElementById('warranty').value || "لا يوجد",
+                compatibility: compatibility
             };
 
             try {
