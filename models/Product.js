@@ -10,6 +10,12 @@ const productSchema = new mongoose.Schema({
     vendorName: { type: String, default: "متركنهاش" },
     condition: { type: String, default: "جديد" },
     warranty: { type: String, default: "لا يوجد" },
+    compatibility: [{
+        brand: String,
+        model: String,
+        yearStart: Number,
+        yearEnd: Number
+    }],
     createdAt: { type: Date, default: Date.now }
 });
 
