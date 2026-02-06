@@ -200,61 +200,111 @@ app.post('/api/products', isAuthenticated, async (req, res) => {
     }
 });
 
-// Fitment Checker API (Hybrid: Simulated AI + DB)
+// Fitment Checker API (Real AI + Strict Fallback)
 app.post('/api/check-fitment', async (req, res) => {
     try {
         const { productId, userText } = req.body;
         const product = await Product.findById(productId);
         if (!product) return res.status(404).json({ error: 'المنتج غير موجود' });
 
-        // 1. Simulated AI Parsing (In a real app, this would call Gemini/OpenAI)
-        // This function extracts brand, model, and year from natural language
-        const parseVehiceInfo = (text) => {
-            const query = text.toLowerCase();
-            let brand = null, model = null, year = null;
+        const compatibilityData = product.compatibility && product.compatibility.length > 0
+            ? product.compatibility.map(c => `- ${c.brand} ${c.model} | ${c.yearStart} – ${c.yearEnd}`).join('\n')
+            : "لا توجد بيانات توافق محددة لهذه القطعة.";
 
-            if (query.includes('toyota') || query.includes('تويوتا') || query.includes('كورولا')) brand = 'toyota';
-            if (query.includes('hyundai') || query.includes('هيونداي') || query.includes('إلنترا')) brand = 'hyundai';
-            if (query.includes('byd') || query.includes('بي واي دي')) brand = 'byd';
+        const geminiKey = process.env.GEMINI_API_KEY;
 
-            if (query.includes('corolla') || query.includes('كورولا')) model = 'corolla';
-            if (query.includes('elantra') || query.includes('إلنترا') || query.includes('النترا')) model = 'elantra';
-            if (query.includes('f3')) model = 'f3';
+        // Structure the Prompt for the "Premium" experience
+        const aiPrompt = `
+أنت "المهندس عبود"، خبير فني في قطع غيار السيارات بموقع "متركنهاش". 
+صديق للعملاء لكنك تقني ومخضرم.
 
-            const yearMatch = query.match(/\d{4}/);
-            if (yearMatch) year = parseInt(yearMatch[0]);
+وظيفتك:
+1. فحص توافق القطعة (${product.name}) مع سيارة العميل بناءً على البيانات المقدمة.
+2. استخدام بيانات التوافق المتاحة فقط كمرجع أصلي.
+3. التحدث بلهجة "مهندس مختص" (ودود، احترافي، مباشر).
 
-            return { brand, model, year };
-        };
+بيانات التوافق للقطعة:
+${compatibilityData}
 
-        const vehicle = parseVehiceInfo(userText);
+سؤال العميل:
+"${userText}"
 
-        // 2. Database Validation
+قواعد الإجابة:
+- إذا كانت مناسبة: ابدأ بـ "مبروك يا بطل، القطعة دي بتركب عندك زي السكينة في الحلاوة..." ثم اشرح ليه (السنة والموديل).
+- إذا كانت غير مناسبة: "والله يا صاحبي للأسف القطعة دي ماتركبش عندك..." واذكر السبب التقني (مثلاً: الموديل ده نزل بنظام مختلف).
+- إذا لم تتوفر بيانات كافية: اطلب منه يبعت لك (الماتور كام سي سي؟ أو الموديل مانيوال ولا أوتوماتيك؟) لو ده هيساعد.
+- لا تزيد الإجابة عن سطرين. كن ذكياً ومقنعاً.
+        `;
+
+        // If Gemini Key is present, call the real AI
+        if (geminiKey && geminiKey !== 'YOUR_GEMINI_API_KEY_HERE') {
+            try {
+                // Using global fetch (Node 18+) to call Gemini API
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: aiPrompt }] }]
+                    })
+                });
+                const aiData = await response.json();
+
+                if (aiData.candidates && aiData.candidates[0]) {
+                    const aiResponse = aiData.candidates[0].content.parts[0].text;
+
+                    // Determine status based on keywords in AI response
+                    let status = 'warning';
+                    if (aiResponse.includes('نعم') || aiResponse.includes('مناسبة')) status = 'success';
+                    if (aiResponse.includes('لا') || aiResponse.includes('غير مناسبة')) status = 'error';
+                    if (aiResponse.includes('غير متأكد') || aiResponse.includes('توضيح')) status = 'warning';
+
+                    return res.json({ status, reason: aiResponse });
+                }
+            } catch (aiErr) {
+                console.error('Gemini API Error:', aiErr);
+            }
+        }
+
+        // --- STRICT SIMULATION FALLBACK (If no API key or API fails) ---
+        const query = userText.toLowerCase();
+
         if (!product.compatibility || product.compatibility.length === 0) {
             return res.json({
                 status: 'warning',
-                reason: 'التاجر لم يحدد قائمة التوافق بدقة، لكن الـ AI يرجح أنها قد تعمل. يفضل سؤال المهندس.'
+                reason: 'لا أستطيع التأكد حاليًا لأن بيانات القطعة غير مكتملة. من فضلك تواصل مع الدعم.'
             });
         }
 
-        const match = product.compatibility.find(c => {
-            const brandMatch = !vehicle.brand || c.brand.toLowerCase() === vehicle.brand;
-            const modelMatch = !vehicle.model || c.model.toLowerCase() === vehicle.model;
-            const yearMatch = !vehicle.year || (vehicle.year >= c.yearStart && vehicle.year <= c.yearEnd);
-            return brandMatch && modelMatch && yearMatch;
+        const vehicleMatch = (text) => {
+            const yMatch = text.match(/\d{4}/);
+            const year = yMatch ? parseInt(yMatch[0]) : null;
+
+            for (const c of product.compatibility) {
+                const b = (c.brand || "").toLowerCase();
+                const m = (c.model || "").toLowerCase();
+
+                if (text.includes(b) || text.includes(m)) {
+                    if (year) {
+                        if (year >= c.yearStart && year <= c.yearEnd) {
+                            return { status: 'success', reason: `نعم، القطعة مناسبة لعربيك لأن ${c.brand} ${c.model} موديل ${year} يقع ضمن نطاق التوافق من ${c.yearStart} إلى ${c.yearEnd}.` };
+                        } else {
+                            return { status: 'error', reason: `لا، القطعة غير مناسبة لعربيتك لأن موديل ${year} خارج نطاق السنوات المدعومة (${c.yearStart}-${c.yearEnd}).` };
+                        }
+                    } else {
+                        return { status: 'warning', reason: "لا أستطيع التأكد حاليًا لأن بيانات السنة غير موجودة. من فضلك حدد سنة الموديل." };
+                    }
+                }
+            }
+            return null;
+        };
+
+        const result = vehicleMatch(query);
+        if (result) return res.json(result);
+
+        res.json({
+            status: 'warning',
+            reason: 'لم أجد هذه السيارة في قائمة التوافق بشكل واضح. هل يمكنك تحديد الماركة والموديل بدقة؟'
         });
-
-        if (match) {
-            res.json({
-                status: 'success',
-                reason: `✅ متوافقة! هذه القطعة مخصصة لسيارات ${match.brand} ${match.model} في الفترة من ${match.yearStart} إلى ${match.yearEnd}.`
-            });
-        } else {
-            res.json({
-                status: 'error',
-                reason: `❌ غير متوافقة. القطعة دي مخصصة لموديلات تانية. يرجى مراجعة الوصف أو سؤال التاجر.`
-            });
-        }
 
     } catch (err) {
         console.error('Fitment Error:', err);
