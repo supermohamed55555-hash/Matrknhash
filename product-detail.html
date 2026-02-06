@@ -654,11 +654,8 @@
             resultBox.className = "fit-result";
 
             try {
-                // Get productId from URL if not already there, or from a data attribute
-                // for now we'll assume the URL has it or we just check against the name (simpler for this demo)
-                // In production, we should pass the actual _id.
-                // Let's try to get it from the URL first
-                const pid = new URLSearchParams(window.location.search).get('productId');
+                // The correct ID parameter is 'id' from the URL
+                const pid = urlParams.get('id');
 
                 const res = await fetch('/api/check-fitment', {
                     method: 'POST',
@@ -679,7 +676,7 @@
                     resultBox.className = "fit-result fit-error";
                 }
 
-                resultBox.innerHTML = `<strong>${data.reason}</strong>`;
+                resultBox.innerHTML = `<strong>${data.reason || data.error || 'عذراً، حدث خطأ ما'}</strong>`;
 
             } catch (err) {
                 console.error('Fitment API Error:', err);
