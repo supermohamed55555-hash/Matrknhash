@@ -1018,6 +1018,7 @@
         function showPartDetails(partName) {
             const part = partsDatabase.find(p => p.name === partName);
             const params = new URLSearchParams({
+                id: part._id, // Pass the MongoDB ID
                 part: part.name,
                 img: part.image,
                 price: part.price,
