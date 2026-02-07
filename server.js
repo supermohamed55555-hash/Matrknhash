@@ -256,6 +256,12 @@ app.post('/api/check-fitment', async (req, res) => {
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error(`AI API Error Status: ${response.status}`, errorText);
+                    if (response.status === 429) {
+                        return res.json({
+                            status: 'warning',
+                            reason: 'المهندس عبود بيقولك: "معلش يا بطل، جوجل مطلع عيني النهاردة ومحدد لي عدد رسايل. استنى دقيقة بس وهتلاقيني معاك زي الفل."'
+                        });
+                    }
                     throw new Error(`API returned ${response.status}`);
                 }
 
