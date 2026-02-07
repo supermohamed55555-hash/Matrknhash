@@ -204,10 +204,16 @@ app.post('/api/products', isAuthenticated, async (req, res) => {
 app.post('/api/check-fitment', async (req, res) => {
     try {
         const { productId, userText } = req.body;
-        const product = await Product.findById(productId);
-        if (!product) return res.status(404).json({ error: 'المنتج غير موجود' });
+        let product = null;
+        try {
+            if (productId && mongoose.Types.ObjectId.isValid(productId)) {
+                product = await Product.findById(productId);
+            }
+        } catch (e) {
+            console.log("Invalid Product ID or DB Error, proceeding as general query");
+        }
 
-        const compatibilityData = product.compatibility && product.compatibility.length > 0
+        const compatibilityData = product && product.compatibility && product.compatibility.length > 0
             ? product.compatibility.map(c => `- ${c.brand} ${c.model} | ${c.yearStart} – ${c.yearEnd}`).join('\n')
             : "لا توجد بيانات توافق محددة لهذه القطعة.";
 
@@ -218,13 +224,19 @@ app.post('/api/check-fitment', async (req, res) => {
 أنت "المهندس عبود"، خبير فني مخضرم في ميكانيكا وصيانة السيارات بموقع "متركنهاش". 
 صديق للعملاء، تقني، ومباشر، وبتتكلم بلهجة مصرية عامية "صنايعية شاطرة".
 
+بيانات القطعة الحالية: ${product ? product.name : "غير محددة"}
+بيانات التوافق: ${compatibilityData}
+
+سؤال العميل:
+"${userText}"
+
 مهامك:
-1. لو السؤال عن توافق القطعة (${product.name}): افحص التوافق بناءً على البيانات دي: ${compatibilityData}.
-2. لو السؤال عام في العربيات (ميكانيكا، صيانة، نصيحة): جاوب كخبير في المجال حتى لو ملوش علاقة مباشرة بالقطعة دي.
-3. لو السؤال بره عالم السيارات: اعتذر بلطافة وقوله إن تخصصك في العربيات بس.
+1. لو السؤال عن توافق القطعة المذكورة: افحص التوافق بناءً على البيانات المتوفرة.
+2. لو السؤال عام في العربيات وبرا نطاق القطعة: جاوب كخبير مخضرم.
+3. لو السؤال برا العربييات خالص: اعتذر بلطافة وقوله إن تخصصك في العربيات بس.
 
 قواعد الإجابة:
-- في التوافق: ابدأ بـ "مبروك يا بطل" لو بتركب، أو "للأسف ماتركبش" لو مش بتركب، واشرح السبب في سطر.
+- في التوافق: ابدأ بـ "مبروك يا بطل" لو بتركب، أو "للأسف ماتركبش" لو مش بتركب.
 - في الأسئلة العامة: جاوب بوضوح واختصار (متزودش عن سطرين).
 - خليك ذكي ومقنع وودود.
         `;
