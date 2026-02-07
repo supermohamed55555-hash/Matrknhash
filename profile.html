@@ -196,25 +196,43 @@
 
         <!-- 2. Returns Tab -->
         <div id="returns" class="content-area hidden">
-            <div class="section-title">المرتجعات</div>
-            <div style="text-align:center; margin-top:50px; color:#777;">
-                <div style="font-size:3rem; margin-bottom:10px;">�</div>
-                لا يوجد طلبات استرجاع حالياً.
+            <div class="section-title">طلبات المرتجعات</div>
+            <div class="returns-list">
+                <p style="text-align:center; padding:20px; opacity:0.5;">جاري تحميل المرتجعات...</p>
             </div>
         </div>
 
         <!-- 3. Addresses Tab -->
         <div id="addresses" class="content-area hidden">
             <div class="section-title">العناوين المحفوظة</div>
-            <div style="padding:15px; border:1px solid #ddd; border-radius:10px; position:relative;">
-                <strong>المنزل</strong>
-                <p style="margin:5px 0; color:#555; font-size:0.9rem;">12 شارع التحرير، الدقي، الجيزة، الدور الثالث.</p>
-                <span
-                    style="position:absolute; top:15px; left:15px; background:#eee; padding:2px 8px; border-radius:5px; font-size:0.8rem;">افتراضي</span>
+            <div class="addresses-list">
+                <!-- داتا حقيقية ستظهر هنا -->
             </div>
-            <button
-                style="margin-top:15px; padding:10px; width:100%; border:1px dashed #primary; color:var(--primary); background:#f0f4ff; cursor:pointer;">+
+            <button onclick="openAddressModal()"
+                style="margin-top:15px; padding:12px; width:100%; border:2px dashed var(--primary); color:var(--primary); background:#f0f4ff; cursor:pointer; border-radius:10px; font-weight:bold;">+
                 إضافة عنوان جديد</button>
+        </div>
+
+        <!-- Address Modal -->
+        <div id="addressModal" class="hidden"
+            style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000;">
+            <div style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px;">
+                <h3 style="margin-top:0">إضافة عنوان جديد</h3>
+                <input type="text" id="addrLabel" placeholder="اسم العنوان (مثال: المنزل)"
+                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+                <textarea id="addrDetails" placeholder="العنوان بالتفصيل"
+                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px; height:100px;"></textarea>
+                <div style="margin-bottom:15px;">
+                    <input type="checkbox" id="addrDefault">
+                    <label for="addrDefault">تعيين كعنوان افتراضي</label>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="saveAddress()"
+                        style="flex:1; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer;">حفظ</button>
+                    <button onclick="closeAddressModal()"
+                        style="flex:1; padding:10px; background:#eee; border:none; border-radius:8px; cursor:pointer;">إلغاء</button>
+                </div>
+            </div>
         </div>
 
         <!-- Other Tabs Sim -->
@@ -223,7 +241,11 @@
             <div
                 style="background:linear-gradient(45deg, #1a237e, #3949ab); color:white; padding:30px; border-radius:15px; text-align:center;">
                 <div style="font-size:0.9rem; opacity:0.8;">رصيدك الحالي</div>
-                <div style="font-size:2.5rem; font-weight:bold;">0.00 <span style="font-size:1rem;">ج.م</span></div>
+                <div style="font-size:2.5rem; font-weight:bold;" id="walletBalance">0.00 <span
+                        style="font-size:1rem;">ج.م</span></div>
+            </div>
+            <div style="margin-top:20px; text-align:center; color:#777;">
+                يمكنك استخدام الرصيد في عمليات الشراء القادمة.
             </div>
         </div>
         <div id="settings" class="content-area hidden">
@@ -244,38 +266,162 @@
                 if (userData.success) {
                     const user = userData.user;
                     document.getElementById('userNameLabel').innerText = 'أهلاً ' + user.name;
-                    document.getElementById('userEmailLabel').innerText = user.email;
+                    document.getElementById('userEmailLabel').innerText = user.email || '';
                     document.getElementById('avatarLetter').innerText = user.name.charAt(0).toUpperCase();
+
+                    // Initial load
+                    loadOrders();
+                    loadAddresses();
+                    loadWallet();
+                    loadReturns();
                 } else {
                     window.location.href = 'test1.html';
                 }
 
-                // 2. Fetch Real Orders
-                const ordersRes = await fetch('/api/user-orders');
-                const orders = await ordersRes.json();
-                const ordersContainer = document.querySelector('#orders .orders-list');
+                async function loadOrders() {
+                    try {
+                        const res = await fetch('/api/user-orders');
+                        const orders = await res.json();
+                        const container = document.querySelector('#orders .orders-list');
 
-                if (orders.length > 0) {
-                    ordersContainer.innerHTML = orders.map(order => `
-                    <div class="order-item">
-                        <div class="order-header">
-                            <span class="order-number">رقم الطلب: #${order._id.slice(-5)}</span>
-                            <span class="order-status ${order.status === 'تم التسليم' ? 'status-delivered' : 'status-pending'}">${order.status}</span>
-                        </div>
-                        <div class="order-content">
-                            <img src="${order.image || 'https://via.placeholder.com/80'}" alt="${order.productName}" class="order-img">
-                            <div class="order-details">
-                                <h4 class="order-title">${order.productName}</h4>
-                                <p class="order-meta">السعر: ${order.price} ج.م | التاريخ: ${new Date(order.createdAt).toLocaleDateString('ar-EG')}</p>
+                        if (orders.length > 0) {
+                            container.innerHTML = orders.map(order => `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <span>رقم الطلب: #${order._id.slice(-5)}</span>
+                                <span class="order-status">${order.status}</span>
                             </div>
-                            <button class="reorder-btn"
-                                style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;"
-                                onclick="alert('جاري تتبع الطلب مع شركة الشحن...')">تتبع الطلب</button>
+                            <div class="order-item">
+                                <img src="${order.image || 'https://via.placeholder.com/80'}" class="order-img">
+                                <div style="flex:1">
+                                    <h4 style="margin:0 0 5px 0">${order.productName}</h4>
+                                    <p style="margin:0; font-size:0.9rem; color:#777;">${order.price} ج.م | ${new Date(order.createdAt).toLocaleDateString('ar-EG')}</p>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:5px;">
+                                    <button style="background:var(--primary); color:white; border:none; padding:5px 12px; border-radius:5px; cursor:pointer; font-size:0.8rem;"
+                                        onclick="alert('تتبع الشحنة المباشر متاح قريباً')">تتبع</button>
+                                    ${order.status === 'تم التسليم' && !order.returnStatus ?
+                                    `<button style="background:#fff1f0; color:#cf1322; border:1px solid #ffa39e; padding:5px 12px; border-radius:5px; cursor:pointer; font-size:0.8rem;"
+                                            onclick="requestReturn('${order._id}')">استرجاع</button>` : ''}
+                                </div>
+                            </div>
+                            ${order.returnStatus ? `<div style="margin-top:10px; padding:8px; background:#f5f5f5; border-radius:5px; font-size:0.8rem; color:#666;">
+                                حالة المرتجع: <strong>${order.returnStatus}</strong>
+                            </div>` : ''}
                         </div>
-                    </div>
                     `).join('');
-                } else {
-                    ordersContainer.innerHTML = '<div style="text-align:center; padding:40px; opacity:0.6;">ليس لديك طلبات سابقة حالياً.</div>';
+                        } else {
+                            container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.6;">ليس لديك طلبات سابقة حالياً.</p>';
+                        }
+                    } catch (err) { console.error(err); }
+                }
+
+                async function loadAddresses() {
+                    try {
+                        const res = await fetch('/api/user/addresses');
+                        const addresses = await res.json();
+                        const container = document.querySelector('.addresses-list');
+
+                        if (addresses.length > 0) {
+                            container.innerHTML = addresses.map(addr => `
+                        <div style="padding:15px; border:1px solid #eee; border-radius:10px; margin-bottom:10px; position:relative;">
+                            <strong>${addr.label}</strong>
+                            <p style="margin:5px 0; color:#555; font-size:0.9rem;">${addr.details}</p>
+                            ${addr.isDefault ? '<span style="background:#eef2ff; color:var(--primary); padding:2px 8px; border-radius:5px; font-size:0.8rem;">افتراضي</span>' : ''}
+                            <button onclick="deleteAddress('${addr._id}')" style="background:none; border:none; color:red; cursor:pointer; font-size:0.8rem; margin-top:5px;">حذف</button>
+                        </div>
+                    `).join('');
+                        } else {
+                            container.innerHTML = '<p style="text-align:center; color:#999;">لم تقم بإضافة أي عناوين بعد.</p>';
+                        }
+                    } catch (err) { console.error(err); }
+                }
+
+                async function loadWallet() {
+                    try {
+                        const res = await fetch('/api/user/wallet');
+                        const data = await res.json();
+                        document.getElementById('walletBalance').innerHTML = `${data.balance.toFixed(2)} <span style="font-size:1rem;">ج.م</span>`;
+                    } catch (err) { console.error(err); }
+                }
+
+                async function loadReturns() {
+                    try {
+                        const res = await fetch('/api/user-returns');
+                        const returns = await res.json();
+                        const container = document.querySelector('.returns-list');
+
+                        if (returns.length > 0) {
+                            container.innerHTML = returns.map(ret => `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <span>طلب مرتجع #${ret._id.slice(-5)}</span>
+                                <span style="background:#e6f7ff; color:#1890ff; padding:2px 8px; border-radius:10px; font-size:0.8rem;">${ret.returnStatus}</span>
+                            </div>
+                            <div style="font-size:0.9rem; color:#666;">السبب: ${ret.returnReason}</div>
+                        </div>
+                    `).join('');
+                        } else {
+                            container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.6;">لا يوجد طلبات استرجاع حالياً.</p>';
+                        }
+                    } catch (err) { console.error(err); }
+                }
+
+                function openAddressModal() {
+                    document.getElementById('addressModal').classList.remove('hidden');
+                }
+
+                function closeAddressModal() {
+                    document.getElementById('addressModal').classList.add('hidden');
+                }
+
+                async function saveAddress() {
+                    const label = document.getElementById('addrLabel').value;
+                    const details = document.getElementById('addrDetails').value;
+                    const isDefault = document.getElementById('addrDefault').checked;
+
+                    if (!label || !details) return alert('برجاء ملء البيانات');
+
+                    try {
+                        const res = await fetch('/api/user/addresses', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ label, details, isDefault })
+                        });
+                        if (res.ok) {
+                            closeAddressModal();
+                            loadAddresses();
+                            // Reset fields
+                            document.getElementById('addrLabel').value = '';
+                            document.getElementById('addrDetails').value = '';
+                        }
+                    } catch (err) { alert('فشل حفظ العنوان'); }
+                }
+
+                async function deleteAddress(id) {
+                    if (!confirm('هل أنت متأكد من حذف هذا العنوان؟')) return;
+                    try {
+                        await fetch(`/api/user/addresses/${id}`, { method: 'DELETE' });
+                        loadAddresses();
+                    } catch (err) { alert('فشل الحذف'); }
+                }
+
+                async function requestReturn(id) {
+                    const reason = prompt('برجاء ذكر سبب الاسترجاع:');
+                    if (!reason) return;
+
+                    try {
+                        const res = await fetch(`/api/orders/${id}/return`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ reason })
+                        });
+                        if (res.ok) {
+                            alert('تم تقديم طلب الاسترجاع بنجاح');
+                            loadOrders();
+                            loadReturns();
+                        }
+                    } catch (err) { alert('فشل تقديم الطلب'); }
                 }
 
             } catch (err) {
