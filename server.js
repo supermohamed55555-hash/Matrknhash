@@ -244,7 +244,7 @@ app.post('/api/check-fitment', async (req, res) => {
         // If Gemini Key is present, call the real AI
         if (geminiKey && geminiKey !== 'YOUR_GEMINI_API_KEY_HERE') {
             try {
-                // Using global fetch (Node 18+) to call Gemini API
+                process.stdout.write(`Calling AI for: ${userText}\n`);
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -255,7 +255,8 @@ app.post('/api/check-fitment', async (req, res) => {
                 const aiData = await response.json();
 
                 if (aiData.candidates && aiData.candidates[0]) {
-                    const aiResponse = aiData.candidates[0].content.parts[0].text;
+                    const aiResponse = aiData.candidates[0].content.parts[0].text.trim();
+                    process.stdout.write(`AI Answered: ${aiResponse.substring(0, 50)}...\n`);
 
                     // Determine status based on keywords in AI response
                     let status = 'warning';
@@ -265,51 +266,50 @@ app.post('/api/check-fitment', async (req, res) => {
                     if (resp.includes('اعتذر') || resp.includes('تخصصي')) status = 'warning';
 
                     return res.json({ status, reason: aiResponse });
+                } else {
+                    console.error('AI Empty Response:', JSON.stringify(aiData));
                 }
             } catch (aiErr) {
-                console.error('Gemini API Error:', aiErr);
+                console.error('Gemini API Error details:', aiErr);
             }
         }
 
-        // --- STRICT SIMULATION FALLBACK (If no API key or API fails) ---
-        const query = userText.toLowerCase();
+        // --- STRICT SIMULATION FALLBACK (If no API key or AI block failed) ---
+        const query = (userText || "").toLowerCase();
 
-        if (!product.compatibility || product.compatibility.length === 0) {
-            return res.json({
-                status: 'warning',
-                reason: 'لا أستطيع التأكد حاليًا لأن بيانات القطعة غير مكتملة. من فضلك تواصل مع الدعم.'
-            });
-        }
+        // Avoid crashing if product is null
+        if (product && product.compatibility && product.compatibility.length > 0) {
+            const vehicleMatch = (text) => {
+                const yMatch = text.match(/\d{4}/);
+                const year = yMatch ? parseInt(yMatch[0]) : null;
 
-        const vehicleMatch = (text) => {
-            const yMatch = text.match(/\d{4}/);
-            const year = yMatch ? parseInt(yMatch[0]) : null;
+                for (const c of product.compatibility) {
+                    const b = (c.brand || "").toLowerCase();
+                    const m = (c.model || "").toLowerCase();
 
-            for (const c of product.compatibility) {
-                const b = (c.brand || "").toLowerCase();
-                const m = (c.model || "").toLowerCase();
-
-                if (text.includes(b) || text.includes(m)) {
-                    if (year) {
-                        if (year >= c.yearStart && year <= c.yearEnd) {
-                            return { status: 'success', reason: `نعم، القطعة مناسبة لعربيك لأن ${c.brand} ${c.model} موديل ${year} يقع ضمن نطاق التوافق من ${c.yearStart} إلى ${c.yearEnd}.` };
+                    if (text.includes(b) || text.includes(m)) {
+                        if (year) {
+                            if (year >= c.yearStart && year <= c.yearEnd) {
+                                return { status: 'success', reason: `نعم، القطعة مناسبة لعربيك لأن ${c.brand} ${c.model} موديل ${year} يقع ضمن نطاق التوافق من ${c.yearStart} إلى ${c.yearEnd}.` };
+                            } else {
+                                return { status: 'error', reason: `لا، القطعة غير مناسبة لعربيتك لأن موديل ${year} خارج نطاق السنوات المدعومة (${c.yearStart}-${c.yearEnd}).` };
+                            }
                         } else {
-                            return { status: 'error', reason: `لا، القطعة غير مناسبة لعربيتك لأن موديل ${year} خارج نطاق السنوات المدعومة (${c.yearStart}-${c.yearEnd}).` };
+                            return { status: 'warning', reason: "لا أستطيع التأكد حاليًا لأن بيانات السنة غير موجودة. من فضلك حدد سنة الموديل." };
                         }
-                    } else {
-                        return { status: 'warning', reason: "لا أستطيع التأكد حاليًا لأن بيانات السنة غير موجودة. من فضلك حدد سنة الموديل." };
                     }
                 }
-            }
-            return null;
-        };
+                return null;
+            };
 
-        const result = vehicleMatch(query);
-        if (result) return res.json(result);
+            const result = vehicleMatch(query);
+            if (result) return res.json(result);
+        }
 
+        // Final Fallback for general questions if AI failed or fitment not found
         res.json({
             status: 'warning',
-            reason: 'لم أجد هذه السيارة في قائمة التوافق بشكل واضح. هل يمكنك تحديد الماركة والموديل بدقة؟'
+            reason: 'المهندس عبود بيقولك: "معلش يا بطل، حصل ضغط عندي. اسألني تاني بوضوح أو جرب بعد دقيقة وعيوني ليك."'
         });
 
     } catch (err) {
