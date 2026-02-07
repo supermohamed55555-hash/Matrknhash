@@ -175,12 +175,12 @@
     <div class="container">
         <!-- Sidebar Menu -->
         <div class="sidebar">
-            <div class="menu-item active" onclick="showTab('orders')">� الطلبات</div>
-            <div class="menu-item" onclick="showTab('returns')">↩️ المرتجعات</div>
-            <div class="menu-item" onclick="showTab('addresses')">📍 العناوين</div>
-            <div class="menu-item" onclick="showTab('wallet')">� المحفظة</div>
-            <div class="menu-item" onclick="showTab('settings')">⚙️ الإعدادات</div>
-            <div class="menu-item" onclick="logout()" style="color:red; margin-top:20px;">🚪 تسجيل خروج</div>
+            <div class="menu-item active" onclick="showTab('orders')">الطلبات</div>
+            <div class="menu-item" onclick="showTab('returns')">المرتجعات</div>
+            <div class="menu-item" onclick="showTab('addresses')"> العناوين</div>
+            <div class="menu-item" onclick="showTab('wallet')"> المحفظة</div>
+            <div class="menu-item" onclick="showTab('settings')"> الإعدادات</div>
+            <div class="menu-item" onclick="logout()" style="color:red; margin-top:20px;"> تسجيل خروج</div>
         </div>
 
         <!-- Content Content -->
@@ -277,15 +277,19 @@
                 } else {
                     window.location.href = 'test1.html';
                 }
+            } catch (err) {
+                console.error('Profile Error:', err);
+            }
+        }
 
-                async function loadOrders() {
-                    try {
-                        const res = await fetch('/api/user-orders');
-                        const orders = await res.json();
-                        const container = document.querySelector('#orders .orders-list');
+        async function loadOrders() {
+            try {
+                const res = await fetch('/api/user-orders');
+                const orders = await res.json();
+                const container = document.querySelector('#orders .orders-list');
 
-                        if (orders.length > 0) {
-                            container.innerHTML = orders.map(order => `
+                if (orders.length > 0) {
+                    container.innerHTML = orders.map(order => `
                         <div class="order-card">
                             <div class="order-header">
                                 <span>رقم الطلب: #${order._id.slice(-5)}</span>
@@ -301,7 +305,7 @@
                                     <button style="background:var(--primary); color:white; border:none; padding:5px 12px; border-radius:5px; cursor:pointer; font-size:0.8rem;"
                                         onclick="alert('تتبع الشحنة المباشر متاح قريباً')">تتبع</button>
                                     ${order.status === 'تم التسليم' && !order.returnStatus ?
-                                    `<button style="background:#fff1f0; color:#cf1322; border:1px solid #ffa39e; padding:5px 12px; border-radius:5px; cursor:pointer; font-size:0.8rem;"
+                            `<button style="background:#fff1f0; color:#cf1322; border:1px solid #ffa39e; padding:5px 12px; border-radius:5px; cursor:pointer; font-size:0.8rem;"
                                             onclick="requestReturn('${order._id}')">استرجاع</button>` : ''}
                                 </div>
                             </div>
@@ -310,20 +314,20 @@
                             </div>` : ''}
                         </div>
                     `).join('');
-                        } else {
-                            container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.6;">ليس لديك طلبات سابقة حالياً.</p>';
-                        }
-                    } catch (err) { console.error(err); }
+                } else {
+                    container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.6;">ليس لديك طلبات سابقة حالياً.</p>';
                 }
+            } catch (err) { console.error(err); }
+        }
 
-                async function loadAddresses() {
-                    try {
-                        const res = await fetch('/api/user/addresses');
-                        const addresses = await res.json();
-                        const container = document.querySelector('.addresses-list');
+        async function loadAddresses() {
+            try {
+                const res = await fetch('/api/user/addresses');
+                const addresses = await res.json();
+                const container = document.querySelector('.addresses-list');
 
-                        if (addresses.length > 0) {
-                            container.innerHTML = addresses.map(addr => `
+                if (addresses.length > 0) {
+                    container.innerHTML = addresses.map(addr => `
                         <div style="padding:15px; border:1px solid #eee; border-radius:10px; margin-bottom:10px; position:relative;">
                             <strong>${addr.label}</strong>
                             <p style="margin:5px 0; color:#555; font-size:0.9rem;">${addr.details}</p>
@@ -331,28 +335,28 @@
                             <button onclick="deleteAddress('${addr._id}')" style="background:none; border:none; color:red; cursor:pointer; font-size:0.8rem; margin-top:5px;">حذف</button>
                         </div>
                     `).join('');
-                        } else {
-                            container.innerHTML = '<p style="text-align:center; color:#999;">لم تقم بإضافة أي عناوين بعد.</p>';
-                        }
-                    } catch (err) { console.error(err); }
+                } else {
+                    container.innerHTML = '<p style="text-align:center; color:#999;">لم تقم بإضافة أي عناوين بعد.</p>';
                 }
+            } catch (err) { console.error(err); }
+        }
 
-                async function loadWallet() {
-                    try {
-                        const res = await fetch('/api/user/wallet');
-                        const data = await res.json();
-                        document.getElementById('walletBalance').innerHTML = `${data.balance.toFixed(2)} <span style="font-size:1rem;">ج.م</span>`;
-                    } catch (err) { console.error(err); }
-                }
+        async function loadWallet() {
+            try {
+                const res = await fetch('/api/user/wallet');
+                const data = await res.json();
+                document.getElementById('walletBalance').innerHTML = `${data.balance.toFixed(2)} <span style="font-size:1rem;">ج.م</span>`;
+            } catch (err) { console.error(err); }
+        }
 
-                async function loadReturns() {
-                    try {
-                        const res = await fetch('/api/user-returns');
-                        const returns = await res.json();
-                        const container = document.querySelector('.returns-list');
+        async function loadReturns() {
+            try {
+                const res = await fetch('/api/user-returns');
+                const returns = await res.json();
+                const container = document.querySelector('.returns-list');
 
-                        if (returns.length > 0) {
-                            container.innerHTML = returns.map(ret => `
+                if (returns.length > 0) {
+                    container.innerHTML = returns.map(ret => `
                         <div class="order-card">
                             <div class="order-header">
                                 <span>طلب مرتجع #${ret._id.slice(-5)}</span>
@@ -361,72 +365,67 @@
                             <div style="font-size:0.9rem; color:#666;">السبب: ${ret.returnReason}</div>
                         </div>
                     `).join('');
-                        } else {
-                            container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.6;">لا يوجد طلبات استرجاع حالياً.</p>';
-                        }
-                    } catch (err) { console.error(err); }
+                } else {
+                    container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.6;">لا يوجد طلبات استرجاع حالياً.</p>';
                 }
+            } catch (err) { console.error(err); }
+        }
 
-                function openAddressModal() {
-                    document.getElementById('addressModal').classList.remove('hidden');
+        function openAddressModal() {
+            document.getElementById('addressModal').classList.remove('hidden');
+        }
+
+        function closeAddressModal() {
+            document.getElementById('addressModal').classList.add('hidden');
+        }
+
+        async function saveAddress() {
+            const label = document.getElementById('addrLabel').value;
+            const details = document.getElementById('addrDetails').value;
+            const isDefault = document.getElementById('addrDefault').checked;
+
+            if (!label || !details) return alert('برجاء ملء البيانات');
+
+            try {
+                const res = await fetch('/api/user/addresses', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ label, details, isDefault })
+                });
+                if (res.ok) {
+                    closeAddressModal();
+                    loadAddresses();
+                    // Reset fields
+                    document.getElementById('addrLabel').value = '';
+                    document.getElementById('addrDetails').value = '';
                 }
+            } catch (err) { alert('فشل حفظ العنوان'); }
+        }
 
-                function closeAddressModal() {
-                    document.getElementById('addressModal').classList.add('hidden');
+        async function deleteAddress(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا العنوان؟')) return;
+            try {
+                await fetch(`/api/user/addresses/${id}`, { method: 'DELETE' });
+                loadAddresses();
+            } catch (err) { alert('فشل الحذف'); }
+        }
+
+        async function requestReturn(id) {
+            const reason = prompt('برجاء ذكر سبب الاسترجاع:');
+            if (!reason) return;
+
+            try {
+                const res = await fetch(`/api/orders/${id}/return`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+                if (res.ok) {
+                    alert('تم تقديم طلب الاسترجاع بنجاح');
+                    loadOrders();
+                    loadReturns();
                 }
-
-                async function saveAddress() {
-                    const label = document.getElementById('addrLabel').value;
-                    const details = document.getElementById('addrDetails').value;
-                    const isDefault = document.getElementById('addrDefault').checked;
-
-                    if (!label || !details) return alert('برجاء ملء البيانات');
-
-                    try {
-                        const res = await fetch('/api/user/addresses', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ label, details, isDefault })
-                        });
-                        if (res.ok) {
-                            closeAddressModal();
-                            loadAddresses();
-                            // Reset fields
-                            document.getElementById('addrLabel').value = '';
-                            document.getElementById('addrDetails').value = '';
-                        }
-                    } catch (err) { alert('فشل حفظ العنوان'); }
-                }
-
-                async function deleteAddress(id) {
-                    if (!confirm('هل أنت متأكد من حذف هذا العنوان؟')) return;
-                    try {
-                        await fetch(`/api/user/addresses/${id}`, { method: 'DELETE' });
-                        loadAddresses();
-                    } catch (err) { alert('فشل الحذف'); }
-                }
-
-                async function requestReturn(id) {
-                    const reason = prompt('برجاء ذكر سبب الاسترجاع:');
-                    if (!reason) return;
-
-                    try {
-                        const res = await fetch(`/api/orders/${id}/return`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ reason })
-                        });
-                        if (res.ok) {
-                            alert('تم تقديم طلب الاسترجاع بنجاح');
-                            loadOrders();
-                            loadReturns();
-                        }
-                    } catch (err) { alert('فشل تقديم الطلب'); }
-                }
-
-            } catch (err) {
-                console.error('Profile Error:', err);
-            }
+            } catch (err) { alert('فشل تقديم الطلب'); }
         }
 
         function showTab(tabId) {
