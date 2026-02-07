@@ -10,6 +10,12 @@ const userSchema = new mongoose.Schema({
   phone: { type: String },
   shopName: { type: String }, // For Vendors
   location: { type: String }, // For Vendors
+  addresses: [{
+    label: String, // e.g., المنزل، المكتب
+    details: String,
+    isDefault: { type: Boolean, default: false }
+  }],
+  walletBalance: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
 });
 
