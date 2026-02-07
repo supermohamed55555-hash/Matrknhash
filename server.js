@@ -244,7 +244,7 @@ app.post('/api/check-fitment', async (req, res) => {
         // If Gemini Key is present, call the real AI
         if (geminiKey && geminiKey !== 'YOUR_GEMINI_API_KEY_HERE') {
             try {
-                process.stdout.write(`Calling AI for: ${userText}\n`);
+                process.stdout.write(`\n--- Calling AI for: "${userText}" ---\n`);
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -252,13 +252,19 @@ app.post('/api/check-fitment', async (req, res) => {
                         contents: [{ parts: [{ text: aiPrompt }] }]
                     })
                 });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`AI API Error Status: ${response.status}`, errorText);
+                    throw new Error(`API returned ${response.status}`);
+                }
+
                 const aiData = await response.json();
 
                 if (aiData.candidates && aiData.candidates[0]) {
                     const aiResponse = aiData.candidates[0].content.parts[0].text.trim();
                     process.stdout.write(`AI Answered: ${aiResponse.substring(0, 50)}...\n`);
 
-                    // Determine status based on keywords in AI response
                     let status = 'warning';
                     const resp = aiResponse.toLowerCase();
                     if (resp.includes('مبروك') || resp.includes('مناسبة') || resp.includes('تنفع') || resp.includes('تركب')) status = 'success';
@@ -267,11 +273,16 @@ app.post('/api/check-fitment', async (req, res) => {
 
                     return res.json({ status, reason: aiResponse });
                 } else {
-                    console.error('AI Empty Response:', JSON.stringify(aiData));
+                    console.error('AI Empty Response structure:', JSON.stringify(aiData));
                 }
             } catch (aiErr) {
-                console.error('Gemini API Error details:', aiErr);
+                console.error('CRITICAL AI ERROR:', aiErr.message);
+                if (aiErr.message.includes('fetch is not defined')) {
+                    console.error('Node version is too old. Please use Node 18 or higher.');
+                }
             }
+        } else {
+            console.warn('AI skipped: GEMINI_API_KEY is missing or default.');
         }
 
         // --- STRICT SIMULATION FALLBACK (If no API key or AI block failed) ---
@@ -307,9 +318,13 @@ app.post('/api/check-fitment', async (req, res) => {
         }
 
         // Final Fallback for general questions if AI failed or fitment not found
+        const errorMessage = (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY_HERE')
+            ? 'المهندس عبود بيقولك: "حصلت مشكلة تقنية عندي.. جرب كمان دقيقة. لو فضلت كدة قولي للذكاء الاصطناعي يشوف الـ Logs في Railway."'
+            : '⚠️ تنبيه: مفتاح الـ API ممسوح أو مش شغال. لازم تظبطه في الـ .env أولاً.';
+
         res.json({
             status: 'warning',
-            reason: 'المهندس عبود بيقولك: "معلش يا بطل، حصل ضغط عندي. اسألني تاني بوضوح أو جرب بعد دقيقة وعيوني ليك."'
+            reason: errorMessage
         });
 
     } catch (err) {
