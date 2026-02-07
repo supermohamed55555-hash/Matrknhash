@@ -241,54 +241,50 @@ app.post('/api/check-fitment', async (req, res) => {
 - خليك ذكي ومقنع وودود.
         `;
 
-        // If Gemini Key is present, call the real AI
-        if (geminiKey && geminiKey !== 'YOUR_GEMINI_API_KEY_HERE') {
+        const groqKey = process.env.GROQ_API_KEY || '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';
+
+        // --- Groq Integration (Faster & Higher Quota) ---
+        if (groqKey) {
             try {
-                process.stdout.write(`\n--- Calling AI for: "${userText}" ---\n`);
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${geminiKey}`, {
+                process.stdout.write(`\n--- Calling GROQ AI for: "${userText}" ---\n`);
+                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Authorization': `Bearer ${groqKey}`,
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: aiPrompt }] }]
+                        messages: [
+                            { role: 'system', content: 'أنت "المهندس عبود"، خبير فني مخضرم في ميكانيكا وصيانة السيارات بموقع "متركنهاش". صديق للعملاء، وتتحدث بلهجة مصرية عامية "صنايعية شاطرة".' },
+                            { role: 'user', content: aiPrompt }
+                        ],
+                        model: 'llama-3.3-70b-versatile',
+                        temperature: 0.7,
+                        max_tokens: 500
                     })
                 });
 
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error(`AI API Error Status: ${response.status}`, errorText);
-                    if (response.status === 429) {
-                        return res.json({
-                            status: 'warning',
-                            reason: 'المهندس عبود بيقولك: "معلش يا بطل، جوجل مطلع عيني النهاردة ومحدد لي عدد رسايل. استنى دقيقة بس وهتلاقيني معاك زي الفل."'
-                        });
-                    }
-                    throw new Error(`API returned ${response.status}`);
+                    const errData = await response.json();
+                    console.error('Groq API Error:', errData);
+                    throw new Error(`Groq returned ${response.status}`);
                 }
 
-                const aiData = await response.json();
+                const data = await response.json();
+                const aiResponse = data.choices[0].message.content.trim();
+                process.stdout.write(`Groq Answered: ${aiResponse.substring(0, 50)}...\n`);
 
-                if (aiData.candidates && aiData.candidates[0]) {
-                    const aiResponse = aiData.candidates[0].content.parts[0].text.trim();
-                    process.stdout.write(`AI Answered: ${aiResponse.substring(0, 50)}...\n`);
+                // Determine status based on keywords
+                let status = 'warning';
+                const resp = aiResponse.toLowerCase();
+                if (resp.includes('مبروك') || resp.includes('مناسبة') || resp.includes('تنفع') || resp.includes('تركب')) status = 'success';
+                if (resp.includes('للأسف') || resp.includes('ما تتركبش') || resp.includes('غير مناسبة') || resp.includes('ماتركبش')) status = 'error';
+                if (resp.includes('اعتذر') || resp.includes('تخصصي')) status = 'warning';
 
-                    let status = 'warning';
-                    const resp = aiResponse.toLowerCase();
-                    if (resp.includes('مبروك') || resp.includes('مناسبة') || resp.includes('تنفع') || resp.includes('تركب')) status = 'success';
-                    if (resp.includes('للأسف') || resp.includes('ما تتركبش') || resp.includes('غير مناسبة') || resp.includes('ماتركبش')) status = 'error';
-                    if (resp.includes('اعتذر') || resp.includes('تخصصي')) status = 'warning';
-
-                    return res.json({ status, reason: aiResponse });
-                } else {
-                    console.error('AI Empty Response structure:', JSON.stringify(aiData));
-                }
-            } catch (aiErr) {
-                console.error('CRITICAL AI ERROR:', aiErr.message);
-                if (aiErr.message.includes('fetch is not defined')) {
-                    console.error('Node version is too old. Please use Node 18 or higher.');
-                }
+                return res.json({ status, reason: aiResponse });
+            } catch (err) {
+                console.error('CRITICAL GROQ ERROR:', err.message);
             }
-        } else {
-            console.warn('AI skipped: GEMINI_API_KEY is missing or default.');
         }
 
         // --- STRICT SIMULATION FALLBACK (If no API key or AI block failed) ---
