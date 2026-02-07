@@ -396,6 +396,81 @@ app.get('/api/current_user', (req, res) => {
     res.send(req.user);
 });
 
+// --- Address Management ---
+app.get('/api/user/addresses', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        res.json(user.addresses || []);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch addresses' });
+    }
+});
+
+app.post('/api/user/addresses', isAuthenticated, async (req, res) => {
+    try {
+        const { label, details, isDefault } = req.body;
+        const user = await User.findById(req.user._id);
+
+        if (isDefault) {
+            user.addresses.forEach(addr => addr.isDefault = false);
+        }
+
+        user.addresses.push({ label, details, isDefault });
+        await user.save();
+        res.status(201).json(user.addresses);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to add address' });
+    }
+});
+
+app.delete('/api/user/addresses/:id', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        user.addresses = user.addresses.filter(addr => addr._id.toString() !== req.params.id);
+        await user.save();
+        res.json({ success: true, message: 'Address deleted' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete address' });
+    }
+});
+
+// --- Returns & Wallet ---
+app.post('/api/orders/:id/return', isAuthenticated, async (req, res) => {
+    try {
+        const { reason } = req.body;
+        const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+
+        order.returnStatus = 'Requested';
+        order.returnReason = reason;
+        await order.save();
+        res.json({ success: true, message: 'Return requested successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to request return' });
+    }
+});
+
+app.get('/api/user-returns', isAuthenticated, async (req, res) => {
+    try {
+        const returns = await Order.find({
+            user: req.user._id,
+            returnStatus: { $ne: null }
+        }).sort({ createdAt: -1 });
+        res.json(returns);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch returns' });
+    }
+});
+
+app.get('/api/user/wallet', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        res.json({ balance: user.walletBalance || 0 });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch wallet balance' });
+    }
+});
+
 // Start Server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
