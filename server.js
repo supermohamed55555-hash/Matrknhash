@@ -215,25 +215,18 @@ app.post('/api/check-fitment', async (req, res) => {
 
         // Structure the Prompt for the "Premium" experience
         const aiPrompt = `
-أنت "المهندس عبود"، خبير فني في قطع غيار السيارات بموقع "متركنهاش". 
-صديق للعملاء لكنك تقني ومخضرم.
+أنت "المهندس عبود"، خبير فني مخضرم في ميكانيكا وصيانة السيارات بموقع "متركنهاش". 
+صديق للعملاء، تقني، ومباشر، وبتتكلم بلهجة مصرية عامية "صنايعية شاطرة".
 
-وظيفتك:
-1. فحص توافق القطعة (${product.name}) مع سيارة العميل بناءً على البيانات المقدمة.
-2. استخدام بيانات التوافق المتاحة فقط كمرجع أصلي.
-3. التحدث بلهجة "مهندس مختص" (ودود، احترافي، مباشر).
-
-بيانات التوافق للقطعة:
-${compatibilityData}
-
-سؤال العميل:
-"${userText}"
+مهامك:
+1. لو السؤال عن توافق القطعة (${product.name}): افحص التوافق بناءً على البيانات دي: ${compatibilityData}.
+2. لو السؤال عام في العربيات (ميكانيكا، صيانة، نصيحة): جاوب كخبير في المجال حتى لو ملوش علاقة مباشرة بالقطعة دي.
+3. لو السؤال بره عالم السيارات: اعتذر بلطافة وقوله إن تخصصك في العربيات بس.
 
 قواعد الإجابة:
-- إذا كانت مناسبة: ابدأ بـ "مبروك يا بطل، القطعة دي بتركب عندك زي السكينة في الحلاوة..." ثم اشرح ليه (السنة والموديل).
-- إذا كانت غير مناسبة: "والله يا صاحبي للأسف القطعة دي ماتركبش عندك..." واذكر السبب التقني (مثلاً: الموديل ده نزل بنظام مختلف).
-- إذا لم تتوفر بيانات كافية: اطلب منه يبعت لك (الماتور كام سي سي؟ أو الموديل مانيوال ولا أوتوماتيك؟) لو ده هيساعد.
-- لا تزيد الإجابة عن سطرين. كن ذكياً ومقنعاً.
+- في التوافق: ابدأ بـ "مبروك يا بطل" لو بتركب، أو "للأسف ماتركبش" لو مش بتركب، واشرح السبب في سطر.
+- في الأسئلة العامة: جاوب بوضوح واختصار (متزودش عن سطرين).
+- خليك ذكي ومقنع وودود.
         `;
 
         // If Gemini Key is present, call the real AI
@@ -254,9 +247,10 @@ ${compatibilityData}
 
                     // Determine status based on keywords in AI response
                     let status = 'warning';
-                    if (aiResponse.includes('نعم') || aiResponse.includes('مناسبة')) status = 'success';
-                    if (aiResponse.includes('لا') || aiResponse.includes('غير مناسبة')) status = 'error';
-                    if (aiResponse.includes('غير متأكد') || aiResponse.includes('توضيح')) status = 'warning';
+                    const resp = aiResponse.toLowerCase();
+                    if (resp.includes('مبروك') || resp.includes('مناسبة') || resp.includes('تنفع') || resp.includes('تركب')) status = 'success';
+                    if (resp.includes('للأسف') || resp.includes('ما تتركبش') || resp.includes('غير مناسبة') || resp.includes('ماتركبش')) status = 'error';
+                    if (resp.includes('اعتذر') || resp.includes('تخصصي')) status = 'warning';
 
                     return res.json({ status, reason: aiResponse });
                 }
