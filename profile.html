@@ -135,7 +135,7 @@
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
         @media(max-width: 768px) {
@@ -215,7 +215,7 @@
 
         <!-- Address Modal -->
         <div id="addressModal" class="hidden"
-            style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000;">
+            style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
             <div style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px;">
                 <h3 style="margin-top:0">إضافة عنوان جديد</h3>
                 <input type="text" id="addrLabel" placeholder="اسم العنوان (مثال: المنزل)"
@@ -372,11 +372,15 @@
         }
 
         function openAddressModal() {
-            document.getElementById('addressModal').classList.remove('hidden');
+            const modal = document.getElementById('addressModal');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
         }
 
         function closeAddressModal() {
-            document.getElementById('addressModal').classList.add('hidden');
+            const modal = document.getElementById('addressModal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
         }
 
         async function saveAddress() {
