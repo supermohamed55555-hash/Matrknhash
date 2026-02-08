@@ -9,14 +9,18 @@ async function checkDatabase() {
         await mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://matrknhash_user:your_password@cluster.mongodb.net/matrknhash');
         console.log('--- Connected Successfully! ---\n');
 
-        const users = await User.find({}, 'name email addresses walletBalance');
-        console.log('=== Users & Addresses ===');
+        const users = await User.find({}, 'name email addresses walletBalance garage');
+        console.log('=== Users & Addresses & Garage ===');
         users.forEach(user => {
             console.log(`User: ${user.name} (${user.email})`);
             console.log(`Wallet Balance: ${user.walletBalance} ج.م`);
             console.log(`Addresses (${user.addresses.length}):`);
             user.addresses.forEach((addr, i) => {
                 console.log(`  ${i + 1}. [${addr.label}] ${addr.details} ${addr.isDefault ? '(Default)' : ''}`);
+            });
+            console.log(`Garage (${(user.garage || []).length}):`);
+            (user.garage || []).forEach((car, i) => {
+                console.log(`  ${i + 1}. 🚗 ${car.make} ${car.model} (${car.year}) - Engine: ${car.engine} ${car.isPrimary ? '[Primary]' : ''}`);
             });
             console.log('-------------------------');
         });
