@@ -177,9 +177,10 @@
         <div class="sidebar">
             <div class="menu-item active" onclick="showTab('orders')">الطلبات</div>
             <div class="menu-item" onclick="showTab('returns')">المرتجعات</div>
-            <div class="menu-item" onclick="showTab('addresses')"> العناوين</div>
-            <div class="menu-item" onclick="showTab('wallet')"> المحفظة</div>
-            <div class="menu-item" onclick="showTab('settings')"> الإعدادات</div>
+            <div class="menu-item" onclick="showTab('addresses')">العناوين</div>
+            <div class="menu-item" onclick="showTab('garage')">كراجي 🚗</div>
+            <div class="menu-item" onclick="showTab('wallet')">المحفظة</div>
+            <div class="menu-item" onclick="showTab('settings')">الإعدادات</div>
             <div class="menu-item" onclick="logout()" style="color:red; margin-top:20px;"> تسجيل خروج</div>
         </div>
 
@@ -235,7 +236,42 @@
             </div>
         </div>
 
-        <!-- Other Tabs Sim -->
+        <!-- 4. Garage Tab -->
+        <div id="garage" class="content-area hidden">
+            <div class="section-title">كراجي 🚗</div>
+            <p style="font-size:0.9rem; color:#666; margin-bottom:15px;">سجل بيانات عربيتك عشان الموقع يتفصل عليها وتعرف
+                القطع المتوافقة فوراً.</p>
+            <div class="garage-list">
+                <!-- Cars will appear here -->
+            </div>
+            <button onclick="openGarageModal()"
+                style="margin-top:15px; padding:12px; width:100%; border:2px dashed var(--primary); color:var(--primary); background:#f0f4ff; cursor:pointer; border-radius:10px; font-weight:bold;">+
+                إضافة سيارة جديدة</button>
+        </div>
+
+        <!-- Garage Modal -->
+        <div id="garageModal" class="hidden"
+            style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
+            <div style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px;">
+                <h3 style="margin-top:0">إضافة سيارة للكراج</h3>
+                <input type="text" id="carMake" placeholder="ماركة السيارة (مثال: تويوتا)"
+                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+                <input type="text" id="carModel" placeholder="الموديل (مثال: كورولا)"
+                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+                <input type="text" id="carYear" placeholder="سنة الصنع (مثال: 2020)"
+                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+                <input type="text" id="carEngine" placeholder="الموتور (مثال: 1600cc)"
+                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+
+                <div style="display:flex; gap:10px;">
+                    <button onclick="saveCar()"
+                        style="flex:1; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer;">حفظ
+                        السيارة</button>
+                    <button onclick="closeGarageModal()"
+                        style="flex:1; padding:10px; background:#eee; border:none; border-radius:8px; cursor:pointer;">إلغاء</button>
+                </div>
+            </div>
+        </div>
         <div id="wallet" class="content-area hidden">
             <div class="section-title">المحفظة (VIP)</div>
             <div
@@ -272,6 +308,7 @@
                     // Initial load
                     loadOrders();
                     loadAddresses();
+                    loadGarage();
                     loadWallet();
                     loadReturns();
                 } else {
@@ -412,6 +449,86 @@
                 await fetch(`/api/user/addresses/${id}`, { method: 'DELETE' });
                 loadAddresses();
             } catch (err) { alert('فشل الحذف'); }
+        }
+
+        async function loadGarage() {
+            try {
+                const res = await fetch('/api/user/garage');
+                const garage = await res.json();
+                const container = document.querySelector('.garage-list');
+
+                if (garage.length > 0) {
+                    container.innerHTML = garage.map(car => `
+                        <div style="padding:15px; border:1px solid #eef2ff; border-radius:15px; margin-bottom:10px; position:relative; background:#fafbff;">
+                            <div style="display:flex; align-items:center; gap:15px;">
+                                <div style="font-size:2rem;">🚗</div>
+                                <div style="flex:1">
+                                    <strong style="font-size:1.1rem;">${car.make} ${car.model}</strong>
+                                    <p style="margin:5px 0; color:#666; font-size:0.9rem;">الموديل: ${car.year} | المحرك: ${car.engine}</p>
+                                    ${car.isPrimary ? '<span style="background:var(--primary); color:white; padding:2px 10px; border-radius:20px; font-size:0.75rem;">السيارة الأساسية</span>' :
+                            `<button onclick="setPrimaryCar('${car._id}')" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:0.8rem; text-decoration:underline;">اجعلها الأساسية</button>`}
+                                </div>
+                                <button onclick="deleteCar('${car._id}')" style="background:none; border:none; color:#ff4d4f; cursor:pointer; padding:5px;">🗑️</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div style="text-align:center; padding:30px; border:1px dashed #ddd; border-radius:15px; color:#999;">كراجك فاضي.. ضيف عربيتك عشان نفلتر لك القطع</div>';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function openGarageModal() {
+            const modal = document.getElementById('garageModal');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+        }
+
+        function closeGarageModal() {
+            const modal = document.getElementById('garageModal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+
+        async function saveCar() {
+            const make = document.getElementById('carMake').value;
+            const model = document.getElementById('carModel').value;
+            const year = document.getElementById('carYear').value;
+            const engine = document.getElementById('carEngine').value;
+
+            if (!make || !model) return alert('برجاء إدخال الماركة والموديل');
+
+            try {
+                const res = await fetch('/api/user/garage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ make, model, year, engine })
+                });
+                if (res.ok) {
+                    closeGarageModal();
+                    loadGarage();
+                    // Reset fields
+                    document.getElementById('carMake').value = '';
+                    document.getElementById('carModel').value = '';
+                    document.getElementById('carYear').value = '';
+                    document.getElementById('carEngine').value = '';
+                }
+            } catch (err) { alert('فشل إضافة السيارة'); }
+        }
+
+        async function deleteCar(id) {
+            if (!confirm('هل أنت متأكد من حذف هذه السيارة من كراجك؟')) return;
+            try {
+                await fetch(`/api/user/garage/${id}`, { method: 'DELETE' });
+                loadGarage();
+            } catch (err) { alert('فشل الحذف'); }
+        }
+
+        async function setPrimaryCar(id) {
+            try {
+                const res = await fetch(`/api/user/garage/${id}/primary`, { method: 'PATCH' });
+                if (res.ok) loadGarage();
+            } catch (err) { alert('فشل تعيين السيارة الأساسية'); }
         }
 
         async function requestReturn(id) {
