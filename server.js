@@ -471,6 +471,56 @@ app.get('/api/user/wallet', isAuthenticated, async (req, res) => {
     }
 });
 
+// --- Garage Management ---
+app.get('/api/user/garage', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        res.json(user.garage || []);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch garage' });
+    }
+});
+
+app.post('/api/user/garage', isAuthenticated, async (req, res) => {
+    try {
+        const { make, model, year, engine } = req.body;
+        const user = await User.findById(req.user._id);
+
+        // If first car, make it primary
+        const isPrimary = (user.garage || []).length === 0;
+
+        user.garage.push({ make, model, year, engine, isPrimary });
+        await user.save();
+        res.status(201).json(user.garage);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to add car' });
+    }
+});
+
+app.delete('/api/user/garage/:carId', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        user.garage = user.garage.filter(car => car._id.toString() !== req.params.carId);
+        await user.save();
+        res.json({ message: 'Car removed', garage: user.garage });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to remove car' });
+    }
+});
+
+app.patch('/api/user/garage/:carId/primary', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        user.garage.forEach(car => {
+            car.isPrimary = (car._id.toString() === req.params.carId);
+        });
+        await user.save();
+        res.json(user.garage);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to set primary car' });
+    }
+});
+
 // Start Server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
