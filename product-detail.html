@@ -180,6 +180,29 @@
             border: 1px solid #fecaca;
         }
 
+        /* Garage Compatibility Badge */
+        .garage-badge {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .garage-badge.compatible {
+            border-color: var(--success);
+            background: #ecfdf5;
+        }
+
+        .garage-badge.not-compatible {
+            border-color: var(--danger);
+            background: #fef2f2;
+        }
+
         /* Trust Box */
         .trust-box {
             background: #f0fdf4;
@@ -462,6 +485,16 @@
             <div class="price" id="pPrice">-- ج.م</div>
             <div class="price-note">يبدأ من هذا السعر (قارن عروض التجار بالأسفل)</div>
 
+            <!-- Auto Garage Badge -->
+            <div id="garageBadge" class="garage-badge">
+                <div style="font-size: 1.5rem;" id="garageIcon">🚗</div>
+                <div>
+                    <div style="font-weight: 800; font-size: 0.95rem;" id="garageStatus">جاري فحص التوافق مع عربيتك...
+                    </div>
+                    <div style="font-size: 0.8rem; color: #666;" id="garageCarName"></div>
+                </div>
+            </div>
+
             <!-- Smart Fitment AI -->
             <div class="ai-fitment">
                 <div class="ai-title">
@@ -743,6 +776,58 @@
             const text = `السلام عليكم، بستفسر عن المنتج: (${partName}).\n سؤالي: ${msg}`;
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
         }
+
+        async function checkGarageCompatibility() {
+            const badge = document.getElementById('garageBadge');
+            const statusText = document.getElementById('garageStatus');
+            const carNameText = document.getElementById('garageCarName');
+            const icon = document.getElementById('garageIcon');
+
+            try {
+                // 1. Get Primary Car
+                const res = await fetch('/api/user/garage');
+                const garage = await res.json();
+                const primaryCar = garage.find(c => c.isPrimary);
+
+                if (!primaryCar) {
+                    badge.style.display = 'none';
+                    return;
+                }
+
+                badge.style.display = 'flex';
+                carNameText.innerText = `${primaryCar.make} ${primaryCar.model} (${primaryCar.year})`;
+
+                // 2. Auto Check with AI Fitment
+                const fitRes = await fetch('/api/check-fitment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        productId: urlParams.get('id'),
+                        userText: `عربيتي ${primaryCar.make} ${primaryCar.model} موديل ${primaryCar.year} موتور ${primaryCar.engine}. هل القطعة دي بتركب عليها؟`
+                    })
+                });
+
+                const data = await fitRes.json();
+
+                if (data.status === 'success') {
+                    badge.classList.add('compatible');
+                    statusText.innerText = 'متوافق مع سيارتك المسجلة ✓';
+                    statusText.style.color = '#065f46';
+                    icon.innerText = '✅';
+                } else if (data.status === 'error') {
+                    badge.classList.add('not-compatible');
+                    statusText.innerText = 'قد لا يكون متوافقاً مع سيارتك ⚠️';
+                    statusText.style.color = '#991b1b';
+                    icon.innerText = '❌';
+                } else {
+                    statusText.innerText = 'راجع المهندس عبود للتأكد من التوافق';
+                }
+            } catch (err) {
+                console.error('Garage Check Error:', err);
+            }
+        }
+
+        checkGarageCompatibility();
 
         function addToCart(seller) {
             alert(`تم إضافة المنتج للسلة من التاجر: ${seller}`);
