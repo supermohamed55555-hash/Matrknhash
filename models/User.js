@@ -16,6 +16,13 @@ const userSchema = new mongoose.Schema({
     isDefault: { type: Boolean, default: false }
   }],
   walletBalance: { type: Number, default: 0 },
+  garage: [{
+    make: String, // e.g., Toyota
+    model: String, // e.g., Corolla
+    year: String,
+    engine: String,
+    isPrimary: { type: Boolean, default: false }
+  }],
   createdAt: { type: Date, default: Date.now }
 });
 
