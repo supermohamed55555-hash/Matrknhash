@@ -1159,6 +1159,12 @@
                             </div>
                         </div>
                     `;
+
+                    // Sync: Update Hero Section if user is logged in
+                    const heroBtn = document.querySelector('.hero .cta-button');
+                    if (heroBtn) heroBtn.style.display = 'none';
+                    const heroP = document.querySelector('.hero p');
+                    if (heroP) heroP.innerText = `مرحباً بك مجدداً، ${user.name}! استمتع بتجربة تسوق مميزة.`;
                 }
             } catch (err) { }
         }
