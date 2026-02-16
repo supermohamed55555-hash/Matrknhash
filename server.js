@@ -217,10 +217,14 @@ app.get('/api/products', async (req, res) => {
 
 app.post('/api/products', isAuthenticated, async (req, res) => {
     try {
-        const { name, brand, price, image, category, description, vendorName, condition, warranty, compatibility } = req.body;
+        const { name, brand, price, image, category, description, condition, warranty, compatibility, stockQuantity, tags } = req.body;
         const newProduct = new Product({
             name, brand, price, image, category, description,
-            vendorName, condition, warranty,
+            vendorId: req.user._id,
+            vendorName: req.user.name, // Link to the user who created it
+            condition, warranty,
+            stockQuantity: stockQuantity || 0,
+            tags: tags || [],
             compatibility: compatibility || []
         });
         await newProduct.save();
@@ -228,6 +232,28 @@ app.post('/api/products', isAuthenticated, async (req, res) => {
     } catch (err) {
         console.error('Add Product Error:', err);
         res.status(500).json({ error: 'Failed to add product' });
+    }
+});
+
+// Vendor-specific Products
+app.get('/api/vendor-products', isAuthenticated, async (req, res) => {
+    try {
+        const products = await Product.find({ vendorId: req.user._id }).sort({ createdAt: -1 });
+        res.json(products);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch vendor products' });
+    }
+});
+
+// Vendor-specific Orders (Orders that contain at least one item from this vendor)
+app.get('/api/vendor-orders', isAuthenticated, async (req, res) => {
+    try {
+        const orders = await Order.find({
+            'items.vendorId': req.user._id.toString()
+        }).sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch vendor orders' });
     }
 });
 
@@ -374,6 +400,14 @@ app.post('/api/check-fitment', async (req, res) => {
 
 app.delete('/api/products/:id', isAuthenticated, async (req, res) => {
     try {
+        const product = await Product.findById(req.params.id);
+        if (!product) return res.status(404).json({ error: 'المنتج غير موجود' });
+
+        // Security: Check if the user is the owner
+        if (product.vendorId.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ error: 'غير مسموح لك بمسح هذا المنتج' });
+        }
+
         await Product.findByIdAndDelete(req.params.id);
         res.json({ message: 'Product deleted' });
     } catch (err) {
@@ -383,17 +417,26 @@ app.delete('/api/products/:id', isAuthenticated, async (req, res) => {
 
 app.put('/api/products/:id', isAuthenticated, async (req, res) => {
     try {
-        const { name, brand, price, image, category, description, vendorName, condition, warranty, compatibility } = req.body;
+        const { name, brand, price, image, category, description, condition, warranty, compatibility, stockQuantity, tags } = req.body;
+
+        const product = await Product.findById(req.params.id);
+        if (!product) return res.status(404).json({ error: 'المنتج غير موجود' });
+
+        // Security: Check if the user is the owner
+        if (product.vendorId.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ error: 'غير مسموح لك بتعديل هذا المنتج' });
+        }
+
         const updatedProduct = await Product.findByIdAndUpdate(
             req.params.id,
             {
                 name, brand, price, image, category, description,
-                vendorName, condition, warranty,
+                condition, warranty,
+                stockQuantity, tags,
                 compatibility: compatibility || []
             },
-            { new: true } // Return the updated document
+            { new: true }
         );
-        if (!updatedProduct) return res.status(404).json({ error: 'المنتج غير موجود' });
         res.json(updatedProduct);
     } catch (err) {
         console.error('Update Product Error:', err);
