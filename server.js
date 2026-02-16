@@ -110,6 +110,23 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Explicit Routes for HTML files to avoid mis-serving
+app.get('/profile.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'profile.html'));
+});
+
+app.get('/product-detail.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'product-detail.html'));
+});
+
+app.get('/admin.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+app.get('/test1.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'test1.html'));
+});
+
 // Auth Persistence Check
 app.get('/auth/login/success', (req, res) => {
     if (req.user) {
@@ -257,7 +274,11 @@ app.post('/api/check-fitment', async (req, res) => {
 - حافظ على اللهجة المصرية العامية "الشاطرة" والروح الودودة.
         `;
 
-        const groqKey = process.env.GROQ_API_KEY || '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';
+        const groqKey = process.env.GROQ_API_KEY;
+        if (groqKey && (groqKey.startsWith('YOUR_') || groqKey.length < 10)) {
+            // Guard against common placeholder errors
+            throw new Error('Invalid Groq API Key format');
+        }
 
         // --- Groq Integration (Faster & Higher Quota) ---
         if (groqKey) {
