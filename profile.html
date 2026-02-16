@@ -216,11 +216,32 @@
                 </div>
 
                 <div style="margin-bottom:20px;">
-                    <label style="display:block; margin-bottom:5px; font-weight:bold;">طريقة الدفع:</label>
-                    <div
-                        style="padding:10px; border:1px solid #eef2ff; border-radius:8px; background:#fafbff; display:flex; justify-content:space-between; align-items:center;">
-                        <span>🧧 رصيد المحفظة</span>
-                        <strong id="checkoutWalletBalance">0.00 ج.م</strong>
+                    <label style="display:block; margin-bottom:10px; font-weight:bold;">طريقة الدفع:</label>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <label
+                            style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
+                            class="payment-option">
+                            <input type="radio" name="paymentOption" value="COD" checked>
+                            <span>💵 كاش (عند الاستلام)</span>
+                        </label>
+                        <label
+                            style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
+                            class="payment-option">
+                            <input type="radio" name="paymentOption" value="Vodafone Cash">
+                            <span>📱 فودافون كاش</span>
+                        </label>
+                        <label
+                            style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
+                            class="payment-option">
+                            <input type="radio" name="paymentOption" value="Visa">
+                            <span>💳 فيزا / ماستر كارد</span>
+                        </label>
+                        <label
+                            style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
+                            class="payment-option">
+                            <input type="radio" name="paymentOption" value="Wallet">
+                            <span>🧧 المحفظة (<small id="checkoutWalletBalance">0.00</small>)</span>
+                        </label>
                     </div>
                 </div>
 
@@ -669,6 +690,7 @@
         async function processCheckout() {
             const cart = JSON.parse(localStorage.getItem('cart') || '[]');
             const addressId = document.getElementById('checkoutAddressSelect').value;
+            const paymentMethod = document.querySelector('input[name="paymentOption"]:checked').value;
             const btn = document.getElementById('checkoutBtn');
 
             if (!addressId) return alert('الرجاء اختيار عنوان الشحن');
@@ -694,7 +716,7 @@
                             details: selectedAddr.details,
                             label: selectedAddr.label
                         },
-                        paymentMethod: 'Wallet'
+                        paymentMethod: paymentMethod
                     })
                 });
 
