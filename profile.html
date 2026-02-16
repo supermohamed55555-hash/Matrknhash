@@ -1,550 +1,754 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const path = require('path');
-const session = require('express-session');
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const FacebookStrategy = require('passport-facebook').Strategy;
-const LocalStrategy = require('passport-local').Strategy;
-const bcrypt = require('bcryptjs');
-const User = require('./models/User');
-const Product = require('./models/Product');
-const Order = require('./models/Order');
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 
-const app = express();
-
-// 1. Middleware Setup (Must be BEFORE routes)
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname)));
-app.use(session({
-    secret: 'mtrknhash_secret_key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: false, // Set to true if using HTTPS
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-
-// --- Passport Local Strategy ---
-passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
-    try {
-        const user = await User.findOne({ email });
-        if (!user || !user.password) return done(null, false, { message: 'بيانات الدخول غير صحيحة' });
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return done(null, false, { message: 'بيانات الدخول غير صحيحة' });
-
-        return done(null, user);
-    } catch (err) {
-        return done(err);
-    }
-}));
-
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
-passport.deserializeUser((id, done) => {
-    User.findById(id).then(user => done(null, user));
-});
-
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback",
-    proxy: true
-},
-    async (accessToken, refreshToken, profile, done) => {
-        try {
-            const existingUser = await User.findOne({ googleId: profile.id });
-            if (existingUser) return done(null, existingUser);
-
-            const newUser = await new User({
-                googleId: profile.id,
-                name: profile.displayName,
-                email: profile.emails[0].value
-            }).save();
-            done(null, newUser);
-        } catch (err) {
-            done(err, null);
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حسابي - متركنهاش</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a237e;
+            --bg: #f5f5f5;
         }
-    }
-));
 
-// --- Auth Middleware ---
-function isAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) return next();
-    res.status(401).json({ error: 'Please log in' });
-}
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            margin: 0;
+        }
 
-// 2. Database Connection
-mongoose.connect(process.env.MONGO_URI, {
-    serverSelectionTimeoutMS: 30000
-}).then(() => console.log('✅ MongoDB Connected'))
-    .catch(err => console.log('❌ DB Error:', err));
+        .header {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-// 3. Routes
+        .user-blok {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-// Root
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
+        .avatar {
+            width: 60px;
+            height: 60px;
+            background: #eee;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
 
-// Auth Persistence Check
-app.get('/auth/login/success', (req, res) => {
-    if (req.user) {
-        res.json({
-            success: true,
-            user: {
-                name: req.user.name,
-                role: req.user.role,
-                shopName: req.user.shopName
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 15px;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            height: fit-content;
+        }
+
+        .menu-item {
+            padding: 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: #eef2ff;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            min-height: 500px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        /* Orders Style */
+        .order-card {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        .order-status {
+            background: #fff3cd;
+            color: #856404;
+            padding: 2px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        .order-item {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .order-img {
+            width: 60px;
+            height: 60px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media(max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
             }
-        });
-    } else {
-        res.json({ success: false });
-    }
-});
 
-// API Register
-app.post('/api/register', async (req, res) => {
-    try {
-        const { name, email, password, phone, role, shopName, location } = req.body;
-        const existingUser = await User.findOne({ email });
-        if (existingUser) return res.status(400).json({ error: 'البريد الإلكتروني مسجل بالفعل' });
+            .sidebar {
+                display: flex;
+                overflow-x: auto;
+                padding: 10px;
+                gap: 10px;
+            }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({
-            name,
-            email,
-            password: hashedPassword,
-            phone,
-            role: role || 'user',
-            shopName,
-            location
-        });
+            .menu-item {
+                min-width: 100px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
 
-        await newUser.save();
-        res.status(201).json({ success: true, message: 'تم التسجيل بنجاح' });
-    } catch (err) {
-        console.error('Registration Error:', err);
-        res.status(500).json({ error: 'فشل عملية التسجيل' });
-    }
-});
+<body>
 
-// API Login
-app.post('/api/login', (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
-        if (err) return res.status(500).json({ error: 'حدث خطأ ما' });
-        if (!user) return res.status(401).json({ error: info.message || 'بيانات الدخول غير صحيحة' });
+    <div class="header">
+        <div class="user-blok">
+            <div class="avatar" id="avatarLetter">م</div>
+            <div>
+                <h3 style="margin:0" id="userNameLabel">أهلاً محمد</h3>
+                <span style="font-size:0.85rem; color:#777;" id="userEmailLabel">mohamed@example.com</span>
+            </div>
+        </div>
+        <a href="test1.html" style="text-decoration:none; color:var(--primary); font-weight:bold;">العودة للرئيسية
+            🏠</a>
+    </div>
 
-        req.logIn(user, (err) => {
-            if (err) return res.status(500).json({ error: 'فشل تسجيل الدخول' });
-            return res.json({
-                success: true,
-                user: {
-                    name: user.name,
-                    role: user.role,
-                    shopName: user.shopName
+    <div class="container">
+        <!-- Sidebar Menu -->
+        <div class="sidebar">
+            <div class="menu-item active" id="tab-orders" onclick="showTab('orders')">الطلبات</div>
+            <div class="menu-item" id="tab-cart" onclick="showTab('cart')">سلة المشتريات 🛒</div>
+            <div class="menu-item" id="tab-returns" onclick="showTab('returns')">المرتجعات</div>
+            <div class="menu-item" id="tab-addresses" onclick="showTab('addresses')">العناوين</div>
+            <div class="menu-item" id="tab-garage" onclick="showTab('garage')">كراجي 🚗</div>
+            <div class="menu-item" id="tab-wallet" onclick="showTab('wallet')">المحفظة</div>
+            <div class="menu-item" id="tab-settings" onclick="showTab('settings')">الإعدادات</div>
+            <div class="menu-item" onclick="logout()" style="color:red; margin-top:20px;"> تسجيل خروج</div>
+        </div>
+
+        <!-- Content Content -->
+
+        <!-- 1. Orders Tab -->
+        <div id="orders" class="content-area">
+            <div class="section-title">طلباتي السابقة</div>
+            <div class="orders-list">
+                <!-- داتا حقيقية ستظهر هنا -->
+                <p style="text-align:center; padding:20px; opacity:0.5;">جاري تحميل طلباتك...</p>
+            </div>
+        </div>
+
+        <!-- 1.5 Cart Tab (New) -->
+        <div id="cart" class="content-area hidden">
+            <div class="section-title">سلة المشتريات</div>
+            <div id="cartItemsList">
+                <!-- Items from localStorage -->
+            </div>
+
+            <div id="checkoutSection" class="hidden"
+                style="margin-top:20px; padding:20px; border-top:2px solid #f0f0f0;">
+                <h4 style="margin-bottom:15px;">إتمام الطلب (One-Step Checkout)</h4>
+
+                <div style="margin-bottom:15px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">عنوان الشحن:</label>
+                    <select id="checkoutAddressSelect"
+                        style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;">
+                        <!-- Addresses loaded here -->
+                    </select>
+                </div>
+
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; margin-bottom:10px; font-weight:bold;">طريقة الدفع:</label>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <label
+                            style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
+                            class="payment-option">
+                            <input type="radio" name="paymentOption" value="COD" checked>
+                            <span>💵 كاش (عند الاستلام)</span>
+                        </label>
+                        <label
+                            style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
+                            class="payment-option">
+                            <input type="radio" name="paymentOption" value="Vodafone Cash">
+                            <span>📱 فودافون كاش</span>
+                        </label>
+                        <label
+                            style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
+                            class="payment-option">
+                            <input type="radio" name="paymentOption" value="Visa">
+                            <span>💳 فيزا / ماستر كارد</span>
+                        </label>
+                        <label
+                            style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
+                            class="payment-option">
+                            <input type="radio" name="paymentOption" value="Wallet">
+                            <span>🧧 المحفظة (<small id="checkoutWalletBalance">0.00</small>)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div
+                    style="padding:15px; background:var(--primary); color:white; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:0.8rem; opacity:0.8;">الإجمالي المطلوب</div>
+                        <div style="font-size:1.4rem; font-weight:bold;" id="cartTotalPrice">0.00 ج.م</div>
+                    </div>
+                    <button onclick="processCheckout()" id="checkoutBtn"
+                        style="background:#ffb300; color:var(--primary); border:none; padding:12px 25px; border-radius:30px; font-weight:800; cursor:pointer;">تأكيد
+                        وطلب الآن</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Returns Tab -->
+        <div id="returns" class="content-area hidden">
+            <div class="section-title">طلبات المرتجعات</div>
+            <div class="returns-list">
+                <p style="text-align:center; padding:20px; opacity:0.5;">جاري تحميل المرتجعات...</p>
+            </div>
+        </div>
+
+        <!-- 3. Addresses Tab -->
+        <div id="addresses" class="content-area hidden">
+            <div class="section-title">العناوين المحفوظة</div>
+            <div class="addresses-list">
+                <!-- داتا حقيقية ستظهر هنا -->
+            </div>
+            <button onclick="openAddressModal()"
+                style="margin-top:15px; padding:12px; width:100%; border:2px dashed var(--primary); color:var(--primary); background:#f0f4ff; cursor:pointer; border-radius:10px; font-weight:bold;">+
+                إضافة عنوان جديد</button>
+        </div>
+
+        <!-- Address Modal -->
+        <div id="addressModal" class="hidden"
+            style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
+            <div style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px;">
+                <h3 style="margin-top:0">إضافة عنوان جديد</h3>
+                <input type="text" id="addrLabel" placeholder="اسم العنوان (مثال: المنزل)"
+                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+                <textarea id="addrDetails" placeholder="العنوان بالتفصيل"
+                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px; height:100px;"></textarea>
+                <div style="margin-bottom:15px;">
+                    <input type="checkbox" id="addrDefault">
+                    <label for="addrDefault">تعيين كعنوان افتراضي</label>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="saveAddress()"
+                        style="flex:1; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer;">حفظ</button>
+                    <button onclick="closeAddressModal()"
+                        style="flex:1; padding:10px; background:#eee; border:none; border-radius:8px; cursor:pointer;">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Garage Tab -->
+        <div id="garage" class="content-area hidden">
+            <div class="section-title">كراجي 🚗</div>
+            <p style="font-size:0.9rem; color:#666; margin-bottom:15px;">سجل بيانات عربيتك عشان الموقع يتفصل عليها وتعرف
+                القطع المتوافقة فوراً.</p>
+            <div class="garage-list">
+                <!-- Cars will appear here -->
+            </div>
+            <button onclick="openGarageModal()"
+                style="margin-top:15px; padding:12px; width:100%; border:2px dashed var(--primary); color:var(--primary); background:#f0f4ff; cursor:pointer; border-radius:10px; font-weight:bold;">+
+                إضافة سيارة جديدة</button>
+        </div>
+
+        <!-- Garage Modal -->
+        <div id="garageModal" class="hidden"
+            style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
+            <div style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px;">
+                <h3 style="margin-top:0">إضافة سيارة للكراج</h3>
+                <input type="text" id="carMake" placeholder="ماركة السيارة (مثال: تويوتا)"
+                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+                <input type="text" id="carModel" placeholder="الموديل (مثال: كورولا)"
+                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+                <input type="text" id="carYear" placeholder="سنة الصنع (مثال: 2020)"
+                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+                <input type="text" id="carEngine" placeholder="الموتور (مثال: 1600cc)"
+                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+
+                <div style="display:flex; gap:10px;">
+                    <button onclick="saveCar()"
+                        style="flex:1; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer;">حفظ
+                        السيارة</button>
+                    <button onclick="closeGarageModal()"
+                        style="flex:1; padding:10px; background:#eee; border:none; border-radius:8px; cursor:pointer;">إلغاء</button>
+                </div>
+            </div>
+        </div>
+        <div id="wallet" class="content-area hidden">
+            <div class="section-title">المحفظة (VIP)</div>
+            <div
+                style="background:linear-gradient(45deg, #1a237e, #3949ab); color:white; padding:30px; border-radius:15px; text-align:center;">
+                <div style="font-size:0.9rem; opacity:0.8;">رصيدك الحالي</div>
+                <div style="font-size:2.5rem; font-weight:bold;" id="walletBalance">0.00 <span
+                        style="font-size:1rem;">ج.م</span></div>
+            </div>
+            <div style="margin-top:20px; text-align:center; color:#777;">
+                يمكنك استخدام الرصيد في عمليات الشراء القادمة.
+            </div>
+        </div>
+        <div id="settings" class="content-area hidden">
+            <div class="section-title">الإعدادات والشحن</div>
+            <p>تغيير كلمة المرور</p>
+            <p>اللغة (العربية)</p>
+        </div>
+
+    </div>
+
+    <script>
+        async function loadProfile() {
+            try {
+                // 1. Check Login Status
+                const userRes = await fetch('/auth/login/success');
+                const userData = await userRes.json();
+
+                if (userData.success) {
+                    const user = userData.user;
+                    document.getElementById('userNameLabel').innerText = 'أهلاً ' + user.name;
+                    document.getElementById('userEmailLabel').innerText = user.email || '';
+                    document.getElementById('avatarLetter').innerText = user.name.charAt(0).toUpperCase();
+
+                    // Initial load
+                    loadOrders();
+                    loadAddresses();
+                    loadGarage();
+                    loadWallet();
+                    loadReturns();
+                } else {
+                    window.location.href = 'test1.html';
+                }
+            } catch (err) {
+                console.error('Profile Error:', err);
+            }
+        }
+
+        async function loadOrders() {
+            try {
+                const res = await fetch('/api/user-orders');
+                const orders = await res.json();
+                const container = document.querySelector('#orders .orders-list');
+
+                if (orders.length > 0) {
+                    container.innerHTML = orders.map(order => `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <span>رقم الطلب: #${order._id.slice(-5)}</span>
+                                <span class="order-status">${order.status || 'Pending'}</span>
+                            </div>
+                            <div class="order-items-container">
+                                ${order.items.map(item => `
+                                    <div class="order-item" style="margin-bottom:10px;">
+                                        <img src="${item.image || 'https://via.placeholder.com/80'}" class="order-img">
+                                        <div style="flex:1">
+                                            <h4 style="margin:0 0 5px 0">${item.name}</h4>
+                                            <p style="margin:0; font-size:0.9rem; color:#777;">${item.priceAtPurchase} ج.م | الكمية: ${item.quantity || 1}</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div style="margin-top:10px; border-top:1px solid #f0f0f0; padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <span style="font-size:0.85rem; color:#777;">التاريخ: ${new Date(order.createdAt).toLocaleDateString('ar-EG')}</span>
+                                    <div style="font-weight:bold;">الإجمالي: ${order.totalPrice} ج.م</div>
+                                </div>
+                                <div style="display:flex; gap:5px;">
+                                    <button style="background:var(--primary); color:white; border:none; padding:5px 12px; border-radius:5px; cursor:pointer; font-size:0.8rem;"
+                                        onclick="alert('تتبع الشحنة المباشر متاح قريباً')">تتبع</button>
+                                </div>
+                            </div>
+                            ${order.returnStatus ? `<div style="margin-top:10px; padding:8px; background:#f5f5f5; border-radius:5px; font-size:0.8rem; color:#666;">
+                                حالة المرتجع: <strong>${order.returnStatus}</strong>
+                            </div>` : ''}
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.6;">ليس لديك طلبات سابقة حالياً.</p>';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadAddresses() {
+            try {
+                const res = await fetch('/api/user/addresses');
+                const addresses = await res.json();
+                const container = document.querySelector('.addresses-list');
+
+                if (addresses.length > 0) {
+                    container.innerHTML = addresses.map(addr => `
+                        <div style="padding:15px; border:1px solid #eee; border-radius:10px; margin-bottom:10px; position:relative;">
+                            <strong>${addr.label}</strong>
+                            <p style="margin:5px 0; color:#555; font-size:0.9rem;">${addr.details}</p>
+                            ${addr.isDefault ? '<span style="background:#eef2ff; color:var(--primary); padding:2px 8px; border-radius:5px; font-size:0.8rem;">افتراضي</span>' : ''}
+                            <button onclick="deleteAddress('${addr._id}')" style="background:none; border:none; color:red; cursor:pointer; font-size:0.8rem; margin-top:5px;">حذف</button>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p style="text-align:center; color:#999;">لم تقم بإضافة أي عناوين بعد.</p>';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadWallet() {
+            try {
+                const res = await fetch('/api/user/wallet');
+                const data = await res.json();
+                document.getElementById('walletBalance').innerHTML = `${data.balance.toFixed(2)} <span style="font-size:1rem;">ج.م</span>`;
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadReturns() {
+            try {
+                const res = await fetch('/api/user-returns');
+                const returns = await res.json();
+                const container = document.querySelector('.returns-list');
+
+                if (returns.length > 0) {
+                    container.innerHTML = returns.map(ret => `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <span>طلب مرتجع #${ret._id.slice(-5)}</span>
+                                <span style="background:#e6f7ff; color:#1890ff; padding:2px 8px; border-radius:10px; font-size:0.8rem;">${ret.returnStatus}</span>
+                            </div>
+                            <div style="font-size:0.9rem; color:#666;">السبب: ${ret.returnReason}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.6;">لا يوجد طلبات استرجاع حالياً.</p>';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function openAddressModal() {
+            const modal = document.getElementById('addressModal');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+        }
+
+        function closeAddressModal() {
+            const modal = document.getElementById('addressModal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+
+        async function saveAddress() {
+            const label = document.getElementById('addrLabel').value;
+            const details = document.getElementById('addrDetails').value;
+            const isDefault = document.getElementById('addrDefault').checked;
+
+            if (!label || !details) return alert('برجاء ملء البيانات');
+
+            try {
+                const res = await fetch('/api/user/addresses', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ label, details, isDefault })
+                });
+                if (res.ok) {
+                    closeAddressModal();
+                    loadAddresses();
+                    // Reset fields
+                    document.getElementById('addrLabel').value = '';
+                    document.getElementById('addrDetails').value = '';
+                }
+            } catch (err) { alert('فشل حفظ العنوان'); }
+        }
+
+        async function deleteAddress(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا العنوان؟')) return;
+            try {
+                await fetch(`/api/user/addresses/${id}`, { method: 'DELETE' });
+                loadAddresses();
+            } catch (err) { alert('فشل الحذف'); }
+        }
+
+        async function loadGarage() {
+            try {
+                const res = await fetch('/api/user/garage');
+                const garage = await res.json();
+                const container = document.querySelector('.garage-list');
+
+                if (garage.length > 0) {
+                    container.innerHTML = garage.map(car => `
+                        <div style="padding:15px; border:1px solid #eef2ff; border-radius:15px; margin-bottom:10px; position:relative; background:#fafbff;">
+                            <div style="display:flex; align-items:center; gap:15px;">
+                                <div style="font-size:2rem;">🚗</div>
+                                <div style="flex:1">
+                                    <strong style="font-size:1.1rem;">${car.make} ${car.model}</strong>
+                                    <p style="margin:5px 0; color:#666; font-size:0.9rem;">الموديل: ${car.year} | المحرك: ${car.engine}</p>
+                                    ${car.isPrimary ? '<span style="background:var(--primary); color:white; padding:2px 10px; border-radius:20px; font-size:0.75rem;">السيارة الأساسية</span>' :
+                            `<button onclick="setPrimaryCar('${car._id}')" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:0.8rem; text-decoration:underline;">اجعلها الأساسية</button>`}
+                                </div>
+                                <button onclick="deleteCar('${car._id}')" style="background:none; border:none; color:#ff4d4f; cursor:pointer; padding:5px;">🗑️</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div style="text-align:center; padding:30px; border:1px dashed #ddd; border-radius:15px; color:#999;">كراجك فاضي.. ضيف عربيتك عشان نفلتر لك القطع</div>';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function openGarageModal() {
+            const modal = document.getElementById('garageModal');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+        }
+
+        function closeGarageModal() {
+            const modal = document.getElementById('garageModal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+
+        async function saveCar() {
+            const make = document.getElementById('carMake').value;
+            const model = document.getElementById('carModel').value;
+            const year = document.getElementById('carYear').value;
+            const engine = document.getElementById('carEngine').value;
+
+            if (!make || !model) return alert('برجاء إدخال الماركة والموديل');
+
+            try {
+                const res = await fetch('/api/user/garage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ make, model, year, engine })
+                });
+                if (res.ok) {
+                    closeGarageModal();
+                    loadGarage();
+                    // Reset fields
+                    document.getElementById('carMake').value = '';
+                    document.getElementById('carModel').value = '';
+                    document.getElementById('carYear').value = '';
+                    document.getElementById('carEngine').value = '';
+                }
+            } catch (err) { alert('فشل إضافة السيارة'); }
+        }
+
+        async function deleteCar(id) {
+            if (!confirm('هل أنت متأكد من حذف هذه السيارة من كراجك؟')) return;
+            try {
+                await fetch(`/api/user/garage/${id}`, { method: 'DELETE' });
+                loadGarage();
+            } catch (err) { alert('فشل الحذف'); }
+        }
+
+        async function setPrimaryCar(id) {
+            try {
+                const res = await fetch(`/api/user/garage/${id}/primary`, { method: 'PATCH' });
+                if (res.ok) loadGarage();
+            } catch (err) { alert('فشل تعيين السيارة الأساسية'); }
+        }
+
+        async function requestReturn(id) {
+            const reason = prompt('برجاء ذكر سبب الاسترجاع:');
+            if (!reason) return;
+
+            try {
+                const res = await fetch(`/api/orders/${id}/return`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+                if (res.ok) {
+                    alert('تم تقديم طلب الاسترجاع بنجاح');
+                    loadOrders();
+                    loadReturns();
+                }
+            } catch (err) { alert('فشل تقديم الطلب'); }
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.content-area').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            const tab = document.getElementById(tabId);
+            if (tab) tab.classList.remove('hidden');
+            const menu = document.getElementById('tab-' + tabId);
+            if (menu) menu.classList.add('active');
+
+            if (tabId === 'cart') loadCartView();
+        }
+
+        // --- Cart & Checkout Logic ---
+        function loadCartView() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const list = document.getElementById('cartItemsList');
+            const checkout = document.getElementById('checkoutSection');
+
+            if (cart.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding:40px; opacity:0.5;">سلة المشتريات فارغة حالياً.. اطلب قطع غيار الآن!</div>';
+                checkout.classList.add('hidden');
+                return;
+            }
+
+            checkout.classList.remove('hidden');
+            let total = 0;
+
+            list.innerHTML = cart.map((item, index) => {
+                total += item.price * (item.quantity || 1);
+                return `
+                    <div style="display:flex; gap:15px; align-items:center; padding:15px; border:1px solid #eee; border-radius:12px; margin-bottom:10px;">
+                        <img src="${item.image}" style="width:60px; height:60px; object-fit:contain; border-radius:8px; background:#f9f9f9;">
+                        <div style="flex:1">
+                            <h4 style="margin:0">${item.name}</h4>
+                            <div style="font-size:0.85rem; color:#777;">التاجر: ${item.seller}</div>
+                            <div style="color:var(--primary); font-weight:bold;">${item.price} ج.م</div>
+                        </div>
+                        <button onclick="removeFromCart(${index})" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cartTotalPrice').innerText = total + ' ج.م';
+
+            // Load addresses into select
+            const addrSelect = document.getElementById('checkoutAddressSelect');
+            fetch('/api/user/addresses').then(r => r.json()).then(addrs => {
+                if (addrs.length === 0) {
+                    addrSelect.innerHTML = '<option value="">لا يوجد عناوين مسجلة - برجاء إضافة عنوان أولاً</option>';
+                    document.getElementById('checkoutBtn').disabled = true;
+                } else {
+                    addrSelect.innerHTML = addrs.map(a => `<option value="${a._id}">${a.label}: ${a.details}</option>`).join('');
+                    document.getElementById('checkoutBtn').disabled = false;
                 }
             });
-        });
-    })(req, res, next);
-});
 
-// Logout
-app.get('/logout', (req, res) => {
-    req.logout(() => {
-        res.redirect('/');
-    });
-});
-
-// Google Auth
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-app.get('/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: '/' }),
-    (req, res) => {
-        res.redirect('/?user=' + encodeURIComponent(req.user.name));
-    }
-);
-
-// --- Product APIs ---
-app.get('/api/products', async (req, res) => {
-    try {
-        const products = await Product.find().sort({ createdAt: -1 });
-        res.json(products);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch products' });
-    }
-});
-
-app.post('/api/products', isAuthenticated, async (req, res) => {
-    try {
-        const { name, brand, price, image, category, description, vendorName, condition, warranty, compatibility } = req.body;
-        const newProduct = new Product({
-            name, brand, price, image, category, description,
-            vendorName, condition, warranty,
-            compatibility: compatibility || []
-        });
-        await newProduct.save();
-        res.status(201).json(newProduct);
-    } catch (err) {
-        console.error('Add Product Error:', err);
-        res.status(500).json({ error: 'Failed to add product' });
-    }
-});
-
-// Fitment Checker API (Real AI + Strict Fallback)
-app.post('/api/check-fitment', async (req, res) => {
-    try {
-        const { productId, userText } = req.body;
-        let product = null;
-        try {
-            if (productId && mongoose.Types.ObjectId.isValid(productId)) {
-                product = await Product.findById(productId);
-            }
-        } catch (e) {
-            console.log("Invalid Product ID or DB Error, proceeding as general query");
+            // Load wallet balance
+            fetch('/api/user/wallet').then(r => r.json()).then(data => {
+                document.getElementById('checkoutWalletBalance').innerText = data.balance.toFixed(2) + ' ج.م';
+            });
         }
 
-        const compatibilityData = product && product.compatibility && product.compatibility.length > 0
-            ? product.compatibility.map(c => `- ${c.brand} ${c.model} | ${c.yearStart} – ${c.yearEnd}`).join('\n')
-            : "لا توجد بيانات توافق محددة لهذه القطعة.";
+        function removeFromCart(index) {
+            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCartView();
+        }
 
-        const geminiKey = process.env.GEMINI_API_KEY;
+        async function processCheckout() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const addressId = document.getElementById('checkoutAddressSelect').value;
+            const paymentMethod = document.querySelector('input[name="paymentOption"]:checked').value;
+            const btn = document.getElementById('checkoutBtn');
 
-        // Structure the Prompt for the "Premium" experience
-        const aiPrompt = `
-أنت "المهندس عبود"، خبير فني مخضرم في ميكانيكا وصيانة السيارات بموقع "متركنهاش". 
-صديق للعملاء، تقني، ومباشر، وبتتكلم بلهجة مصرية عامية "صنايعية شاطرة".
+            if (!addressId) return alert('الرجاء اختيار عنوان الشحن');
 
-بيانات القطعة الحالية: ${product ? product.name : "غير محددة"}
-بيانات التوافق: ${compatibilityData}
+            btn.disabled = true;
+            btn.innerText = 'جاري إتمام الطلب...';
 
-سؤال العميل:
-"${userText}"
-
-مهامك:
-1. لو السؤال عن توافق القطعة المذكورة: افحص التوافق بناءً على البيانات المتوفرة.
-2. لو السؤال عام في العربيات وبرا نطاق القطعة: جاوب كخبير مخضرم.
-3. لو السؤال برا العربييات خالص: اعتذر بلطافة وقوله إن تخصصك في العربيات بس.
-
-قواعد الإجابة:
-- في التوافق: ابدأ بـ "مبروك يا بطل" لو بتركب، أو "للأسف ماتركبش" لو مش بتركب، واشرح السبب التقني بالتفصيل.
-- في الأسئلة العامة: جاوب كخبير تقني حقيقي. لو المشكلة معقدة، قسم إجابتك لخطوات تشخيص (Diagnostic steps) وحلول محتملة.
-- متخليش سؤال يعجزك؛ لو المعلومة مش كاملة، اطلب تفاصيل إضافية (زي نوع الموتور أو ظروف المشكلة) واقترح احتمالات بناءً على خبرتك.
-- خلي ردك وافي وشامل، وماتقيدش نفسك بطول معين طالما الكلام تقني ومفيد.
-- حافظ على اللهجة المصرية العامية "الشاطرة" والروح الودودة.
-        `;
-
-        const groqKey = process.env.GROQ_API_KEY || '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';
-
-        // --- Groq Integration (Faster & Higher Quota) ---
-        if (groqKey) {
             try {
-                process.stdout.write(`\n--- Calling GROQ AI for: "${userText}" ---\n`);
-                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                // 1. Get address details
+                const addrRes = await fetch('/api/user/addresses');
+                const addrs = await addrRes.json();
+                const selectedAddr = addrs.find(a => a._id === addressId);
+
+                const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+
+                const res = await fetch('/api/orders', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${groqKey}`,
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        messages: [
-                            { role: 'system', content: 'أنت "المهندس عبود"، خبير فني مخضرم في ميكانيكا وصيانة السيارات بموقع "متركنهاش". صديق للعملاء، وتتحدث بلهجة مصرية عامية "صنايعية شاطرة".' },
-                            { role: 'user', content: aiPrompt }
-                        ],
-                        model: 'llama-3.3-70b-versatile',
-                        temperature: 0.7,
-                        max_tokens: 500
+                        items: cart,
+                        totalPrice: total,
+                        shippingAddress: {
+                            details: selectedAddr.details,
+                            label: selectedAddr.label
+                        },
+                        paymentMethod: paymentMethod
                     })
                 });
 
-                if (!response.ok) {
-                    const errData = await response.json();
-                    console.error('Groq API Error:', errData);
-                    throw new Error(`Groq returned ${response.status}`);
+                const data = await res.json();
+                if (data.success) {
+                    alert('✅ تم إتمام الطلب بنجاح! شكراً لثقتك في متركنهاش.');
+                    localStorage.setItem('cart', '[]'); // Clear cart
+                    showTab('orders');
+                    loadOrders();
+                    loadWallet();
+                } else {
+                    alert('❌ ' + (data.error || 'فشل إتمام الطلب'));
                 }
-
-                const data = await response.json();
-                const aiResponse = data.choices[0].message.content.trim();
-                process.stdout.write(`Groq Answered: ${aiResponse.substring(0, 50)}...\n`);
-
-                // Determine status based on keywords
-                let status = 'warning';
-                const resp = aiResponse.toLowerCase();
-                if (resp.includes('مبروك') || resp.includes('مناسبة') || resp.includes('تنفع') || resp.includes('تركب')) status = 'success';
-                if (resp.includes('للأسف') || resp.includes('ما تتركبش') || resp.includes('غير مناسبة') || resp.includes('ماتركبش')) status = 'error';
-                if (resp.includes('اعتذر') || resp.includes('تخصصي')) status = 'warning';
-
-                return res.json({ status, reason: aiResponse });
             } catch (err) {
-                console.error('CRITICAL GROQ ERROR:', err.message);
+                alert('حدث خطأ في الاتصال بالخادم');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'تأكيد وطلب الآن';
             }
         }
 
-        // --- STRICT SIMULATION FALLBACK (If no API key or AI block failed) ---
-        const query = (userText || "").toLowerCase();
-
-        // Avoid crashing if product is null
-        if (product && product.compatibility && product.compatibility.length > 0) {
-            const vehicleMatch = (text) => {
-                const yMatch = text.match(/\d{4}/);
-                const year = yMatch ? parseInt(yMatch[0]) : null;
-
-                for (const c of product.compatibility) {
-                    const b = (c.brand || "").toLowerCase();
-                    const m = (c.model || "").toLowerCase();
-
-                    if (text.includes(b) || text.includes(m)) {
-                        if (year) {
-                            if (year >= c.yearStart && year <= c.yearEnd) {
-                                return { status: 'success', reason: `نعم، القطعة مناسبة لعربيك لأن ${c.brand} ${c.model} موديل ${year} يقع ضمن نطاق التوافق من ${c.yearStart} إلى ${c.yearEnd}.` };
-                            } else {
-                                return { status: 'error', reason: `لا، القطعة غير مناسبة لعربيتك لأن موديل ${year} خارج نطاق السنوات المدعومة (${c.yearStart}-${c.yearEnd}).` };
-                            }
-                        } else {
-                            return { status: 'warning', reason: "لا أستطيع التأكد حاليًا لأن بيانات السنة غير موجودة. من فضلك حدد سنة الموديل." };
-                        }
-                    }
-                }
-                return null;
-            };
-
-            const result = vehicleMatch(query);
-            if (result) return res.json(result);
+        function logout() {
+            window.location.href = '/logout'; // Trigger backend logout
         }
 
-        // Final Fallback for general questions if AI failed or fitment not found
-        const errorMessage = (process.env.GROQ_API_KEY || (typeof groqKey !== 'undefined' && !groqKey.startsWith('YOUR_')))
-            ? 'المهندس عبود بيقولك: "حصلت مشكلة تقنية عندي.. جرب كمان دقيقة. لو فضلت كدة قولي للذكاء الاصطناعي يشوف الـ Logs في Railway."'
-            : '⚠️ تنبيه: مفتاح الـ API ممسوح أو مش شغال. لازم تظبطه في الـ Variable في Railway أولاً.';
-
-        res.json({
-            status: 'warning',
-            reason: errorMessage
+        // Read hash for direct tab access
+        window.addEventListener('load', () => {
+            loadProfile().then(() => {
+                if (window.location.hash === '#cart') showTab('cart');
+            });
         });
+    </script>
+</body>
 
-    } catch (err) {
-        console.error('Fitment Error:', err);
-        res.status(500).json({ error: 'حدث خطأ في فحص التوافق' });
-    }
-});
-
-app.delete('/api/products/:id', isAuthenticated, async (req, res) => {
-    try {
-        await Product.findByIdAndDelete(req.params.id);
-        res.json({ message: 'Product deleted' });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to delete product' });
-    }
-});
-
-app.put('/api/products/:id', isAuthenticated, async (req, res) => {
-    try {
-        const { name, brand, price, image, category, description, vendorName, condition, warranty, compatibility } = req.body;
-        const updatedProduct = await Product.findByIdAndUpdate(
-            req.params.id,
-            {
-                name, brand, price, image, category, description,
-                vendorName, condition, warranty,
-                compatibility: compatibility || []
-            },
-            { new: true } // Return the updated document
-        );
-        if (!updatedProduct) return res.status(404).json({ error: 'المنتج غير موجود' });
-        res.json(updatedProduct);
-    } catch (err) {
-        console.error('Update Product Error:', err);
-        res.status(500).json({ error: 'فشل تعديل المنتج' });
-    }
-});
-
-// --- Order Routes ---
-app.post('/api/orders', isAuthenticated, async (req, res) => {
-    try {
-        const { items, totalPrice, shippingAddress, paymentMethod } = req.body;
-
-        const newOrder = new Order({
-            user: req.user._id,
-            items: items.map(item => ({
-                productId: item.productId,
-                name: item.name,
-                priceAtPurchase: item.price,
-                image: item.image,
-                quantity: item.quantity || 1,
-                vendorId: item.vendorId || "متركنهاش"
-            })),
-            totalPrice,
-            shippingAddress,
-            paymentMethod: paymentMethod || 'Wallet',
-            status: 'Pending'
-        });
-
-        // If paying by wallet, deduct balance
-        if (paymentMethod === 'Wallet') {
-            const user = await User.findById(req.user._id);
-            if (user.walletBalance < totalPrice) {
-                return res.status(400).json({ error: 'رصيد المحفظة غير كافٍ' });
-            }
-            user.walletBalance -= totalPrice;
-            await user.save();
-        }
-
-        await newOrder.save();
-        res.status(201).json({ success: true, order: newOrder });
-    } catch (err) {
-        console.error('Order Error:', err);
-        res.status(500).json({ error: 'فشل في إتمام الطلب' });
-    }
-});
-
-app.get('/api/user-orders', isAuthenticated, async (req, res) => {
-    try {
-        const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
-        res.json(orders);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch orders' });
-    }
-});
-
-app.get('/api/current_user', (req, res) => {
-    res.send(req.user);
-});
-
-// --- Address Management ---
-app.get('/api/user/addresses', isAuthenticated, async (req, res) => {
-    try {
-        const user = await User.findById(req.user._id);
-        res.json(user.addresses || []);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch addresses' });
-    }
-});
-
-app.post('/api/user/addresses', isAuthenticated, async (req, res) => {
-    try {
-        const { label, details, isDefault } = req.body;
-        const user = await User.findById(req.user._id);
-
-        if (isDefault) {
-            user.addresses.forEach(addr => addr.isDefault = false);
-        }
-
-        user.addresses.push({ label, details, isDefault });
-        await user.save();
-        res.status(201).json(user.addresses);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to add address' });
-    }
-});
-
-app.delete('/api/user/addresses/:id', isAuthenticated, async (req, res) => {
-    try {
-        const user = await User.findById(req.user._id);
-        user.addresses = user.addresses.filter(addr => addr._id.toString() !== req.params.id);
-        await user.save();
-        res.json({ success: true, message: 'Address deleted' });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to delete address' });
-    }
-});
-
-// --- Returns & Wallet ---
-app.post('/api/orders/:id/return', isAuthenticated, async (req, res) => {
-    try {
-        const { reason } = req.body;
-        const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
-        if (!order) return res.status(404).json({ error: 'Order not found' });
-
-        order.returnStatus = 'Requested';
-        order.returnReason = reason;
-        await order.save();
-        res.json({ success: true, message: 'Return requested successfully' });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to request return' });
-    }
-});
-
-app.get('/api/user-returns', isAuthenticated, async (req, res) => {
-    try {
-        const returns = await Order.find({
-            user: req.user._id,
-            returnStatus: { $ne: null }
-        }).sort({ createdAt: -1 });
-        res.json(returns);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch returns' });
-    }
-});
-
-app.get('/api/user/wallet', isAuthenticated, async (req, res) => {
-    try {
-        const user = await User.findById(req.user._id);
-        res.json({ balance: user.walletBalance || 0 });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch wallet balance' });
-    }
-});
-
-// --- Garage Management ---
-app.get('/api/user/garage', isAuthenticated, async (req, res) => {
-    try {
-        const user = await User.findById(req.user._id);
-        res.json(user.garage || []);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch garage' });
-    }
-});
-
-app.post('/api/user/garage', isAuthenticated, async (req, res) => {
-    try {
-        const { make, model, year, engine } = req.body;
-        const user = await User.findById(req.user._id);
-
-        // If first car, make it primary
-        const isPrimary = (user.garage || []).length === 0;
-
-        user.garage.push({ make, model, year, engine, isPrimary });
-        await user.save();
-        res.status(201).json(user.garage);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to add car' });
-    }
-});
-
-app.delete('/api/user/garage/:carId', isAuthenticated, async (req, res) => {
-    try {
-        const user = await User.findById(req.user._id);
-        user.garage = user.garage.filter(car => car._id.toString() !== req.params.carId);
-        await user.save();
-        res.json({ message: 'Car removed', garage: user.garage });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to remove car' });
-    }
-});
-
-app.patch('/api/user/garage/:carId/primary', isAuthenticated, async (req, res) => {
-    try {
-        const user = await User.findById(req.user._id);
-        user.garage.forEach(car => {
-            car.isPrimary = (car._id.toString() === req.params.carId);
-        });
-        await user.save();
-        res.json(user.garage);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to set primary car' });
-    }
-});
-
-// Start Server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-});
+</html>
