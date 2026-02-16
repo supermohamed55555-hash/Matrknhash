@@ -19,6 +19,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// --- Security Fix: Prevent serving sensitive files ---
+app.use((req, res, next) => {
+    const forbiddenExts = ['.js', '.json', '.env', '.md', '.log'];
+    const lowerUrl = req.url.toLowerCase();
+
+    // Check if the request is for a forbidden file extension
+    // But allow essential ones if they were specifically in a public folder (not applicable here as everything is root)
+    if (forbiddenExts.some(ext => lowerUrl.endsWith(ext))) {
+        return res.status(403).send('<h1>403 Forbidden</h1><p>عذراً، غير مسموح بالوصول لهذا الملف لأسباب أمنية.</p>');
+    }
+    next();
+});
+
 app.use(express.static(path.join(__dirname)));
 app.use(session({
     secret: 'mtrknhash_secret_key',
@@ -388,7 +402,7 @@ app.post('/api/orders', isAuthenticated, async (req, res) => {
         });
 
         // If paying by wallet, deduct balance
-        if ((paymentMethod || 'Wallet') === 'Wallet') {
+        if (paymentMethod === 'Wallet') {
             const user = await User.findById(req.user._id);
             if (user.walletBalance < totalPrice) {
                 return res.status(400).json({ error: 'رصيد المحفظة غير كافٍ' });
