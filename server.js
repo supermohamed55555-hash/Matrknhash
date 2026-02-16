@@ -322,9 +322,9 @@ app.post('/api/check-fitment', async (req, res) => {
         }
 
         // Final Fallback for general questions if AI failed or fitment not found
-        const errorMessage = (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY_HERE')
+        const errorMessage = (process.env.GROQ_API_KEY || (typeof groqKey !== 'undefined' && !groqKey.startsWith('YOUR_')))
             ? 'المهندس عبود بيقولك: "حصلت مشكلة تقنية عندي.. جرب كمان دقيقة. لو فضلت كدة قولي للذكاء الاصطناعي يشوف الـ Logs في Railway."'
-            : '⚠️ تنبيه: مفتاح الـ API ممسوح أو مش شغال. لازم تظبطه في الـ .env أولاً.';
+            : '⚠️ تنبيه: مفتاح الـ API ممسوح أو مش شغال. لازم تظبطه في الـ Variable في Railway أولاً.';
 
         res.json({
             status: 'warning',
@@ -369,17 +369,39 @@ app.put('/api/products/:id', isAuthenticated, async (req, res) => {
 // --- Order Routes ---
 app.post('/api/orders', isAuthenticated, async (req, res) => {
     try {
-        const { productName, price, image } = req.body;
+        const { items, totalPrice, shippingAddress, paymentMethod } = req.body;
+
         const newOrder = new Order({
             user: req.user._id,
-            productName,
-            price,
-            image
+            items: items.map(item => ({
+                productId: item.productId,
+                name: item.name,
+                priceAtPurchase: item.price,
+                image: item.image,
+                quantity: item.quantity || 1,
+                vendorId: item.vendorId || "متركنهاش"
+            })),
+            totalPrice,
+            shippingAddress,
+            paymentMethod: paymentMethod || 'Wallet',
+            status: 'Pending'
         });
+
+        // If paying by wallet, deduct balance
+        if ((paymentMethod || 'Wallet') === 'Wallet') {
+            const user = await User.findById(req.user._id);
+            if (user.walletBalance < totalPrice) {
+                return res.status(400).json({ error: 'رصيد المحفظة غير كافٍ' });
+            }
+            user.walletBalance -= totalPrice;
+            await user.save();
+        }
+
         await newOrder.save();
-        res.status(201).json(newOrder);
+        res.status(201).json({ success: true, order: newOrder });
     } catch (err) {
-        res.status(500).json({ error: 'Failed to place order' });
+        console.error('Order Error:', err);
+        res.status(500).json({ error: 'فشل في إتمام الطلب' });
     }
 });
 
