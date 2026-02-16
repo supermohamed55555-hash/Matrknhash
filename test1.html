@@ -1148,14 +1148,20 @@
                 const res = await fetch('/auth/login/success');
                 const data = await res.json();
                 window.currentUser = data.success ? data.user : null;
-                if (data.success && data.user) {
+                if (data.user) {
                     const user = data.user;
                     // Updated Header to match mock-up (Name + Profile Icon)
                     document.getElementById('loginNavItem').innerHTML = `
-                        <div class="flex items-center gap-2 px-6 py-2 rounded-full border border-accent/30 bg-accent/5 hover:bg-accent/10 transition cursor-pointer" onclick="window.location.href='/profile.html'">
-                            <span class="text-accent font-bold">${user.name}</span>
-                            <div class="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                        <div class="flex items-center gap-4">
+                            <div class="cart-icon-container" onclick="window.location.href='profile.html#cart'" style="cursor:pointer; position:relative;">
+                                <span style="font-size: 1.4rem;">🛒</span>
+                                <span id="cartBadge" style="position:absolute; top:-8px; right:-10px; background:#ff4757; color:white; font-size:0.7rem; padding:2px 6px; border-radius:50%; display:none;">0</span>
+                            </div>
+                            <div class="flex items-center gap-2 px-6 py-2 rounded-full border border-accent/30 bg-accent/5 hover:bg-accent/10 transition cursor-pointer" onclick="window.location.href='/profile.html'">
+                                <span class="text-accent font-bold">${user.name}</span>
+                                <div class="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -1166,6 +1172,7 @@
                     const heroP = document.querySelector('.hero p');
                     if (heroP) heroP.innerText = `مرحباً بك مجدداً، ${user.name}! استمتع بتجربة تسوق مميزة.`;
                 }
+                updateCartBadge();
             } catch (err) { }
         }
 
@@ -1173,6 +1180,19 @@
             if (!window.currentUser) {
                 e.preventDefault();
                 openLoginModal();
+            }
+        }
+
+        function updateCartBadge() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const badge = document.getElementById('cartBadge');
+            if (badge) {
+                if (cart.length > 0) {
+                    badge.innerText = cart.length;
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
             }
         }
 
