@@ -1155,9 +1155,19 @@
                 window.currentUser = data.success ? data.user : null;
                 if (data.user) {
                     const user = data.user;
+                    let vendorDashboardBtn = '';
+                    if (user.role === 'vendor' || user.role === 'admin') {
+                        vendorDashboardBtn = `
+                            <a href="/admin.html" class="flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 hover:bg-primary/20 transition text-primary font-bold text-sm">
+                                📊 لوحة التاجر
+                            </a>
+                        `;
+                    }
+
                     // Updated Header to match mock-up (Name + Profile Icon)
                     document.getElementById('loginNavItem').innerHTML = `
                         <div class="flex items-center gap-4">
+                            ${vendorDashboardBtn}
                             <div class="cart-icon-container" onclick="window.location.href='profile.html#cart'" style="cursor:pointer; position:relative;">
                                 <span style="font-size: 1.4rem;">🛒</span>
                                 <span id="cartBadge" style="position:absolute; top:-8px; right:-10px; background:#ff4757; color:white; font-size:0.7rem; padding:2px 6px; border-radius:50%; display:none;">0</span>
