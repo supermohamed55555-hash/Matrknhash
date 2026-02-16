@@ -175,12 +175,13 @@
     <div class="container">
         <!-- Sidebar Menu -->
         <div class="sidebar">
-            <div class="menu-item active" onclick="showTab('orders')">الطلبات</div>
-            <div class="menu-item" onclick="showTab('returns')">المرتجعات</div>
-            <div class="menu-item" onclick="showTab('addresses')">العناوين</div>
-            <div class="menu-item" onclick="showTab('garage')">كراجي 🚗</div>
-            <div class="menu-item" onclick="showTab('wallet')">المحفظة</div>
-            <div class="menu-item" onclick="showTab('settings')">الإعدادات</div>
+            <div class="menu-item active" id="tab-orders" onclick="showTab('orders')">الطلبات</div>
+            <div class="menu-item" id="tab-cart" onclick="showTab('cart')">سلة المشتريات 🛒</div>
+            <div class="menu-item" id="tab-returns" onclick="showTab('returns')">المرتجعات</div>
+            <div class="menu-item" id="tab-addresses" onclick="showTab('addresses')">العناوين</div>
+            <div class="menu-item" id="tab-garage" onclick="showTab('garage')">كراجي 🚗</div>
+            <div class="menu-item" id="tab-wallet" onclick="showTab('wallet')">المحفظة</div>
+            <div class="menu-item" id="tab-settings" onclick="showTab('settings')">الإعدادات</div>
             <div class="menu-item" onclick="logout()" style="color:red; margin-top:20px;"> تسجيل خروج</div>
         </div>
 
@@ -192,6 +193,47 @@
             <div class="orders-list">
                 <!-- داتا حقيقية ستظهر هنا -->
                 <p style="text-align:center; padding:20px; opacity:0.5;">جاري تحميل طلباتك...</p>
+            </div>
+        </div>
+
+        <!-- 1.5 Cart Tab (New) -->
+        <div id="cart" class="content-area hidden">
+            <div class="section-title">سلة المشتريات</div>
+            <div id="cartItemsList">
+                <!-- Items from localStorage -->
+            </div>
+
+            <div id="checkoutSection" class="hidden"
+                style="margin-top:20px; padding:20px; border-top:2px solid #f0f0f0;">
+                <h4 style="margin-bottom:15px;">إتمام الطلب (One-Step Checkout)</h4>
+
+                <div style="margin-bottom:15px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">عنوان الشحن:</label>
+                    <select id="checkoutAddressSelect"
+                        style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;">
+                        <!-- Addresses loaded here -->
+                    </select>
+                </div>
+
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">طريقة الدفع:</label>
+                    <div
+                        style="padding:10px; border:1px solid #eef2ff; border-radius:8px; background:#fafbff; display:flex; justify-content:space-between; align-items:center;">
+                        <span>🧧 رصيد المحفظة</span>
+                        <strong id="checkoutWalletBalance">0.00 ج.م</strong>
+                    </div>
+                </div>
+
+                <div
+                    style="padding:15px; background:var(--primary); color:white; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:0.8rem; opacity:0.8;">الإجمالي المطلوب</div>
+                        <div style="font-size:1.4rem; font-weight:bold;" id="cartTotalPrice">0.00 ج.م</div>
+                    </div>
+                    <button onclick="processCheckout()" id="checkoutBtn"
+                        style="background:#ffb300; color:var(--primary); border:none; padding:12px 25px; border-radius:30px; font-weight:800; cursor:pointer;">تأكيد
+                        وطلب الآن</button>
+                </div>
             </div>
         </div>
 
@@ -330,20 +372,27 @@
                         <div class="order-card">
                             <div class="order-header">
                                 <span>رقم الطلب: #${order._id.slice(-5)}</span>
-                                <span class="order-status">${order.status}</span>
+                                <span class="order-status">${order.status || 'Pending'}</span>
                             </div>
-                            <div class="order-item">
-                                <img src="${order.image || 'https://via.placeholder.com/80'}" class="order-img">
-                                <div style="flex:1">
-                                    <h4 style="margin:0 0 5px 0">${order.productName}</h4>
-                                    <p style="margin:0; font-size:0.9rem; color:#777;">${order.price} ج.م | ${new Date(order.createdAt).toLocaleDateString('ar-EG')}</p>
+                            <div class="order-items-container">
+                                ${order.items.map(item => `
+                                    <div class="order-item" style="margin-bottom:10px;">
+                                        <img src="${item.image || 'https://via.placeholder.com/80'}" class="order-img">
+                                        <div style="flex:1">
+                                            <h4 style="margin:0 0 5px 0">${item.name}</h4>
+                                            <p style="margin:0; font-size:0.9rem; color:#777;">${item.priceAtPurchase} ج.م | الكمية: ${item.quantity || 1}</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div style="margin-top:10px; border-top:1px solid #f0f0f0; padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <span style="font-size:0.85rem; color:#777;">التاريخ: ${new Date(order.createdAt).toLocaleDateString('ar-EG')}</span>
+                                    <div style="font-weight:bold;">الإجمالي: ${order.totalPrice} ج.م</div>
                                 </div>
-                                <div style="display:flex; flex-direction:column; gap:5px;">
+                                <div style="display:flex; gap:5px;">
                                     <button style="background:var(--primary); color:white; border:none; padding:5px 12px; border-radius:5px; cursor:pointer; font-size:0.8rem;"
                                         onclick="alert('تتبع الشحنة المباشر متاح قريباً')">تتبع</button>
-                                    ${order.status === 'تم التسليم' && !order.returnStatus ?
-                            `<button style="background:#fff1f0; color:#cf1322; border:1px solid #ffa39e; padding:5px 12px; border-radius:5px; cursor:pointer; font-size:0.8rem;"
-                                            onclick="requestReturn('${order._id}')">استرجاع</button>` : ''}
                                 </div>
                             </div>
                             ${order.returnStatus ? `<div style="margin-top:10px; padding:8px; background:#f5f5f5; border-radius:5px; font-size:0.8rem; color:#666;">
@@ -552,14 +601,131 @@
         function showTab(tabId) {
             document.querySelectorAll('.content-area').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.remove('hidden');
+            const tab = document.getElementById(tabId);
+            if (tab) tab.classList.remove('hidden');
+            const menu = document.getElementById('tab-' + tabId);
+            if (menu) menu.classList.add('active');
+
+            if (tabId === 'cart') loadCartView();
+        }
+
+        // --- Cart & Checkout Logic ---
+        function loadCartView() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const list = document.getElementById('cartItemsList');
+            const checkout = document.getElementById('checkoutSection');
+
+            if (cart.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding:40px; opacity:0.5;">سلة المشتريات فارغة حالياً.. اطلب قطع غيار الآن!</div>';
+                checkout.classList.add('hidden');
+                return;
+            }
+
+            checkout.classList.remove('hidden');
+            let total = 0;
+
+            list.innerHTML = cart.map((item, index) => {
+                total += item.price * (item.quantity || 1);
+                return `
+                    <div style="display:flex; gap:15px; align-items:center; padding:15px; border:1px solid #eee; border-radius:12px; margin-bottom:10px;">
+                        <img src="${item.image}" style="width:60px; height:60px; object-fit:contain; border-radius:8px; background:#f9f9f9;">
+                        <div style="flex:1">
+                            <h4 style="margin:0">${item.name}</h4>
+                            <div style="font-size:0.85rem; color:#777;">التاجر: ${item.seller}</div>
+                            <div style="color:var(--primary); font-weight:bold;">${item.price} ج.م</div>
+                        </div>
+                        <button onclick="removeFromCart(${index})" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cartTotalPrice').innerText = total + ' ج.م';
+
+            // Load addresses into select
+            const addrSelect = document.getElementById('checkoutAddressSelect');
+            fetch('/api/user/addresses').then(r => r.json()).then(addrs => {
+                if (addrs.length === 0) {
+                    addrSelect.innerHTML = '<option value="">لا يوجد عناوين مسجلة - برجاء إضافة عنوان أولاً</option>';
+                    document.getElementById('checkoutBtn').disabled = true;
+                } else {
+                    addrSelect.innerHTML = addrs.map(a => `<option value="${a._id}">${a.label}: ${a.details}</option>`).join('');
+                    document.getElementById('checkoutBtn').disabled = false;
+                }
+            });
+
+            // Load wallet balance
+            fetch('/api/user/wallet').then(r => r.json()).then(data => {
+                document.getElementById('checkoutWalletBalance').innerText = data.balance.toFixed(2) + ' ج.م';
+            });
+        }
+
+        function removeFromCart(index) {
+            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCartView();
+        }
+
+        async function processCheckout() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const addressId = document.getElementById('checkoutAddressSelect').value;
+            const btn = document.getElementById('checkoutBtn');
+
+            if (!addressId) return alert('الرجاء اختيار عنوان الشحن');
+
+            btn.disabled = true;
+            btn.innerText = 'جاري إتمام الطلب...';
+
+            try {
+                // 1. Get address details
+                const addrRes = await fetch('/api/user/addresses');
+                const addrs = await addrRes.json();
+                const selectedAddr = addrs.find(a => a._id === addressId);
+
+                const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        items: cart,
+                        totalPrice: total,
+                        shippingAddress: {
+                            details: selectedAddr.details,
+                            label: selectedAddr.label
+                        },
+                        paymentMethod: 'Wallet'
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    alert('✅ تم إتمام الطلب بنجاح! شكراً لثقتك في متركنهاش.');
+                    localStorage.setItem('cart', '[]'); // Clear cart
+                    showTab('orders');
+                    loadOrders();
+                    loadWallet();
+                } else {
+                    alert('❌ ' + (data.error || 'فشل إتمام الطلب'));
+                }
+            } catch (err) {
+                alert('حدث خطأ في الاتصال بالخادم');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'تأكيد وطلب الآن';
+            }
         }
 
         function logout() {
             window.location.href = '/logout'; // Trigger backend logout
         }
 
-        loadProfile();
+        // Read hash for direct tab access
+        window.addEventListener('load', () => {
+            loadProfile().then(() => {
+                if (window.location.hash === '#cart') showTab('cart');
+            });
+        });
     </script>
 </body>
 
