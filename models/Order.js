@@ -12,11 +12,8 @@ const orderSchema = new mongoose.Schema({
     }],
     totalPrice: { type: Number, required: true },
     shippingAddress: {
-        governorate: String,
-        city: String,
-        street: String,
-        building: String,
-        phone: String
+        label: String,
+        details: String
     },
     paymentMethod: { type: String, default: 'Wallet' },
     status: { type: String, default: 'Pending' }, // Pending, Confirmed, Shipped, Delivered, Cancelled
