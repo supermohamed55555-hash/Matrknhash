@@ -659,7 +659,7 @@
                             </div>
                             <div class="seller-price-box">
                                 <div class="s-price">${p.price} ج.م</div>
-                                <button class="buy-seller-btn" onclick="addToCart('${p.vendorName}')">شراء الآن</button>
+                                <button class="buy-seller-btn" onclick="addToCart('${p.vendorName}', '${p._id}', '${p.name}', ${p.price}, '${p.image}')">شراء الآن</button>
                             </div>
                         </div>
                     `;
@@ -851,23 +851,27 @@
             }
         }
 
-        async function addToCart(sellerName) {
-            const productId = urlParams.get('id');
-            const name = document.getElementById('pName').innerText;
-            const priceText = document.getElementById('pPrice').innerText;
-            const price = parseInt(priceText.replace(/[^\d]/g, ''));
-            const image = document.getElementById('pImg').src;
+        async function addToCart(sellerName, customId = null, customName = null, customPrice = null, customImg = null) {
+            const productId = customId || urlParams.get('id');
+            const name = customName || document.getElementById('pName').innerText;
+            const price = customPrice || parseInt(document.getElementById('pPrice').innerText.replace(/[^\d]/g, ''));
+            const image = customImg || document.getElementById('pImg').src;
+
+            if (!productId || productId === 'null') {
+                alert('⚠️ عذراً، لم نتمكن من تحديد رقم المنتج. يرجى المحاولة من الصفحة الرئيسية.');
+                return;
+            }
 
             let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-            // Add simple item
+            // Add item
             cart.push({
                 productId,
-                _id: productId, // Redundancy for safety
+                _id: productId,
                 name,
                 price,
                 image,
-                seller: sellerName,
+                seller: sellerName || "متركنهاش",
                 quantity: 1
             });
 
