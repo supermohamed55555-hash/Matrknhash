@@ -552,7 +552,7 @@ app.post('/api/orders', isAuthenticated, async (req, res) => {
         const newOrder = new Order({
             user: req.user._id,
             items: items.map(item => ({
-                productId: item.productId,
+                productId: item.productId || item._id, // Try both formats
                 name: item.name,
                 priceAtPurchase: item.price,
                 image: item.image,
