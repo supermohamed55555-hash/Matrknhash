@@ -1156,7 +1156,13 @@
                 if (data.user) {
                     const user = data.user;
                     let vendorDashboardBtn = '';
-                    if (user.role === 'vendor' || user.role === 'admin') {
+                    if (user.role === 'admin') {
+                        vendorDashboardBtn = `
+                            <a href="/super-admin.html" class="flex items-center gap-2 px-4 py-2 rounded-full border border-orange-300 bg-orange-50 hover:bg-orange-100 transition text-orange-700 font-bold text-sm shadow-sm">
+                                👑 لوحة المدير
+                            </a>
+                        `;
+                    } else if (user.role === 'vendor') {
                         vendorDashboardBtn = `
                             <a href="/admin.html" class="flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 hover:bg-primary/20 transition text-primary font-bold text-sm">
                                 📊 لوحة التاجر
