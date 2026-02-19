@@ -1,4 +1,20 @@
 require('dotenv').config();
+const logger = require('./utils/logger'); // Move logger import up
+const Sentry = require('@sentry/node');
+
+// --- Professional Error Handling ---
+process.on('uncaughtException', (err) => {
+    logger.error('CRITICAL: Uncaught Exception!', err);
+    Sentry.captureException(err);
+    // Give some time for logging before exiting
+    setTimeout(() => process.exit(1), 1000);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    logger.error('CRITICAL: Unhandled Rejection at:', promise, 'reason:', reason);
+    Sentry.captureException(reason);
+});
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -15,8 +31,8 @@ const Order = require('./models/Order');
 
 // Logging & Monitoring
 const morgan = require('morgan');
-const logger = require('./utils/logger');
-const Sentry = require('@sentry/node');
+// const logger = require('./utils/logger'); // Already moved up
+// const Sentry = require('@sentry/node'); // Already moved up
 
 // Initialize Sentry (Fallback if DSN is missing)
 Sentry.init({
@@ -638,6 +654,20 @@ app.patch('/api/user/garage/:carId/primary', isAuthenticated, async (req, res) =
 
 // Sentry Error Handler (Must be before any other error middleware)
 app.use(Sentry.Handlers.errorHandler());
+
+// Professional Custom Error Response
+app.use((err, req, res, next) => {
+    logger.error(`Error processing ${req.method} ${req.url}:`, err);
+
+    const statusCode = err.status || 500;
+    res.status(statusCode).json({
+        success: false,
+        error: process.env.NODE_ENV === 'production'
+            ? 'Internal Server Error'
+            : err.message,
+        timestamp: new Date().toISOString()
+    });
+});
 
 // Start Server
 const PORT = process.env.PORT || 3000;
