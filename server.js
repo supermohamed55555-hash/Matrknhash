@@ -13,9 +13,29 @@ const User = require('./models/User');
 const Product = require('./models/Product');
 const Order = require('./models/Order');
 
+// Logging & Monitoring
+const morgan = require('morgan');
+const logger = require('./utils/logger');
+const Sentry = require('@sentry/node');
+
+// Initialize Sentry (Fallback if DSN is missing)
+Sentry.init({
+    dsn: process.env.SENTRY_DSN || '',
+    tracesSampleRate: 1.0,
+    integrations: [
+        // enable HTTP calls tracing
+        new Sentry.Integrations.Http({ tracing: true }),
+    ],
+});
+
 const app = express();
 
-// 1. Middleware Setup (Must be BEFORE routes)
+app.use(Sentry.Handlers.requestHandler()); // Sentry Request Handler triggers first
+app.use(Sentry.Handlers.tracingHandler()); // TracingHandler creates a trace for every incoming request
+
+// Morgan HTTP Logger (Stream to Winston)
+app.use(morgan('combined', { stream: { write: message => logger.http(message.trim()) } }));
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -100,8 +120,8 @@ function isAuthenticated(req, res, next) {
 // 2. Database Connection
 mongoose.connect(process.env.MONGO_URI, {
     serverSelectionTimeoutMS: 30000
-}).then(() => console.log('✅ MongoDB Connected'))
-    .catch(err => console.log('❌ DB Error:', err));
+}).then(() => logger.info('✅ MongoDB Connected'))
+    .catch(err => logger.error('❌ DB Error:', err));
 
 // 3. Routes
 
@@ -164,7 +184,7 @@ app.post('/api/register', async (req, res) => {
         await newUser.save();
         res.status(201).json({ success: true, message: 'تم التسجيل بنجاح' });
     } catch (err) {
-        console.error('Registration Error:', err);
+        logger.error('Registration Error:', err);
         res.status(500).json({ error: 'فشل عملية التسجيل' });
     }
 });
@@ -230,7 +250,7 @@ app.post('/api/products', isAuthenticated, async (req, res) => {
         await newProduct.save();
         res.status(201).json(newProduct);
     } catch (err) {
-        console.error('Add Product Error:', err);
+        logger.error('Add Product Error:', err);
         res.status(500).json({ error: 'Failed to add product' });
     }
 });
@@ -267,7 +287,7 @@ app.post('/api/check-fitment', async (req, res) => {
                 product = await Product.findById(productId);
             }
         } catch (e) {
-            console.log("Invalid Product ID or DB Error, proceeding as general query");
+            logger.warn("Invalid Product ID or DB Error, proceeding as general query");
         }
 
         const compatibilityData = product && product.compatibility && product.compatibility.length > 0
@@ -329,7 +349,7 @@ app.post('/api/check-fitment', async (req, res) => {
 
                 if (!response.ok) {
                     const errData = await response.json();
-                    console.error('Groq API Error:', errData);
+                    logger.error('Groq API Error:', errData);
                     throw new Error(`Groq returned ${response.status}`);
                 }
 
@@ -346,14 +366,13 @@ app.post('/api/check-fitment', async (req, res) => {
 
                 return res.json({ status, reason: aiResponse });
             } catch (err) {
-                console.error('CRITICAL GROQ ERROR:', err.message);
+                logger.error('CRITICAL GROQ ERROR:', err.message);
             }
         }
 
-        // --- STRICT SIMULATION FALLBACK (If no API key or AI block failed) ---
+        // --- STRICT SIMULATION FALLBACK ---
         const query = (userText || "").toLowerCase();
 
-        // Avoid crashing if product is null
         if (product && product.compatibility && product.compatibility.length > 0) {
             const vehicleMatch = (text) => {
                 const yMatch = text.match(/\d{4}/);
@@ -382,18 +401,14 @@ app.post('/api/check-fitment', async (req, res) => {
             if (result) return res.json(result);
         }
 
-        // Final Fallback for general questions if AI failed or fitment not found
         const errorMessage = (process.env.GROQ_API_KEY || (typeof groqKey !== 'undefined' && !groqKey.startsWith('YOUR_')))
             ? 'المهندس عبود بيقولك: "حصلت مشكلة تقنية عندي.. جرب كمان دقيقة. لو فضلت كدة قولي للذكاء الاصطناعي يشوف الـ Logs في Railway."'
             : '⚠️ تنبيه: مفتاح الـ API ممسوح أو مش شغال. لازم تظبطه في الـ Variable في Railway أولاً.';
 
-        res.json({
-            status: 'warning',
-            reason: errorMessage
-        });
+        res.json({ status: 'warning', reason: errorMessage });
 
     } catch (err) {
-        console.error('Fitment Error:', err);
+        logger.error('Fitment Error:', err);
         res.status(500).json({ error: 'حدث خطأ في فحص التوافق' });
     }
 });
@@ -439,7 +454,7 @@ app.put('/api/products/:id', isAuthenticated, async (req, res) => {
         );
         res.json(updatedProduct);
     } catch (err) {
-        console.error('Update Product Error:', err);
+        logger.error('Update Product Error:', err);
         res.status(500).json({ error: 'فشل تعديل المنتج' });
     }
 });
@@ -478,7 +493,7 @@ app.post('/api/orders', isAuthenticated, async (req, res) => {
         await newOrder.save();
         res.status(201).json({ success: true, order: newOrder });
     } catch (err) {
-        console.error('Order Error:', err);
+        logger.error('Order Error:', err);
         res.status(500).json({ error: 'فشل في إتمام الطلب' });
     }
 });
@@ -621,8 +636,11 @@ app.patch('/api/user/garage/:carId/primary', isAuthenticated, async (req, res) =
     }
 });
 
+// Sentry Error Handler (Must be before any other error middleware)
+app.use(Sentry.Handlers.errorHandler());
+
 // Start Server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    logger.info(`🚀 Server running on port ${PORT}`);
 });
