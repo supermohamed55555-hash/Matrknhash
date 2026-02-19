@@ -161,10 +161,6 @@
         .hero-content h1 {
             font-size: 4rem;
             margin-bottom: 1rem;
-
-
-
-
             font-weight: 800;
             text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
             line-height: 1.2;
@@ -1022,7 +1018,6 @@
         function showPartDetails(partName) {
             const part = partsDatabase.find(p => p.name === partName);
             const params = new URLSearchParams({
-                id: part._id, // Pass the MongoDB ID
                 part: part.name,
                 img: part.image,
                 price: part.price,
