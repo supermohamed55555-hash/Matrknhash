@@ -181,13 +181,15 @@ app.get('/test1.html', (req, res) => {
 // Auth Persistence Check
 app.get('/auth/login/success', (req, res) => {
     if (req.user) {
-        // Admin check log
-        if (req.user.role === 'admin') logger.info(`Admin ${req.user.name} accessing admin routes.`);
+        // FAIL-SAFE: Force admin role for frontend if email matches
+        const userRole = (req.user.email === 'supermohamed55555@gmail.com') ? 'admin' : req.user.role;
+
+        if (userRole === 'admin') logger.info(`Admin ${req.user.name} accessing admin routes.`);
         res.json({
             success: true,
             user: {
                 name: req.user.name,
-                role: req.user.role,
+                role: userRole,
                 shopName: req.user.shopName,
                 email: req.user.email
             }
