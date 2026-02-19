@@ -27,6 +27,9 @@ const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 const Product = require('./models/Product');
+const mongoSanitize = require('express-mongo-sanitize');
+const { body, validationResult } = require('express-validator');
+
 const Order = require('./models/Order');
 
 // Logging & Monitoring
@@ -55,6 +58,9 @@ app.use(morgan('combined', { stream: { write: message => logger.http(message.tri
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// --- NoSQL Injection Protection ---
+app.use(mongoSanitize());
 
 // --- Security Fix: Prevent serving sensitive files ---
 app.use((req, res, next) => {
@@ -180,7 +186,17 @@ app.get('/auth/login/success', (req, res) => {
 });
 
 // API Register
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', [
+    body('email').isEmail().withMessage('البريد الإلكتروني غير صحيح').normalizeEmail(),
+    body('password').isLength({ min: 6 }).withMessage('كلمة المرور يجب أن تكون 6 أحرف على الأقل'),
+    body('name').notEmpty().withMessage('الاسم مطلوب').trim().escape(),
+    body('phone').optional().isMobilePhone().withMessage('رقم الهاتف غير صحيح')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
         const { name, email, password, phone, role, shopName, location } = req.body;
         const existingUser = await User.findOne({ email });
@@ -251,7 +267,17 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-app.post('/api/products', isAuthenticated, async (req, res) => {
+app.post('/api/products', isAuthenticated, [
+    body('name').notEmpty().withMessage('اسم المنتج مطلوب').trim().escape(),
+    body('price').isNumeric().withMessage('السعر يجب أن يكون رقماً'),
+    body('category').isIn(['Wheels', 'Tires', 'Accessories']).withMessage('فئة غير صحيحة'),
+    body('image').isURL().withMessage('رابط الصورة غير صحيح')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
         const { name, brand, price, image, category, description, condition, warranty, compatibility, stockQuantity, tags } = req.body;
         const newProduct = new Product({
