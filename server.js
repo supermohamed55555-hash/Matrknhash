@@ -19,6 +19,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -31,6 +32,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const { body, validationResult } = require('express-validator');
 
 const Order = require('./models/Order');
+const shippingService = require('./utils/shipping');
 
 // Last Deployment Update: 2026-02-19
 // Logging & Monitoring (Already moved to top)
@@ -58,18 +60,26 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Ensure logs directory exists
+const logDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir);
+}
+
 // --- NoSQL Injection Protection ---
 app.use(mongoSanitize());
 
 // --- Security Fix: Prevent serving sensitive files ---
 app.use((req, res, next) => {
-    const forbiddenExts = ['.js', '.json', '.env', '.md', '.log'];
-    const lowerUrl = req.url.toLowerCase();
+    const forbiddenFiles = ['server.js', '.env', 'package.json', 'package-lock.json', 'fix-role.js', 'check-db.js'];
+    const forbiddenExts = ['.log', '.md', '.env'];
+    const url = req.url.toLowerCase().split('?')[0];
 
-    // Check if the request is for a forbidden file extension
-    // But allow essential ones if they were specifically in a public folder (not applicable here as everything is root)
-    if (forbiddenExts.some(ext => lowerUrl.endsWith(ext))) {
+    if (forbiddenFiles.some(f => url === '/' + f || url.endsWith('/' + f))) {
         return res.status(403).send('<h1>403 Forbidden</h1><p>عذراً، غير مسموح بالوصول لهذا الملف لأسباب أمنية.</p>');
+    }
+    if (forbiddenExts.some(ext => url.endsWith(ext))) {
+        return res.status(403).send('<h1>403 Forbidden</h1><p>عذراً، غير مسموح بالوصول لهذا الملف.</p>');
     }
     next();
 });
@@ -176,6 +186,20 @@ app.get('/admin.html', (req, res) => {
 
 app.get('/test1.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'test1.html'));
+});
+
+app.get('/super-admin.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'super-admin.html'));
+});
+
+// Health Check for Deployment
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'up',
+        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString()
+    });
 });
 
 // Auth Persistence Check
@@ -734,6 +758,49 @@ app.get('/api/admin/orders', isAdmin, async (req, res) => {
         res.json(orders);
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch all orders' });
+    }
+});
+
+// 4. Confirm Order & Create Shipping Label
+app.post('/api/admin/orders/:id/confirm', isAdmin, async (req, res) => {
+    try {
+        const { carrier } = req.body; // 'Bosta' or 'Aramex'
+        const order = await Order.findById(req.params.id).populate('user');
+
+        if (!order) return res.status(404).json({ error: 'الطلب غير موجود' });
+
+        // Step A: Update Status
+        order.status = 'Confirmed';
+        order.shippingCarrier = carrier || 'Bosta';
+
+        // Step B: Trigger Carrier Integration
+        let shippingResult;
+        if (order.shippingCarrier === 'Bosta') {
+            shippingResult = await shippingService.createBostaShipment(order, order.user);
+        } else {
+            shippingResult = await shippingService.createAramexShipment(order, order.user);
+        }
+
+        if (shippingResult.success) {
+            order.trackingNumber = shippingResult.trackingNumber;
+            order.shippingLabelUrl = shippingResult.labelUrl;
+            order.carrierBookingId = shippingResult.bookingId;
+            order.status = 'Shipped'; // Auto-transition to Shipped once label is ready
+
+            await order.save();
+            res.json({
+                success: true,
+                message: 'تم تأكيد الطلب وإنشاء بوليصة الشحن بنجاح',
+                trackingNumber: order.trackingNumber,
+                labelUrl: order.shippingLabelUrl
+            });
+        } else {
+            throw new Error(shippingResult.error || 'Shipping Integration Failed');
+        }
+
+    } catch (err) {
+        logger.error('Order Confirmation Error:', err);
+        res.status(500).json({ error: 'حدث خطأ أثناء تأكيد الطلب أو إنشاء بوليصة الشحن' });
     }
 });
 
