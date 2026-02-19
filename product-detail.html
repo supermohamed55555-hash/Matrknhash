@@ -841,11 +841,13 @@
         function updateCartBadge() {
             const cart = JSON.parse(localStorage.getItem('cart') || '[]');
             const badge = document.getElementById('cartBadge');
-            if (cart.length > 0) {
-                badge.innerText = cart.length;
-                badge.style.display = 'block';
-            } else {
-                badge.style.display = 'none';
+            if (badge) {
+                if (cart.length > 0) {
+                    badge.innerText = cart.length;
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
             }
         }
 
