@@ -993,31 +993,27 @@
 
         async function addToCart(partName, price) {
             const part = partsDatabase.find(p => p.name === partName);
-            const image = part ? part.image : '';
+            if (!part) return;
 
-            try {
-                const res = await fetch('/api/orders', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ productName: partName, price, image })
-                });
+            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            cart.push({
+                productId: part._id,
+                _id: part._id,
+                name: part.name,
+                price: part.price,
+                image: part.image,
+                seller: part.vendorName || 'متركنهاش',
+                quantity: 1
+            });
 
-                if (res.ok) {
-                    alert(`✅ تم طلب "${partName}" بنجاح! يمكنك متابعة حالة الطلب من حسابك.`);
-                } else if (res.status === 401) {
-                    alert('⚠️ برجاء تسجيل الدخول أولاً لتتمكن من الشراء.');
-                } else {
-                    alert('❌ حدث خطأ أثناء إتمام الطلب.');
-                }
-            } catch (err) {
-                console.error('Order Error:', err);
-                alert('❌ فشل الاتصال بالسيرفر.');
-            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert('✅ تمت إضافة "' + partName + '" للسلة بنجاح!');
         }
 
         function showPartDetails(partName) {
             const part = partsDatabase.find(p => p.name === partName);
             const params = new URLSearchParams({
+                id: part._id, // Critical: Add the Product ID
                 part: part.name,
                 img: part.image,
                 price: part.price,
