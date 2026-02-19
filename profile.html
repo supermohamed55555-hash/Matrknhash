@@ -370,7 +370,8 @@
                     document.getElementById('userNameLabel').innerText = 'أهلاً ' + user.name;
                     document.getElementById('userEmailLabel').innerText = user.email || '';
                     document.getElementById('avatarLetter').innerText = user.name.charAt(0).toUpperCase();
-                    if (user.role === 'admin') document.getElementById('tab-super-admin').classList.remove('hidden');
+
+                    setupSidebarByRole(user.role);
 
                     // Initial load
                     loadOrders();
@@ -383,6 +384,49 @@
                 }
             } catch (err) {
                 console.error('Profile Error:', err);
+            }
+        }
+
+        function setupSidebarByRole(role) {
+            const tabs = {
+                'orders': document.getElementById('tab-orders'),
+                'cart': document.getElementById('tab-cart'),
+                'returns': document.getElementById('tab-returns'),
+                'addresses': document.getElementById('tab-addresses'),
+                'garage': document.getElementById('tab-garage'),
+                'wallet': document.getElementById('tab-wallet'),
+                'settings': document.getElementById('tab-settings'),
+                'superAdmin': document.getElementById('tab-super-admin')
+            };
+
+            // Reset all
+            Object.values(tabs).forEach(tab => tab.classList.add('hidden'));
+
+            if (role === 'admin') {
+                // Admin View
+                tabs.superAdmin.classList.remove('hidden');
+                tabs.settings.classList.remove('hidden');
+                tabs.settings.innerText = 'إعدادات المنصة ⚙️';
+                showTab('settings');
+            } else if (role === 'vendor') {
+                // Vendor View
+                tabs.orders.classList.remove('hidden');
+                tabs.orders.innerText = 'طلبات المبيعات 📈';
+                tabs.wallet.classList.remove('hidden');
+                tabs.wallet.innerText = 'أرباحي 💰';
+                tabs.settings.classList.remove('hidden');
+                showTab('orders');
+            } else {
+                // User View
+                tabs.orders.classList.remove('hidden');
+                tabs.orders.innerText = 'طلباتي 📦';
+                tabs.cart.classList.remove('hidden');
+                tabs.returns.classList.remove('hidden');
+                tabs.addresses.classList.remove('hidden');
+                tabs.garage.classList.remove('hidden');
+                tabs.wallet.classList.remove('hidden');
+                tabs.settings.classList.remove('hidden');
+                showTab('orders');
             }
         }
 
