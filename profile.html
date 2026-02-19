@@ -182,6 +182,8 @@
             <div class="menu-item" id="tab-garage" onclick="showTab('garage')">كراجي 🚗</div>
             <div class="menu-item" id="tab-wallet" onclick="showTab('wallet')">المحفظة</div>
             <div class="menu-item" id="tab-settings" onclick="showTab('settings')">الإعدادات</div>
+            <div class="menu-item hidden" id="tab-super-admin" onclick="window.location.href='/super-admin.html'"
+                style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5;">لوحة المدير العام 👑</div>
             <div class="menu-item" onclick="logout()" style="color:red; margin-top:20px;"> تسجيل خروج</div>
         </div>
 
@@ -367,6 +369,7 @@
                     document.getElementById('userNameLabel').innerText = 'أهلاً ' + user.name;
                     document.getElementById('userEmailLabel').innerText = user.email || '';
                     document.getElementById('avatarLetter').innerText = user.name.charAt(0).toUpperCase();
+                    if (user.role === 'admin') document.getElementById('tab-super-admin').classList.remove('hidden');
 
                     // Initial load
                     loadOrders();

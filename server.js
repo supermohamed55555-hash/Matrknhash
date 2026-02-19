@@ -139,6 +139,11 @@ function isAuthenticated(req, res, next) {
     res.status(401).json({ error: 'Please log in' });
 }
 
+function isAdmin(req, res, next) {
+    if (req.isAuthenticated() && req.user.role === 'admin') return next();
+    res.status(403).json({ error: 'Forbidden: Admin access only' });
+}
+
 // 2. Database Connection
 mongoose.connect(process.env.MONGO_URI, {
     serverSelectionTimeoutMS: 30000
@@ -209,6 +214,7 @@ app.post('/api/register', [
             password: hashedPassword,
             phone,
             role: role || 'user',
+            status: (role === 'vendor') ? 'pending' : 'active',
             shopName,
             location
         });
@@ -663,6 +669,67 @@ app.delete('/api/user/garage/:carId', isAuthenticated, async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: 'Failed to remove car' });
     }
+});
+
+// --- Super Admin APIs ---
+
+// 1. Get Platform Stats
+app.get('/api/admin/stats', isAdmin, async (req, res) => {
+    try {
+        const totalUsers = await User.countDocuments({ role: 'user' });
+        const totalVendors = await User.countDocuments({ role: 'vendor' });
+        const totalOrders = await Order.countDocuments();
+        const orders = await Order.find();
+        const totalRevenue = orders.reduce((sum, order) => sum + order.totalPrice, 0);
+
+        res.json({
+            totalUsers,
+            totalVendors,
+            totalOrders,
+            totalRevenue,
+            commissionBalance: totalRevenue * 0.1 // Just an example calculation
+        });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch stats' });
+    }
+});
+
+// 2. Manage Vendors
+app.get('/api/admin/vendors', isAdmin, async (req, res) => {
+    try {
+        const vendors = await User.find({ role: 'vendor' }).sort({ createdAt: -1 });
+        res.json(vendors);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch vendors' });
+    }
+});
+
+app.patch('/api/admin/vendors/:id/status', isAdmin, async (req, res) => {
+    try {
+        const { status } = req.body;
+        const vendor = await User.findOneAndUpdate(
+            { _id: req.params.id, role: 'vendor' },
+            { status },
+            { new: true }
+        );
+        res.json(vendor);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update vendor status' });
+    }
+});
+
+// 3. View All Orders
+app.get('/api/admin/orders', isAdmin, async (req, res) => {
+    try {
+        const orders = await Order.find().populate('user', 'name email').sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch all orders' });
+    }
+});
+
+app.get('/super-admin.html', isAdmin, (req, res) => {
+    res.sendFile(path.join(__dirname, 'super-admin.html'));
 });
 
 app.patch('/api/user/garage/:carId/primary', isAuthenticated, async (req, res) => {

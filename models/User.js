@@ -10,6 +10,8 @@ const userSchema = new mongoose.Schema({
   phone: { type: String },
   shopName: { type: String }, // For Vendors
   location: { type: String }, // For Vendors
+  status: { type: String, enum: ['active', 'pending', 'suspended'], default: 'active' }, // For Vendors/Users
+  commissionRate: { type: Number, default: 10 }, // Percent for Marketplace commission
   addresses: [{
     label: String, // e.g., المنزل، المكتب
     details: String,
