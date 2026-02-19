@@ -545,6 +545,10 @@ app.post('/api/orders', isAuthenticated, async (req, res) => {
     try {
         const { items, totalPrice, shippingAddress, paymentMethod } = req.body;
 
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ success: false, error: 'سلة المشتريات فارغة' });
+        }
+
         const newOrder = new Order({
             user: req.user._id,
             items: items.map(item => ({
@@ -564,8 +568,8 @@ app.post('/api/orders', isAuthenticated, async (req, res) => {
         // If paying by wallet, deduct balance
         if (paymentMethod === 'Wallet') {
             const user = await User.findById(req.user._id);
-            if (user.walletBalance < totalPrice) {
-                return res.status(400).json({ error: 'رصيد المحفظة غير كافٍ' });
+            if (!user || user.walletBalance < totalPrice) {
+                return res.status(400).json({ success: false, error: 'رصيد المحفظة غير كافٍ' });
             }
             user.walletBalance -= totalPrice;
             await user.save();
@@ -574,8 +578,12 @@ app.post('/api/orders', isAuthenticated, async (req, res) => {
         await newOrder.save();
         res.status(201).json({ success: true, order: newOrder });
     } catch (err) {
-        logger.error('Order Error:', err);
-        res.status(500).json({ error: 'فشل في إتمام الطلب' });
+        logger.error('CRITICAL ORDER ERROR:', err);
+        // Return actual error message to help identify the field causing failure
+        res.status(500).json({
+            success: false,
+            error: err.name === 'ValidationError' ? 'بيانات الطلب غير مكتملة: ' + Object.keys(err.errors).join(', ') : 'فشل في إتمام الطلب - حاول مرة أخرى'
+        });
     }
 });
 
