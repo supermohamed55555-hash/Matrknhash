@@ -143,6 +143,7 @@
                             <th class="py-3 px-4">التاريخ</th>
                             <th class="py-3 px-4">المبلغ</th>
                             <th class="py-3 px-4">الحالة</th>
+                            <th class="py-3 px-4">إجراءات الشحن</th>
                         </tr>
                     </thead>
                     <tbody id="ordersFullTableBody"></tbody>
@@ -220,15 +221,60 @@
             const res = await fetch('/api/admin/orders');
             const orders = await res.json();
             const body = document.getElementById('ordersFullTableBody');
-            body.innerHTML = orders.map(o => `
+            body.innerHTML = orders.map(o => {
+                let shippingBtn = '';
+                if (o.status === 'Pending') {
+                    shippingBtn = `
+                        <div class="flex gap-1">
+                            <button onclick="confirmOrder('${o._id}', 'Bosta')" class="bg-blue-600 text-white text-[10px] px-2 py-1 rounded hover:bg-blue-700">بوسطة</button>
+                            <button onclick="confirmOrder('${o._id}', 'Aramex')" class="bg-red-600 text-white text-[10px] px-2 py-1 rounded hover:bg-red-700">أرامكس</button>
+                        </div>
+                    `;
+                } else if (o.status === 'Shipped') {
+                    shippingBtn = `
+                        <div class="flex flex-col gap-1 items-start">
+                            <span class="text-[10px] text-slate-400">رقم التتبع: ${o.trackingNumber}</span>
+                            <a href="${o.shippingLabelUrl}" target="_blank" class="text-[10px] text-blue-500 underline">تحميل البوليصة 📄</a>
+                        </div>
+                    `;
+                }
+
+                return `
                 <tr class="border-b border-slate-50">
                     <td class="py-4 px-4 font-mono text-xs">#${o._id.toString().slice(-6)}</td>
                     <td class="py-4 px-4">${o.user?.name || 'مجهول'}</td>
                     <td class="py-4 px-4 text-sm text-slate-400">${new Date(o.createdAt).toLocaleDateString('ar-EG')}</td>
                     <td class="py-4 px-4 font-700">${o.totalPrice} ج.م</td>
-                    <td class="py-4 px-4 text-sm">${o.status}</td>
+                    <td class="py-4 px-4">
+                        <span class="status-badge ${o.status === 'Shipped' ? 'status-active' : 'status-pending'}">${o.status}</span>
+                    </td>
+                    <td class="py-4 px-4">${shippingBtn}</td>
                 </tr>
-            `).join('');
+                `;
+            }).join('');
+        }
+
+        async function confirmOrder(id, carrier) {
+            if (!confirm(`هل أنت متأكد من تأكيد الطلب عبر شركة ${carrier}؟ سيتم إنشاء بوليصة شحن فوراً.`)) return;
+
+            try {
+                const res = await fetch(`/api/admin/orders/${id}/confirm`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ carrier })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    alert('✅ تم تأكيد الطلب بنجاح! رقم التتبع: ' + data.trackingNumber);
+                    loadAllOrders();
+                    loadStats();
+                } else {
+                    alert('❌ خطأ: ' + (data.error || 'فشل إنشاء الشحنة'));
+                }
+            } catch (err) {
+                alert('حدث خطأ في الاتصال بالخادم');
+            }
         }
 
         function showTab(tabId) {
