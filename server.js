@@ -33,10 +33,8 @@ const { body, validationResult } = require('express-validator');
 const Order = require('./models/Order');
 
 // Last Deployment Update: 2026-02-19
-// Logging & Monitoring
+// Logging & Monitoring (Already moved to top)
 const morgan = require('morgan');
-// const logger = require('./utils/logger'); // Already moved up
-// const Sentry = require('@sentry/node'); // Already moved up
 
 // Initialize Sentry (Fallback if DSN is missing)
 Sentry.init({
