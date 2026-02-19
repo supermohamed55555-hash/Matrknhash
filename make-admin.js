@@ -1,36 +1,29 @@
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
-if (!process.env.MONGO_URI) {
-    require('dotenv').config(); // Try current directory as fallback
-}
-
+require('dotenv').config();
 const mongoose = require('mongoose');
 const User = require('./models/User');
 
-async function makeAdmin() {
-    try {
-        console.log('--- Connecting to MongoDB... ---');
-        await mongoose.connect(process.env.MONGO_URI);
-        console.log('--- Connected Successfully! ---\n');
+const emailToPromote = 'الايميل_الجديد@gmail.com'; // <--- غير ده لإيميل الشخص
 
-        // Use email for precision
-        const identifier = { email: 'supermohamed55555@gmail.com' };
-        const user = await User.findOne(identifier);
+mongoose.connect(process.env.MONGO_URI)
+    .then(async () => {
+        console.log('✅ متصل بقاعدة البيانات...');
 
-        if (user) {
-            console.log(`User Found: ${user.name} (${user.email})`);
-            user.role = 'admin';
-            user.status = 'active'; // Ensure admin is active
-            await user.save();
-            console.log(`✅ Success: ${user.name} is now a SUPER ADMIN! 👑`);
-        } else {
-            console.log(`❌ User not found with:`, identifier);
+        const user = await User.findOne({ email: emailToPromote });
+
+        if (!user) {
+            console.error('❌ المستخدم ده مش موجود أصلاً، خليه يسجل في الموقع الأول!');
+            process.exit(1);
         }
 
-        mongoose.connection.close();
-    } catch (err) {
-        console.error('Database Error:', err);
-    }
-}
+        user.role = 'admin';
+        await user.save();
 
-makeAdmin();
+        console.log(`\n🎉 مبروك! المستخدم ${user.name} بقا "أدمن" دلوقتي.`);
+        console.log('يقدر يدخل دلوقتي على لوحة المدير العام من: /super-admin.html\n');
+
+        process.exit(0);
+    })
+    .catch(err => {
+        console.error('❌ خطأ:', err);
+        process.exit(1);
+    });
