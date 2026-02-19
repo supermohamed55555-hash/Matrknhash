@@ -154,14 +154,23 @@
 
     <script>
         async function checkAdmin() {
-            const res = await fetch('/auth/login/success');
-            const data = await res.json();
-            if (!data.success || data.user.role !== 'admin') {
-                window.location.href = '/';
-            } else {
-                document.getElementById('adminName').innerText = data.user.name;
-                loadStats();
-                loadVendors();
+            try {
+                const res = await fetch('/auth/login/success');
+                const data = await res.json();
+                console.log('Admin Auth Check:', data); // Log the response
+
+                if (!data.success || data.user.role !== 'admin') {
+                    console.error('Not an admin! Data:', data);
+                    alert('عذراً، هذا الحساب ليس لديه صلاحيات مدير عام.\nسيتم توجيهك للموقع الرئيسي.');
+                    window.location.href = '/';
+                } else {
+                    document.getElementById('adminName').innerText = data.user.name;
+                    loadStats();
+                    loadVendors();
+                }
+            } catch (err) {
+                console.error('CheckAdmin Error:', err);
+                alert('خطأ في الاتصال بالسيرفر.');
             }
         }
 

@@ -176,12 +176,15 @@ app.get('/test1.html', (req, res) => {
 // Auth Persistence Check
 app.get('/auth/login/success', (req, res) => {
     if (req.user) {
+        // Admin check log
+        if (req.user.role === 'admin') logger.info(`Admin ${req.user.name} accessing admin routes.`);
         res.json({
             success: true,
             user: {
                 name: req.user.name,
                 role: req.user.role,
-                shopName: req.user.shopName
+                shopName: req.user.shopName,
+                email: req.user.email
             }
         });
     } else {
