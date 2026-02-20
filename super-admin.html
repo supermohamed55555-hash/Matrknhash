@@ -153,6 +153,7 @@
 
     </main>
 
+    <script src="/socket.io/socket.io.js"></script>
     <script>
         async function checkAdmin() {
             try {
@@ -166,6 +167,30 @@
                     window.location.href = '/';
                 } else {
                     document.getElementById('adminName').innerText = data.user.name;
+
+                    // --- Socket.io Real-time Notifications for Admin ---
+                    const socket = io();
+                    socket.emit('register', data.user._id);
+
+                    socket.on('new_order', (orderData) => {
+                        console.log('Admin: New Order Received:', orderData);
+                        // Show notification
+                        if (Notification.permission === "granted") {
+                            new Notification("متركنهاش - طلب جديد على المنصة!", { body: `طلب جديد بقيمة ${orderData.totalPrice} ج.م` });
+                        }
+
+                        // Intelligent Refresh: only refresh if looking at orders or overview
+                        loadStats();
+                        const ordersTab = document.getElementById('orders');
+                        if (ordersTab && !ordersTab.classList.contains('hidden')) {
+                            loadAllOrders();
+                        }
+                    });
+
+                    if (Notification.permission !== "denied") {
+                        Notification.requestPermission();
+                    }
+
                     loadStats();
                     loadVendors();
                 }
