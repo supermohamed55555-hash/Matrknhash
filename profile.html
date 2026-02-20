@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حسابي - متركنهاش</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
     <style>
         :root {
             --primary: #1a237e;
@@ -370,6 +371,29 @@
                     document.getElementById('userNameLabel').innerText = 'أهلاً ' + user.name;
                     document.getElementById('userEmailLabel').innerText = user.email || '';
                     document.getElementById('avatarLetter').innerText = user.name.charAt(0).toUpperCase();
+
+                    // --- Socket.io Real-time Notifications ---
+                    const socket = io();
+                    socket.emit('register', user._id); // Register user with socket
+
+                    socket.on('new_order', (data) => {
+                        console.log('Real-time Notification:', data);
+                        // Show a nice popup/toast
+                        if (Notification.permission === "granted") {
+                            new Notification("متركنهاش - طلب جديد!", { body: data.message });
+                        }
+                        alert(data.message + "\nرقم الطلب: #" + data.orderId.slice(-6));
+
+                        // Auto-refresh orders if they are a vendor
+                        if (user.role === 'vendor') {
+                            loadOrders();
+                        }
+                    });
+
+                    // Request browser notification permission
+                    if (Notification.permission !== "denied") {
+                        Notification.requestPermission();
+                    }
 
                     setupSidebarByRole(user.role);
 
