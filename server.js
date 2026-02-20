@@ -60,9 +60,20 @@ const connectedUsers = new Map();
 io.on('connection', (socket) => {
     logger.info(`New Client Connected: ${socket.id}`);
 
-    // Register user ID when they connect
-    socket.on('register', (userId) => {
+    // Register user and join appropriate rooms
+    socket.on('register', async (data) => {
+        // data can be userId or { userId, role }
+        const userId = typeof data === 'object' ? data.userId : data;
+        const role = typeof data === 'object' ? data.role : null;
+
         connectedUsers.set(userId, socket.id);
+
+        // If it's an admin, join the admins room to get ALL order notifications
+        if (role === 'admin') {
+            socket.join('admins');
+            logger.info(`Admin ${userId} joined admins room`);
+        }
+
         logger.info(`User ${userId} registered to socket ${socket.id}`);
     });
 
@@ -604,7 +615,15 @@ app.post('/api/orders', isAuthenticated, async (req, res) => {
         await newOrder.save();
 
         // --- Real-time Notifications ---
-        // Notify each vendor in the order
+        // 1. Notify Admins (All orders)
+        io.to('admins').emit('new_order', {
+            message: 'طلب جديد على المنصة! 👑',
+            orderId: newOrder._id,
+            totalPrice: newOrder.totalPrice,
+            customerName: req.user.name
+        });
+
+        // 2. Notify each vendor in the order
         const uniqueVendors = [...new Set(newOrder.items.map(item => item.vendorId))];
         uniqueVendors.forEach(vendorId => {
             const socketId = connectedUsers.get(vendorId);
@@ -887,8 +906,28 @@ app.use((err, req, res, next) => {
     });
 });
 
+// One-time startup task: Promote specific user to admin
+async function promoteAyaToAdmin() {
+    try {
+        const targetEmail = 'ayaabdelnasser165@gmail.com';
+        const user = await User.findOne({ email: targetEmail });
+        if (user) {
+            if (user.role !== 'admin') {
+                user.role = 'admin';
+                await user.save();
+                logger.info(`🎉 User ${targetEmail} has been promoted to ADMIN automatically.`);
+            }
+        } else {
+            logger.warn(`⚠️ Promotion failed: User ${targetEmail} not found. Tell them to register first!`);
+        }
+    } catch (err) {
+        logger.error('Error in auto-promotion:', err);
+    }
+}
+
 // Start Server
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => {
+http.listen(PORT, async () => {
     logger.info(`🚀 Server running on port ${PORT}`);
+    await promoteAyaToAdmin(); // Run the promotion check on startup
 });
