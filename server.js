@@ -62,19 +62,26 @@ io.on('connection', (socket) => {
 
     // Register user and join appropriate rooms
     socket.on('register', async (data) => {
-        // data can be userId or { userId, role }
-        const userId = typeof data === 'object' ? data.userId : data;
-        const role = typeof data === 'object' ? data.role : null;
+        try {
+            if (!data) return;
+            // data can be userId or { userId, role }
+            const userId = (data && typeof data === 'object') ? data.userId : data;
+            const role = (data && typeof data === 'object') ? data.role : null;
 
-        connectedUsers.set(userId, socket.id);
+            if (!userId) return;
 
-        // If it's an admin, join the admins room to get ALL order notifications
-        if (role === 'admin') {
-            socket.join('admins');
-            logger.info(`Admin ${userId} joined admins room`);
+            connectedUsers.set(userId, socket.id);
+
+            // If it's an admin, join the admins room to get ALL order notifications
+            if (role === 'admin') {
+                socket.join('admins');
+                logger.info(`Admin ${userId} joined admins room`);
+            }
+
+            logger.info(`User ${userId} registered to socket ${socket.id}`);
+        } catch (err) {
+            logger.error('Socket Registration Error:', err);
         }
-
-        logger.info(`User ${userId} registered to socket ${socket.id}`);
     });
 
     socket.on('disconnect', () => {
