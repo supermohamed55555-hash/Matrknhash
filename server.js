@@ -49,6 +49,32 @@ Sentry.init({
 });
 
 const app = express();
+const http = require('http').createServer(app);
+const io = require('socket.io')(http, {
+    cors: { origin: "*" } // Allow all for now
+});
+
+// Map to store userId -> socketId
+const connectedUsers = new Map();
+
+io.on('connection', (socket) => {
+    logger.info(`New Client Connected: ${socket.id}`);
+
+    // Register user ID when they connect
+    socket.on('register', (userId) => {
+        connectedUsers.set(userId, socket.id);
+        logger.info(`User ${userId} registered to socket ${socket.id}`);
+    });
+
+    socket.on('disconnect', () => {
+        for (const [userId, socketId] of connectedUsers.entries()) {
+            if (socketId === socket.id) {
+                connectedUsers.delete(userId);
+                break;
+            }
+        }
+    });
+});
 
 app.use(Sentry.Handlers.requestHandler()); // Sentry Request Handler triggers first
 app.use(Sentry.Handlers.tracingHandler()); // TracingHandler creates a trace for every incoming request
@@ -576,6 +602,21 @@ app.post('/api/orders', isAuthenticated, async (req, res) => {
         }
 
         await newOrder.save();
+
+        // --- Real-time Notifications ---
+        // Notify each vendor in the order
+        const uniqueVendors = [...new Set(newOrder.items.map(item => item.vendorId))];
+        uniqueVendors.forEach(vendorId => {
+            const socketId = connectedUsers.get(vendorId);
+            if (socketId) {
+                io.to(socketId).emit('new_order', {
+                    message: 'لديك طلب جديد على متركنهاش! 📦',
+                    orderId: newOrder._id,
+                    totalPrice: newOrder.totalPrice
+                });
+            }
+        });
+
         res.status(201).json({ success: true, order: newOrder });
     } catch (err) {
         logger.error('CRITICAL ORDER ERROR:', err);
@@ -848,6 +889,6 @@ app.use((err, req, res, next) => {
 
 // Start Server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+http.listen(PORT, () => {
     logger.info(`🚀 Server running on port ${PORT}`);
 });
