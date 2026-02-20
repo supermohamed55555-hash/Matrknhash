@@ -94,6 +94,8 @@ io.on('connection', (socket) => {
     });
 });
 
+app.set('trust proxy', 1); // Trust Railway's proxy for secure cookies and OAuth
+
 app.use(Sentry.Handlers.requestHandler()); // Sentry Request Handler triggers first
 app.use(Sentry.Handlers.tracingHandler()); // TracingHandler creates a trace for every incoming request
 
