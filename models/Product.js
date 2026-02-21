@@ -21,5 +21,12 @@ const productSchema = new mongoose.Schema({
     }],
     createdAt: { type: Date, default: Date.now }
 });
+productSchema.index({
+    name: 'text',
+    brand: 'text',
+    category: 'text',
+    tags: 'text',
+    description: 'text'
+});
 
 module.exports = mongoose.model('Product', productSchema);
