@@ -687,6 +687,54 @@
             color: white;
             border-color: var(--primary);
         }
+
+        /* Smart Search Suggestions */
+        .suggestions-container {
+            position: relative;
+            flex: 2;
+        }
+
+        .suggestions-box {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid #eee;
+            margin-top: 5px;
+            z-index: 1000;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #f9f9f9;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: #f0f7ff;
+            color: var(--primary);
+        }
+
+        .suggestion-icon {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 
@@ -723,8 +771,11 @@
             <h2 class="titleT ">ابحث عن قطعة سيارتك</h2>
             <div class="search-container">
                 <div class="search-form">
-                    <input type="text" class="search-input" id="partName"
-                        placeholder="اسم القطعة (مثلاً: جنط، مساعد، بطارية)">
+                    <div class="suggestions-container">
+                        <input type="text" class="search-input w-full" id="partName"
+                            placeholder="اسم القطعة (مثلاً: جنط، مساعد، بطارية)" autocomplete="off">
+                        <div id="suggestionsBox" class="suggestions-box text-right"></div>
+                    </div>
                     <select class="search-select" id="carBrand">
                         <option value="">كل الماركات</option>
                         <option value="toyota">تويوتا</option>
@@ -948,23 +999,85 @@
             `).join('');
         }
 
+        let searchTimeout;
+
         function setupSearchListeners() {
-            ['partName', 'carBrand', 'carCategory'].forEach(id => {
-                document.getElementById(id).addEventListener('input', searchParts);
+            const partInput = document.getElementById('partName');
+
+            partInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                handleSuggestions(query);
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchParts();
+                }, 300);
             });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.suggestions-container')) {
+                    document.getElementById('suggestionsBox').style.display = 'none';
+                }
+            });
+
+            document.getElementById('carBrand').addEventListener('change', searchParts);
+            document.getElementById('carCategory').addEventListener('change', searchParts);
         }
 
-        function searchParts() {
-            const partName = document.getElementById('partName').value.toLowerCase();
-            const carBrand = document.getElementById('carBrand').value.toLowerCase();
+        async function handleSuggestions(query) {
+            const box = document.getElementById('suggestionsBox');
+            if (query.length < 2) {
+                box.style.display = 'none';
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/products/suggestions?q=${encodeURIComponent(query)}`);
+                const suggestions = await res.json();
+
+                if (suggestions.length > 0) {
+                    box.innerHTML = suggestions.map(s => `
+                        <div class="suggestion-item" onclick="selectSuggestion('${s}')">
+                            <span class="suggestion-icon">🔍</span>
+                            <span>${s}</span>
+                        </div>
+                    `).join('');
+                    box.style.display = 'block';
+                } else {
+                    box.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Suggestions error:', err);
+            }
+        }
+
+        function selectSuggestion(val) {
+            const input = document.getElementById('partName');
+            input.value = val;
+            document.getElementById('suggestionsBox').style.display = 'none';
+            searchParts();
+        }
+
+        async function searchParts() {
+            const q = document.getElementById('partName').value.trim();
+            const carBrand = document.getElementById('carBrand').value;
             const category = document.getElementById('carCategory').value;
 
             let results = partsDatabase.filter(part => {
-                const nameMatch = !partName || part.name.toLowerCase().includes(partName);
-                const brandMatch = !carBrand || part.brand.toLowerCase() === carBrand;
+                const nameMatch = !q || part.name.toLowerCase().includes(q.toLowerCase()) ||
+                    part.brand.toLowerCase().includes(q.toLowerCase());
+                const brandMatch = !carBrand || part.brand.toLowerCase() === carBrand.toLowerCase();
                 const categoryMatch = !category || part.category === category;
                 return nameMatch && brandMatch && categoryMatch;
             });
+
+            if (results.length === 0 && q.length > 2) {
+                try {
+                    const res = await fetch(`/api/products/search?q=${encodeURIComponent(q)}`);
+                    results = await res.json();
+                } catch (err) {
+                    console.error('Smart Search Error:', err);
+                }
+            }
 
             displayResults(results);
         }
@@ -1178,55 +1291,4 @@
                                 <div class="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
                                 </div>
-                            </div>
-                        </div>
-                    `;
-
-                    // Sync: Update Hero Section if user is logged in
-                    const heroBtn = document.querySelector('.hero .cta-button');
-                    if (heroBtn) heroBtn.style.display = 'none';
-                    const heroP = document.querySelector('.hero p');
-                    if (heroP) heroP.innerText = `مرحباً بك مجدداً، ${user.name}! استمتع بتجربة تسوق مميزة.`;
-                }
-                updateCartBadge();
-            } catch (err) { }
-        }
-
-        function handleAccountClick(e) {
-            if (!window.currentUser) {
-                e.preventDefault();
-                openLoginModal();
-            }
-        }
-
-        function updateCartBadge() {
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            const badge = document.getElementById('cartBadge');
-            if (badge) {
-                if (cart.length > 0) {
-                    badge.innerText = cart.length;
-                    badge.style.display = 'block';
-                } else {
-                    badge.style.display = 'none';
-                }
-            }
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function (event) {
-            const modal = document.getElementById('loginModal');
-            if (event.target == modal) {
-                closeLoginModal();
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            checkLoginStatus();
-            loadProducts();
-            setupSearchListeners();
-        });
-
-    </script>
-</body>
-
-</html>
+       
