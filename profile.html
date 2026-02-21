@@ -374,7 +374,7 @@
 
                     // --- Socket.io Real-time Notifications ---
                     const socket = io();
-                    socket.emit('register', user._id); // Register user with socket
+                    socket.emit('register', { userId: user._id, role: user.role }); // Register with role
 
                     socket.on('new_order', (data) => {
                         console.log('Real-time Notification:', data);
@@ -426,30 +426,38 @@
             // Reset all
             Object.values(tabs).forEach(tab => tab.classList.add('hidden'));
 
-            if (role === 'admin') {
+            if (role === 'admin' || role === 'super-admin') {
                 // Admin View
-                tabs.superAdmin.classList.remove('hidden');
-                tabs.settings.classList.remove('hidden');
-                tabs.settings.innerText = 'إعدادات المنصة ⚙️';
-                showTab('settings');
+                if (tabs.superAdmin) tabs.superAdmin.classList.remove('hidden');
+                if (tabs.settings) {
+                    tabs.settings.classList.remove('hidden');
+                    tabs.settings.innerText = 'إعدادات المنصة ⚙️';
+                }
+
+                // If on a shopping tab, redirect to settings
+                const currentHash = window.location.hash.replace('#', '');
+                if (['cart', 'orders', 'returns', 'garage', 'addresses'].includes(currentHash) || !currentHash) {
+                    showTab('settings');
+                } else {
+                    showTab(currentHash);
+                }
             } else if (role === 'vendor') {
                 // Vendor View
-                tabs.orders.classList.remove('hidden');
-                tabs.orders.innerText = 'طلبات المبيعات 📈';
-                tabs.wallet.classList.remove('hidden');
-                tabs.wallet.innerText = 'أرباحي 💰';
-                tabs.settings.classList.remove('hidden');
+                if (tabs.orders) {
+                    tabs.orders.classList.remove('hidden');
+                    tabs.orders.innerText = 'طلبات المبيعات 📈';
+                }
+                if (tabs.wallet) {
+                    tabs.wallet.classList.remove('hidden');
+                    tabs.wallet.innerText = 'أرباحي 💰';
+                }
+                if (tabs.settings) tabs.settings.classList.remove('hidden');
                 showTab('orders');
             } else {
                 // User View
-                tabs.orders.classList.remove('hidden');
-                tabs.orders.innerText = 'طلباتي 📦';
-                tabs.cart.classList.remove('hidden');
-                tabs.returns.classList.remove('hidden');
-                tabs.addresses.classList.remove('hidden');
-                tabs.garage.classList.remove('hidden');
-                tabs.wallet.classList.remove('hidden');
-                tabs.settings.classList.remove('hidden');
+                Object.values(tabs).forEach(tab => {
+                    if (tab && tab.id !== 'tab-super-admin') tab.classList.remove('hidden');
+                });
                 showTab('orders');
             }
         }
