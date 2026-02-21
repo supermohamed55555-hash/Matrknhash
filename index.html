@@ -14,8 +14,386 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary: #1a237e;
+            --primary-light: #283593;
+            --primary-dark: #121858;
+            --accent: #f59e0b;
+            /* Industrial Orange - The "Sell" Color */
+            --accent-hover: #d97706;
+            --text-dark: #0f172a;
+            --text-light: #64748b;
+            --white: #ffffff;
+            --bg-light: #f8fafc;
+            --success: #10b981;
+            --danger: #ef4444;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 20px -1px rgba(0, 0, 0, 0.1), 0 2px 10px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            direction: rtl;
+            background: var(--bg-light);
+            overflow-x: hidden;
+        }
+
+        /* --- Refined Header --- */
+        .header {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 0.75rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .header.scrolled {
+            padding: 0.5rem 0;
+            background: rgba(26, 35, 126, 0.95);
+            box-shadow: var(--shadow-md);
+        }
+
+        .header.scrolled .logo,
+        .header.scrolled .nav-menu a {
+            color: white;
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: -1px;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: 0.3s;
+        }
+
+        .nav-menu a:hover {
+            color: var(--accent);
+        }
+
+        /* --- Hero Section Refactoring --- */
+        .hero {
+            position: relative;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #312e81 100%);
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding: 120px 20px 80px;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&q=80') center/cover;
+            opacity: 0.15;
+            mix-blend-mode: overlay;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .cta-primary {
+            background: var(--accent);
+            color: var(--primary-dark);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(245, 158, 11, 0.5);
+            background: var(--accent-hover);
+        }
+
+        .cta-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: 0.3s;
+        }
+
+        .cta-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* --- Advanced Search UX --- */
+        .search-section {
+            padding: 4rem 1rem;
+            background: var(--bg-light);
+            margin-top: -60px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .search-input,
+        .search-select {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: #fff;
+        }
+
+        .search-input:focus,
+        .search-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.1);
+        }
+
+        .search-button {
+            background: var(--primary);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .search-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(26, 35, 126, 0.2);
+        }
+
+        /* --- Premium Cards Design --- */
+        .search-results {
+            margin-top: 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .search-result-item {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #f1f5f9;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+
+        .search-result-item:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .result-image {
+            height: 200px;
+            overflow: hidden;
+            background: #f8fafc;
+            position: relative;
+        }
+
+        .result-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.5s;
+        }
+
+        .search-result-item:hover .result-image img {
+            transform: scale(1.1);
+        }
+
+        .result-info {
+            padding: 1.5rem;
+        }
+
+        .result-info h4 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .result-info p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1.25rem;
+        }
+
+        .result-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .result-button {
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .result-button.details {
+            background: #f1f5f9;
+            color: var(--text-dark);
+        }
+
+        /* The Prominent SELL Button */
+        .result-button.buy {
+            background: var(--accent);
+            color: var(--primary-dark);
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);
+        }
+
+        .result-button.buy:hover {
+            background: var(--accent-hover);
+            transform: scale(1.05);
+        }
+
+        /* Smart Search Suggestions */
+        .suggestions-container {
+            position: relative;
+            flex: 2;
+        }
+
+        .suggestions-box {
+            position: absolute;
+            top: 102%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 8px;
+            z-index: 1000;
+            max-height: 280px;
+            overflow-y: auto;
+            display: none;
+            padding: 8px;
+        }
+
+        .suggestion-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .suggestion-item:hover {
+            background: #f1f5f9;
+            color: var(--primary);
         }
 
         .premium-glass {
@@ -46,155 +424,6 @@
         .is-invalid {
             border-color: #f87171 !important;
             box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.2);
-        }
-
-        :root {
-            --primary: #1a237e;
-            --primary-dark: #121858;
-            --accent: #ffb300;
-            --accent-hover: #ffca28;
-            --text-dark: #1f2937;
-            --text-light: #6b7280;
-            --white: #ffffff;
-            --bg-light: #f3f4f6;
-            --success: #10b981;
-            --danger: #ef4444;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --glass: rgba(255, 255, 255, 0.95);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Cairo', sans-serif;
-            line-height: 1.7;
-            color: var(--text-dark);
-            direction: rtl;
-            background: var(--bg-light);
-            overflow-x: hidden;
-        }
-
-        .header {
-            background: rgba(26, 35, 126, 0.95);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 1rem 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s ease;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 2rem;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #fff;
-            text-decoration: none;
-            letter-spacing: -0.5px;
-        }
-
-        .nav-menu {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        .nav-menu a {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-            font-size: 1rem;
-            position: relative;
-        }
-
-        .nav-menu a::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -5px;
-            right: 0;
-            background: var(--accent);
-            transition: width 0.3s;
-        }
-
-        .nav-menu a:hover::after {
-            width: 100%;
-        }
-
-        .nav-menu a:hover {
-            color: var(--accent);
-        }
-
-        .hero {
-            background: linear-gradient(135deg, rgba(26, 35, 126, 0.9), rgba(57, 73, 171, 0.85)), url('https://images.unsplash.com/photo-1486262715619-72a607e32449?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
-            background-size: cover;
-            background-position: center;
-            height: 90vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-            margin-top: 0;
-            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
-        }
-
-        .hero-content h1 {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            font-weight: 800;
-            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            line-height: 1.2;
-        }
-
-        .hero-content p {
-            font-size: 1.5rem;
-            margin-bottom: 2.5rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .cta-button {
-            background: var(--accent);
-            color: var(--primary);
-            padding: 1rem 3rem;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.4);
-            border: 2px solid transparent;
-            display: inline-block;
-        }
-
-        .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 179, 0, 0.6);
-            background: #fff;
-            color: var(--primary);
-            border-color: var(--accent);
         }
 
         .features {
@@ -285,471 +514,346 @@
             font-size: 1.5rem;
         }
 
-        .search-section {
-            padding: 6rem 0;
-            background: linear-gradient(135deg, #1a237e 0%, #0d1440 100%);
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .search-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 3rem;
-            margin-top: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .search-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .search-input,
-        .search-select {
-            padding: 1.2rem;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            background: rgba(255, 255, 255, 0.95);
-            color: #333;
-            font-family: 'Cairo', sans-serif;
-            transition: 0.3s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-
-        .search-input:focus,
-        .search-select:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(255, 179, 0, 0.4);
-            transform: scale(1.02);
-        }
-
-        .search-button {
-            background: var(--accent);
-            color: var(--primary);
-            border: none;
-            padding: 1.2rem 2rem;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.3);
-        }
-
-        .search-button:hover {
-            background: #fff;
-            transform: translateY(-2px);
-        }
-
-        .search-results {
-            margin-top: 2rem;
-            display: none;
-            transition: 0.4s;
-        }
-
-        .search-results.active {
-            display: block;
-            animation: slideUp 0.5s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .search-result-item {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
-            gap: 1.5rem;
-            color: #333;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid transparent;
-        }
-
-        .search-result-item:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .result-image {
-            width: 140px;
-            height: 105px;
-            background-color: #f0f0f0;
-            border-radius: 12px;
-            overflow: hidden;
-            flex-shrink: 0;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .result-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: 0.3s;
-        }
-
-        .search-result-item:hover .result-image img {
-            transform: scale(1.1);
-        }
-
-        .result-info h4 {
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
-
-        .result-info p {
-            opacity: 0.7;
-            margin-bottom: 0.2rem;
-            font-size: 0.95rem;
-        }
-
-        .result-price {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--success);
-            margin-top: 0.5rem;
-        }
-
-        .result-actions {
-            display: flex;
-            gap: 1rem;
-            flex-direction: column;
-            min-width: 140px;
-        }
-
-        .result-button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .result-button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .result-button.details {
-            background: rgba(26, 35, 126, 0.1);
-            color: var(--primary);
-        }
-
-        .result-button.details:hover {
-            background: rgba(26, 35, 126, 0.2);
-        }
-
-        .result-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .products {
-            padding: 6rem 0;
-            background: #fff;
-        }
-
+        /* --- Footer --- */
         .footer {
-            background: #000;
-            color: rgba(255, 255, 255, 0.6);
-            text-align: center;
-            padding: 2rem 0;
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .whatsapp-float {
-            position: fixed;
-            width: 65px;
-            height: 65px;
-            bottom: 30px;
-            left: 30px;
-            background-color: #25d366;
-            color: #FFF;
-            border-radius: 50%;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: 0.3s;
-        }
-
-        .whatsapp-float:hover {
-            transform: scale(1.1) rotate(10deg);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        .whatsapp-float img {
-            width: 38px;
-            height: 38px;
-        }
-
-        .search-controls {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-bottom: 1rem;
-            gap: 15px;
-        }
-
-        .titleT {
-            color: #fff;
-            font-size: 2.5rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            font-weight: 700;
-        }
-
-        /* Login Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 10% auto;
-            padding: 2.5rem;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
-        }
-
-        .close-modal {
-            position: absolute;
-            right: 20px;
-            top: 15px;
-            font-size: 1.8rem;
-            font-weight: bold;
-            cursor: pointer;
-            color: #777;
-        }
-
-        .auth-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 12px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1rem;
-            transition: 0.3s;
-            border: 1px solid #ddd;
-        }
-
-        .auth-btn img {
-            width: 24px;
-            height: 24px;
-        }
-
-        .auth-btn.google {
-            background: white;
-            color: #444;
-        }
-
-        .auth-btn.facebook {
-            background: #1877F2;
-            color: white;
-            border: none;
-        }
-
-        .auth-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 1.5rem 0;
-            color: #777;
-            font-size: 0.9rem;
-        }
-
-        .auth-divider::before,
-        .auth-divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid #eee;
-        }
-
-        .auth-divider:not(:empty)::before {
-            margin-right: .5em;
-        }
-
-        .auth-divider:not(:empty)::after {
-            margin-left: .5em;
-        }
-
-        .auth-form-group {
-            margin-bottom: 1rem;
-        }
-
-        .auth-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-family: 'Cairo', sans-serif;
-            outline: none;
-        }
-
-        .auth-submit {
-            width: 100%;
-            padding: 12px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .auth-submit:hover {
             background: var(--primary-dark);
+            color: white;
+            padding: 4rem 1rem;
+            margin-top: 4rem;
         }
 
-        .auth-toggle {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 0.9rem;
+        .footer-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
         }
 
-        .auth-toggle a {
-            color: var(--primary);
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            display: block;
+        }
+
+        .footer-links h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
-            font-weight: 700;
-        }
-
-        .role-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 1rem;
-        }
-
-        .role-option {
-            flex: 1;
-            text-align: center;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
             transition: 0.3s;
         }
 
-        .role-option.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
+        .footer-links a:hover {
+            color: var(--accent);
         }
+    </style>
 
-        /* Smart Search Suggestions */
-        .suggestions-container {
-            position: relative;
-            flex: 2;
-        }
+    .result-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    }
 
-        .suggestions-box {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid #eee;
-            margin-top: 5px;
-            z-index: 1000;
-            max-height: 250px;
-            overflow-y: auto;
-            display: none;
-        }
+    .products {
+    padding: 6rem 0;
+    background: #fff;
+    }
 
-        .suggestion-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            border-bottom: 1px solid #f9f9f9;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-dark);
-            font-weight: 500;
-        }
+    .footer {
+    background: #000;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    padding: 2rem 0;
+    font-size: 0.9rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-        .suggestion-item:last-child {
-            border-bottom: none;
-        }
+    .whatsapp-float {
+    position: fixed;
+    width: 65px;
+    height: 65px;
+    bottom: 30px;
+    left: 30px;
+    background-color: #25d366;
+    color: #FFF;
+    border-radius: 50%;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.3s;
+    }
 
-        .suggestion-item:hover {
-            background: #f0f7ff;
-            color: var(--primary);
-        }
+    .whatsapp-float:hover {
+    transform: scale(1.1) rotate(10deg);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    }
 
-        .suggestion-icon {
-            color: var(--text-light);
-            font-size: 0.9rem;
-        }
+    .whatsapp-float img {
+    width: 38px;
+    height: 38px;
+    }
+
+    .search-controls {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 15px;
+    }
+
+    .titleT {
+    color: #fff;
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: 700;
+    }
+
+    /* Login Modal Styles */
+    .modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 2.5rem;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    }
+
+    .close-modal {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    color: #777;
+    }
+
+    .auth-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: 0.3s;
+    border: 1px solid #ddd;
+    }
+
+    .auth-btn img {
+    width: 24px;
+    height: 24px;
+    }
+
+    .auth-btn.google {
+    background: white;
+    color: #444;
+    }
+
+    .auth-btn.facebook {
+    background: #1877F2;
+    color: white;
+    border: none;
+    }
+
+    .auth-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.5rem 0;
+    color: #777;
+    font-size: 0.9rem;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #eee;
+    }
+
+    .auth-divider:not(:empty)::before {
+    margin-right: .5em;
+    }
+
+    .auth-divider:not(:empty)::after {
+    margin-left: .5em;
+    }
+
+    .auth-form-group {
+    margin-bottom: 1rem;
+    }
+
+    .auth-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-family: 'Cairo', sans-serif;
+    outline: none;
+    }
+
+    .auth-submit {
+    width: 100%;
+    padding: 12px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    }
+
+    .auth-submit:hover {
+    background: var(--primary-dark);
+    }
+
+    .auth-toggle {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    }
+
+    .auth-toggle a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 700;
+    }
+
+    .role-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+    }
+
+    .role-option {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: 0.3s;
+    }
+
+    .role-option.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    }
+
+    /* Smart Search Suggestions */
+    .suggestions-container {
+    position: relative;
+    flex: 2;
+    }
+
+    .suggestions-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid #eee;
+    margin-top: 5px;
+    z-index: 1000;
+    max-height: 250px;
+    overflow-y: auto;
+    display: none;
+    }
+
+    .suggestion-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid #f9f9f9;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-dark);
+    font-weight: 500;
+    }
+
+    .suggestion-item:last-child {
+    border-bottom: none;
+    }
+
+    .suggestion-item:hover {
+    background: #f0f7ff;
+    color: var(--primary);
+    }
+
+    .suggestion-icon {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    }
     </style>
 </head>
 
 <body>
-    <header class="header">
+    <header class="header" id="mainHeader">
         <div class="nav-container">
             <a href="/" class="logo">متركنهاش</a>
+
+            <!-- Mid Search Bar for Header -->
+            <div class="header-search-container" style="flex: 1; max-width: 400px; margin: 0 2rem; position: relative;"
+                id="headerSearchGroup">
+                <input type="text" id="headerSearchInput" placeholder="ابحث عن قطعة..."
+                    style="width: 100%; padding: 8px 40px 8px 15px; border-radius: 50px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.5); font-family: inherit; font-size: 0.9rem; outline: none; transition: 0.3s;">
+                <span
+                    style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); opacity: 0.5;">🔍</span>
+            </div>
+
             <ul class="nav-menu">
                 <li><a href="/">الرئيسية</a></li>
                 <li><a href="#search">البحث</a></li>
-                <li><a href="#features">لماذا نحن</a></li>
                 <li><a href="profile.html" onclick="handleAccountClick(event)">حسابي</a></li>
-                <li id="loginNavItem" style="display: block !important;">
-                    <a href="javascript:void(0)" onclick="openLoginModal()"
-                        style="background:var(--accent); color:var(--primary); padding:0.5rem 1.5rem; border-radius:50px; font-weight:800; box-shadow: 0 4px 10px rgba(255,179,0,0.3); display: inline-block;">
+                <li id="loginNavItem">
+                    <a href="javascript:void(0)" onclick="openLoginModal()" class="cta-primary"
+                        style="padding: 0.5rem 1.2rem; font-size: 0.85rem;">
                         سجل الآن
                     </a>
                 </li>
@@ -757,42 +861,51 @@
         </div>
     </header>
 
-
     <section class="hero">
         <div class="hero-content">
-            <h1>متركنهاش - قطع غيار سيارتك أونلاين</h1>
-            <p>سجل الآن كعميل للحصول على أفضل القطع، أو كتاجر لبيع منتجاتك.</p>
-            <a href="javascript:void(0)" onclick="openLoginModal()" class="cta-button">سجل الآن</a>
+            <h1>مستقبل تجارة قطع الغيار في مصر</h1>
+            <p>قطع أصلية من موردين موثوقين، مع تجربة شراء ذكية وآمنة ١٠٠٪</p>
+            <div class="hero-btns">
+                <a href="#search" class="cta-primary">ابدأ التسوق الآن</a>
+                <a href="javascript:void(0)" onclick="openLoginModal(); setPremiumRole('vendor');"
+                    class="cta-secondary">انضم كتاجر</a>
+            </div>
         </div>
     </section>
 
     <section id="search" class="search-section">
         <div class="container">
-            <h2 class="titleT ">ابحث عن قطعة سيارتك</h2>
             <div class="search-container">
                 <div class="search-form">
                     <div class="suggestions-container">
-                        <input type="text" class="search-input w-full" id="partName"
-                            placeholder="اسم القطعة (مثلاً: جنط، مساعد، بطارية)" autocomplete="off">
+                        <label class="block text-sm font-bold text-gray-500 mb-2 mr-2">ابحث عن قطعة</label>
+                        <input type="text" class="search-input" id="partName" placeholder="مثلاً: جنط، مساعد، بطارية"
+                            autocomplete="off">
                         <div id="suggestionsBox" class="suggestions-box text-right"></div>
                     </div>
-                    <select class="search-select" id="carBrand">
-                        <option value="">كل الماركات</option>
-                        <option value="toyota">تويوتا</option>
-                        <option value="nissan">نيسان</option>
-                        <option value="hyundai">هيونداي</option>
-                        <option value="bmw">BMW</option>
-                        <option value="mercedes">مرسيدس</option>
-                        <option value="fiat">فيات</option>
-                        <option value="kia">كيا</option>
-                        <option value="mitsubishi">ميتسوبيشي</option>
-                    </select>
-                    <select class="search-select" id="carCategory">
-                        <option value="">كل الفئات</option>
-                        <option value="Wheels">جنوط</option>
-                        <option value="Tires">كاوتش</option>
-                        <option value="Accessories">اكسسوارات</option>
-                    </select>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-500 mb-2 mr-2">الماركة</label>
+                        <select class="search-select" id="carBrand">
+                            <option value="">كل الماركات</option>
+                            <option value="toyota">تويوتا</option>
+                            <option value="nissan">نيسان</option>
+                            <option value="hyundai">هيونداي</option>
+                            <option value="bmw">BMW</option>
+                            <option value="mercedes">مرسيدس</option>
+                            <option value="fiat">فيات</option>
+                            <option value="kia">كيا</option>
+                            <option value="mitsubishi">ميتسوبيشي</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-500 mb-2 mr-2">الفئة</label>
+                        <select class="search-select" id="carCategory">
+                            <option value="">كل الفئات</option>
+                            <option value="Wheels">جنوط</option>
+                            <option value="Tires">كاوتش</option>
+                            <option value="Accessories">اكسسوارات</option>
+                        </select>
+                    </div>
                     <button type="button" class="search-button" onclick="searchParts()">بحث سريع</button>
                 </div>
 
@@ -805,8 +918,8 @@
 
     <section class="products">
         <div class="container">
-            <h2 class="section-title">منتجات مختارة لك</h2>
-            <div id="featuredProducts" class="features-grid">
+            <h2 class="section-title">قطع غيار مختارة</h2>
+            <div id="featuredProducts" class="search-results">
                 <!-- منتجات الداتابيز ستظهر هنا -->
             </div>
         </div>
@@ -814,29 +927,57 @@
 
     <section id="features" class="features">
         <div class="container">
-            <h2 class="section-title">لماذا تختار متركنهاش؟</h2>
+            <h2 class="section-title">ليه تشتري من متركنهاش؟</h2>
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">⚙️</div>
-                    <h3>قطع أصلية</h3>
-                    <p>جميع قطع السيارات لدينا أصلية ومضمونة من المصنع مباشرة</p>
+                    <h3>أصلي ١٠٠٪</h3>
+                    <p>مفيش مكان للقطع المضروبة، كل اللي عندنا مضمون.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🚗</div>
-                    <h3>توصيل سريع</h3>
-                    <p>نوصل طلبك في نفس اليوم داخل المدينة وخلال 24 ساعة للمدن الأخرى</p>
+                    <div class="feature-icon">�</div>
+                    <h3>شحن ذكي</h3>
+                    <p>أسرع خدمة توصيل في مصر بأسعار تنافسية.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🔧</div>
-                    <h3>خدمة التركيب</h3>
-                    <p>نوفر خدمة التركيب بواسطة فنيين مختصين ومدربين</p>
+                    <div class="feature-icon">�️</div>
+                    <h3>ضمان حقيقي</h3>
+                    <p>حقك محفوظ بسياسة استبدال واسترجاع واضحة.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <footer class="footer">
-        <p>&copy; 2025 متركنهاش. جميع الحقوق محفوظة.</p>
+        <div class="footer-grid">
+            <div class="footer-info">
+                <a href="/" class="footer-logo">متركنهاش</a>
+                <p style="opacity: 0.7; line-height: 1.8;">المنصة الأولى والوحيدة في مصر المتخصصة في تجارة قطع الغيار
+                    الأصلية بأسلوب عصري وذكي.</p>
+            </div>
+            <div class="footer-links">
+                <h4>روابط سريعة</h4>
+                <ul>
+                    <li><a href="/">الرئيسية</a></li>
+                    <li><a href="#search">ابحث عن قطعة</a></li>
+                    <li><a href="#features">لماذا نحن</a></li>
+                    <li><a href="profile.html">حسابي</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>الدعم والمساعدة</h4>
+                <ul>
+                    <li><a href="#">أسئلة شائعة</a></li>
+                    <li><a href="#">سياسة الاسترجاع</a></li>
+                    <li><a href="#">تواصل معنا</a></li>
+                    <li><a href="#">للشكاوي والأعطال</a></li>
+                </ul>
+            </div>
+        </div>
+        <div
+            style="text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); opacity: 0.5;">
+            <p>&copy; 2025 متركنهاش. جميع الحقوق محفوظة.</p>
+        </div>
     </footer>
 
     <a href="https://wa.me/201148311900" class="whatsapp-float" target="_blank">
@@ -967,6 +1108,16 @@
 
     <script>
 
+        // --- New UI Logic ---
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('mainHeader');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
         let partsDatabase = [];
 
         async function loadProducts() {
@@ -985,16 +1136,21 @@
                 container.innerHTML = '<p style="text-align:center; width:100%;">لا توجد منتجات حالياً.</p>';
                 return;
             }
-            const featured = partsDatabase.slice(0, 4);
+            const featured = partsDatabase.slice(0, 8);
             container.innerHTML = featured.map(part => `
-                <div class="search-result-item" style="background:#f9f9f9; border:1px solid #eee;">
-                    <div class="result-image"><img src="${part.image}" alt="${part.name}"></div>
-                    <div class="result-info">
-                         <span style="font-size:0.8rem; color:var(--primary)">${part.brand}</span>
-                         <h4>${part.name}</h4>
-                         <div class="result-price" style="font-size:1.3rem;">${part.price} ج.م</div>
+                <div class="search-result-item">
+                    <div class="result-image">
+                        <img src="${part.image}" alt="${part.name}">
                     </div>
-                    <button class="result-button" style="height:fit-content" onclick="showPartDetails('${part.name}')">التفاصيل</button>
+                    <div class="result-info">
+                        <span style="font-size:0.8rem; color:var(--text-light); font-weight:700; text-transform:uppercase;">${part.brand}</span>
+                        <h4>${part.name}</h4>
+                        <div class="result-price">${part.price} ج.م</div>
+                        <div class="result-actions">
+                            <button class="result-button details" onclick="showPartDetails('${part.name}')">التفاصيل</button>
+                            <button class="result-button buy" onclick="addToCart('${part.name}', ${part.price})">أضف للسلة</button>
+                        </div>
+                    </div>
                 </div>
             `).join('');
         }
@@ -1004,32 +1160,45 @@
         function setupSearchListeners() {
             const partInput = document.getElementById('partName');
 
-            partInput.addEventListener('input', (e) => {
-                const query = e.target.value.trim();
+            if (partInput) {
+                partInput.addEventListener('input', (e) => {
+                    const query = e.target.value.trim();
+                    handleSuggestions(query);
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        searchParts();
+                    }, 300);
+                });
+            }
 
-                // 1. Auto-suggest logic
-                handleSuggestions(query);
+            const headerSearch = document.getElementById('headerSearchInput');
+            if (headerSearch) {
+                headerSearch.addEventListener('input', (e) => {
+                    const query = e.target.value.trim();
+                    document.getElementById('partName').value = query; // Sync with main search
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        searchParts();
+                    }, 300);
+                });
+            }
 
-                // 2. Debounced real-time filter
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    searchParts();
-                }, 300);
-            });
-
-            // Close suggestions when clicking outside
             document.addEventListener('click', (e) => {
-                if (!e.target.closest('.suggestions-container')) {
-                    document.getElementById('suggestionsBox').style.display = 'none';
+                const box = document.getElementById('suggestionsBox');
+                if (box && !e.target.closest('.suggestions-container')) {
+                    box.style.display = 'none';
                 }
             });
 
-            document.getElementById('carBrand').addEventListener('change', searchParts);
-            document.getElementById('carCategory').addEventListener('change', searchParts);
+            const brandSel = document.getElementById('carBrand');
+            const catSel = document.getElementById('carCategory');
+            if (brandSel) brandSel.addEventListener('change', searchParts);
+            if (catSel) catSel.addEventListener('change', searchParts);
         }
 
         async function handleSuggestions(query) {
             const box = document.getElementById('suggestionsBox');
+            if (!box) return;
             if (query.length < 2) {
                 box.style.display = 'none';
                 return;
@@ -1067,9 +1236,6 @@
             const carBrand = document.getElementById('carBrand').value;
             const category = document.getElementById('carCategory').value;
 
-            // Optional: If query is long or no results found locally, use server search
-            // For now, let's keep it simple by filtering local database unless it's a specific Smart Search
-
             let results = partsDatabase.filter(part => {
                 const nameMatch = !q || part.name.toLowerCase().includes(q.toLowerCase()) ||
                     part.brand.toLowerCase().includes(q.toLowerCase());
@@ -1078,7 +1244,6 @@
                 return nameMatch && brandMatch && categoryMatch;
             });
 
-            // If local results are empty and there is a query, try server-side smart search
             if (results.length === 0 && q.length > 2) {
                 try {
                     const res = await fetch(`/api/products/search?q=${encodeURIComponent(q)}`);
@@ -1094,23 +1259,26 @@
         function displayResults(results) {
             const resultsContainer = document.getElementById('searchResults');
             if (results.length === 0) {
-                resultsContainer.innerHTML = '<p style="text-align:center; color:white;">لا توجد نتائج مطابقة.</p>';
+                resultsContainer.innerHTML = '<p style="text-align:center; width:100%; grid-column: 1/-1; padding: 2rem; color:var(--text-light);">لا توجد نتائج مطابقة.</p>';
             } else {
                 resultsContainer.innerHTML = results.map(part => `
                     <div class="search-result-item">
-                        <div class="result-image"><img src="${part.image}" alt="${part.name}"></div>
-                        <div class="result-info">
-                            <h4>${part.name}</h4>
-                            <p>${part.brand} | ${part.category}</p>
-                            <div class="result-price">${part.price} ج.م</div>
+                        <div class="result-image">
+                            <img src="${part.image}" alt="${part.name}">
                         </div>
-                        <div class="result-actions">
-                            <button class="result-button details" onclick="showPartDetails('${part.name}')">التفاصيل</button>
-                            <button class="result-button" onclick="addToCart('${part.name}', ${part.price})">أضف للسلة</button>
+                        <div class="result-info">
+                            <span style="font-size:0.8rem; color:var(--text-light); font-weight:700;">${part.brand} | ${part.category}</span>
+                            <h4>${part.name}</h4>
+                            <div class="result-price">${part.price} ج.م</div>
+                            <div class="result-actions">
+                                <button class="result-button details" onclick="showPartDetails('${part.name}')">التفاصيل</button>
+                                <button class="result-button buy" onclick="addToCart('${part.name}', ${part.price})">أضف للسلة</button>
+                            </div>
                         </div>
                     </div>`).join('');
             }
             resultsContainer.classList.add('active');
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         async function addToCart(partName, price) {
@@ -1129,13 +1297,15 @@
             });
 
             localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartBadge();
             alert('✅ تمت إضافة "' + partName + '" للسلة بنجاح!');
         }
 
         function showPartDetails(partName) {
             const part = partsDatabase.find(p => p.name === partName);
+            if (!part) return;
             const params = new URLSearchParams({
-                id: part._id, // Critical: Add the Product ID
+                id: part._id,
                 part: part.name,
                 img: part.image,
                 price: part.price,
@@ -1162,104 +1332,126 @@
             currentAuthMode = mode;
             const isReg = mode === 'register';
 
-            document.getElementById('authTitle').innerText = isReg ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
-            document.getElementById('authSubtitle').innerText = isReg ? 'سجل بياناتك للبدء' : 'سجل دخولك باستخدام البريد الإلكتروني';
-            document.getElementById('submitBtn').innerText = isReg ? 'إنشاء حساب' : 'تسجيل الدخول';
-            document.getElementById('toggleText').innerHTML = isReg ?
+            const title = document.getElementById('authTitle');
+            const sub = document.getElementById('authSubtitle');
+            const btn = document.getElementById('submitBtn');
+            const toggle = document.getElementById('toggleText');
+
+            if (title) title.innerText = isReg ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
+            if (sub) sub.innerText = isReg ? 'سجل بياناتك للبدء' : 'سجل دخولك باستخدام البريد الإلكتروني';
+            if (btn) btn.innerText = isReg ? 'إنشاء حساب' : 'تسجيل الدخول';
+            if (toggle) toggle.innerHTML = isReg ?
                 `لديك حساب بالفعل؟ <button onclick="togglePremiumAuth('login')" class="text-indigo-300 underline font-bold">تسجيل دخول</button>` :
                 `ليس لديك حساب؟ <button onclick="togglePremiumAuth('register')" class="text-indigo-300 underline font-bold">سجل الآن</button>`;
 
             // Toggle logic fields
-            document.getElementById('roleSelector').classList.toggle('hidden', !isReg);
-            document.getElementById('nameField').classList.toggle('hidden', !isReg);
-            document.getElementById('phoneField').classList.toggle('hidden', !isReg);
-            document.getElementById('passwordStrength').classList.toggle('hidden', !isReg);
+            const roleSel = document.getElementById('roleSelector');
+            const nameF = document.getElementById('nameField');
+            const phoneF = document.getElementById('phoneField');
+            const passS = document.getElementById('passwordStrength');
+            const vendF = document.getElementById('vendorFields');
+
+            if (roleSel) roleSel.classList.toggle('hidden', !isReg);
+            if (nameF) nameF.classList.toggle('hidden', !isReg);
+            if (phoneF) phoneF.classList.toggle('hidden', !isReg);
+            if (passS) passS.classList.toggle('hidden', !isReg);
 
             if (!isReg) {
-                document.getElementById('vendorFields').classList.add('hidden');
+                if (vendF) vendF.classList.add('hidden');
             } else {
                 const role = document.getElementById('regRole').value;
-                document.getElementById('vendorFields').classList.toggle('hidden', role !== 'vendor');
+                if (vendF) vendF.classList.toggle('hidden', role !== 'vendor');
             }
         }
 
         function setPremiumRole(role) {
             document.getElementById('regRole').value = role;
-            document.getElementById('roleUser').style.background = role === 'user' ? '#4f46e5' : 'rgba(255,255,255,0.05)';
-            document.getElementById('roleVendor').style.background = role === 'vendor' ? '#4f46e5' : 'rgba(255,255,255,0.05)';
-            document.getElementById('vendorFields').classList.toggle('hidden', role !== 'vendor');
+            const uBtn = document.getElementById('roleUser');
+            const vBtn = document.getElementById('roleVendor');
+            if (uBtn) uBtn.style.background = role === 'user' ? '#4f46e5' : 'rgba(255,255,255,0.05)';
+            if (vBtn) vBtn.style.background = role === 'vendor' ? '#4f46e5' : 'rgba(255,255,255,0.05)';
+            const vendF = document.getElementById('vendorFields');
+            if (vendF) vendF.classList.toggle('hidden', role !== 'vendor');
         }
 
         // Live Password Strength
-        document.getElementById('authPassword').addEventListener('input', function (e) {
-            if (currentAuthMode !== 'register') return;
-            const val = e.target.value;
-            let strength = 0;
-            if (val.length > 5) strength += 20;
-            if (/[A-Z]/.test(val)) strength += 20;
-            if (/[a-z]/.test(val)) strength += 20;
-            if (/[0-9]/.test(val)) strength += 20;
-            if (/[^A-Za-z0-9]/.test(val)) strength += 20;
+        const authPass = document.getElementById('authPassword');
+        if (authPass) {
+            authPass.addEventListener('input', function (e) {
+                if (currentAuthMode !== 'register') return;
+                const val = e.target.value;
+                let strength = 0;
+                if (val.length > 5) strength += 20;
+                if (/[A-Z]/.test(val)) strength += 20;
+                if (/[a-z]/.test(val)) strength += 20;
+                if (/[0-9]/.test(val)) strength += 20;
+                if (/[^A-Za-z0-9]/.test(val)) strength += 20;
 
-            const strengthBar = document.getElementById('strengthBar');
-            strengthBar.style.width = strength + '%';
-            if (strength < 40) strengthBar.style.backgroundColor = '#f87171';
-            else if (strength < 80) strengthBar.style.backgroundColor = '#fbbf24';
-            else strengthBar.style.backgroundColor = '#10b981';
-        });
+                const strengthBar = document.getElementById('strengthBar');
+                if (strengthBar) {
+                    strengthBar.style.width = strength + '%';
+                    if (strength < 40) strengthBar.style.backgroundColor = '#f87171';
+                    else if (strength < 80) strengthBar.style.backgroundColor = '#fbbf24';
+                    else strengthBar.style.backgroundColor = '#10b981';
+                }
+            });
+        }
 
         // Form Submission
-        document.getElementById('authForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('authEmail').value;
-            const password = document.getElementById('authPassword').value;
-            const submitBtn = document.getElementById('submitBtn');
-            const originalText = submitBtn.innerText;
+        const authF = document.getElementById('authForm');
+        if (authF) {
+            authF.onsubmit = async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('authEmail').value;
+                const password = document.getElementById('authPassword').value;
+                const submitBtn = document.getElementById('submitBtn');
+                const originalText = submitBtn.innerText;
 
-            submitBtn.innerText = 'جاري العمل...';
-            submitBtn.disabled = true;
+                submitBtn.innerText = 'جاري العمل...';
+                submitBtn.disabled = true;
 
-            try {
-                if (currentAuthMode === 'login') {
-                    const res = await fetch('/api/login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email, password })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        alert('✅ تم تسجيل الدخول بنجاح');
-                        location.reload();
+                try {
+                    if (currentAuthMode === 'login') {
+                        const res = await fetch('/api/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, password })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            alert('✅ تم تسجيل الدخول بنجاح');
+                            location.reload();
+                        } else {
+                            alert('❌ ' + (data.error || 'خطأ في تسجيل الدخول'));
+                        }
                     } else {
-                        alert('❌ ' + (data.error || 'خطأ في تسجيل الدخول'));
-                    }
-                } else {
-                    const name = document.getElementById('regName').value;
-                    const phone = document.getElementById('regPhone').value;
-                    const role = document.getElementById('regRole').value;
-                    const shopName = document.getElementById('regShopName').value;
-                    const location = document.getElementById('regLocation').value;
+                        const name = document.getElementById('regName').value;
+                        const phone = document.getElementById('regPhone').value;
+                        const role = document.getElementById('regRole').value;
+                        const shopName = document.getElementById('regShopName').value;
+                        const location = document.getElementById('regLocation').value;
 
-                    const res = await fetch('/api/register', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name, email, password, phone, role, shopName, location })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        alert('✅ تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.');
-                        togglePremiumAuth('login');
-                    } else {
-                        alert('❌ ' + (data.error || 'فشل التسجيل'));
+                        const res = await fetch('/api/register', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name, email, password, phone, role, shopName, location })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            alert('✅ تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.');
+                            togglePremiumAuth('login');
+                        } else {
+                            alert('❌ ' + (data.error || 'فشل التسجيل'));
+                        }
                     }
+                } catch (err) {
+                    alert('❌ حدث خطأ في الاتصال بالسيرفر');
+                } finally {
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
                 }
-            } catch (err) {
-                alert('❌ حدث خطأ في الاتصال بالسيرفر');
-            } finally {
-                submitBtn.innerText = originalText;
-                submitBtn.disabled = false;
-            }
-        };
+            };
+        }
 
         async function checkLoginStatus() {
             try {
@@ -1283,7 +1475,6 @@
                         `;
                     }
 
-                    // Updated Header to match mock-up (Name + Profile Icon)
                     document.getElementById('loginNavItem').innerHTML = `
                         <div class="flex items-center gap-4">
                             ${vendorDashboardBtn}
@@ -1291,8 +1482,8 @@
                                 <span style="font-size: 1.4rem;">🛒</span>
                                 <span id="cartBadge" style="position:absolute; top:-8px; right:-10px; background:#ff4757; color:white; font-size:0.7rem; padding:2px 6px; border-radius:50%; display:none;">0</span>
                             </div>
-                            <div class="flex items-center gap-2 px-6 py-2 rounded-full border border-accent/30 bg-accent/5 hover:bg-accent/10 transition cursor-pointer" onclick="window.location.href='/profile.html'">
-                                <span class="text-accent font-bold">${user.name}</span>
+                            <div class="flex items-center gap-2 px-6 py-2 rounded-full border border-accent/20 bg-accent/5 hover:bg-accent/10 transition cursor-pointer" onclick="window.location.href='/profile.html'">
+                                <span class="text-primary font-bold">${user.name}</span>
                                 <div class="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
                                 </div>
@@ -1300,11 +1491,14 @@
                         </div>
                     `;
 
-                    // Hide Hero CTA button if logged in
-                    const heroBtn = document.querySelector('.hero .cta-button');
-                    if (heroBtn) heroBtn.style.display = 'none';
-                    const heroP = document.querySelector('.hero p');
-                    if (heroP) heroP.innerText = `مرحباً بك مجدداً، ${user.name}! استمتع بتجربة تسوق مميزة.`;
+                    // Hero Update for logged in users
+                    const heroBtns = document.querySelector('.hero-btns');
+                    if (heroBtns) {
+                        heroBtns.innerHTML = `
+                            <a href="#search" class="cta-primary">تصفح القطع الآن</a>
+                            <span class="text-white/80 font-bold mr-4">منور يا ${user.name.split(' ')[0]}!</span>
+                        `;
+                    }
                 }
                 updateCartBadge();
             } catch (err) { }
