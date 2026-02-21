@@ -345,10 +345,63 @@ app.get('/auth/google/callback',
 // --- Product APIs ---
 app.get('/api/products', async (req, res) => {
     try {
-        const products = await Product.find().sort({ createdAt: -1 });
+        const { category, brand } = req.query;
+        let query = {};
+        if (category) query.category = category;
+        if (brand) query.brand = brand;
+
+        const products = await Product.find(query).sort({ createdAt: -1 });
         res.json(products);
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch products' });
+    }
+});
+
+// Smart Search with Text Indexing
+app.get('/api/products/search', async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q) return res.json([]);
+
+        // Search using text index and sort by relevance score
+        const products = await Product.find(
+            { $text: { $search: q } },
+            { score: { $meta: "textScore" } }
+        ).sort({ score: { $meta: "textScore" } });
+
+        res.json(products);
+    } catch (err) {
+        logger.error('Search Error:', err);
+        res.status(500).json({ error: 'Search failed' });
+    }
+});
+
+// Auto-suggest API (returns unique names/brands matching the prefix)
+app.get('/api/products/suggestions', async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q || q.length < 2) return res.json([]);
+
+        const regex = new RegExp(`^${q}`, 'i');
+
+        // Find matching names, brands, or categories
+        const suggestions = await Product.find({
+            $or: [
+                { name: regex },
+                { brand: regex },
+                { tags: regex }
+            ]
+        }).limit(10).select('name brand');
+
+        // Extract unique strings
+        const uniqueSuggestions = [...new Set([
+            ...suggestions.map(p => p.name),
+            ...suggestions.map(p => p.brand)
+        ])].slice(0, 5);
+
+        res.json(uniqueSuggestions);
+    } catch (err) {
+        res.status(500).json({ error: 'Suggestion failed' });
     }
 });
 
