@@ -9,29 +9,39 @@
     <style>
         :root {
             --primary: #1a237e;
-            --accent: #ffb300;
+            --primary-dark: #0d1440;
+            --accent: #f59e0b;
+            --accent-hover: #d97706;
+            --text-dark: #0f172a;
+            --text-light: #64748b;
+            --white: #ffffff;
+            --bg-light: #f8fafc;
             --success: #10b981;
-            --danger: #ef4444;
-            --bg: #f3f4f6;
-            --text: #1f2937;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --glass: rgba(255, 255, 255, 0.82);
+            --glass-border: rgba(255, 255, 255, 0.3);
         }
 
         body {
             font-family: 'Cairo', sans-serif;
-            background: var(--bg);
+            background: var(--bg-light);
             margin: 0;
             padding-bottom: 80px;
-            color: var(--text);
+            color: var(--text-dark);
         }
 
-        header {
-            background: #1a237e;
-            color: white;
-            padding: 15px;
+        .header {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 0.8rem 0;
             position: sticky;
             top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
         }
 
         .nav-container {
@@ -464,9 +474,14 @@
 <body>
     <header class="header">
         <div class="nav-container">
-            <a href="index.html" class="logo">متركنهاش</a>
-            <div style="display: flex; align-items: center; gap: 20px;">
-                <a href="profile.html" style="color:white; text-decoration:none; font-weight:bold;">👤 حسابي</a>
+            <a href="index.html" class="logo"
+                style="color: var(--primary); font-size: 1.8rem; font-weight: 900; text-decoration: none;">متركنهاش</a>
+            <div style="display: flex; align-items: center; gap: 2.5rem;">
+                <a href="index.html"
+                    style="color: var(--text-dark); text-decoration: none; font-weight: 700; font-size: 0.95rem;">الرئيسية</a>
+                <a href="profile.html" onclick="handleAccountClick(event)"
+                    style="color: var(--text-dark); text-decoration: none; font-weight: 700; font-size: 0.95rem;">👤
+                    حسابي</a>
                 <div class="cart-icon-container" onclick="window.location.href='profile.html#cart'"
                     style="cursor:pointer; position:relative;">
                     <span style="font-size: 1.4rem;">🛒</span>
@@ -890,7 +905,26 @@
         }
 
         // Initialize UI
-        updateCartBadge();
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartBadge();
+            checkLoginStatus();
+        });
+
+        async function checkLoginStatus() {
+            try {
+                const res = await fetch('/auth/login/success');
+                const data = await res.json();
+                window.currentUser = data.success ? data.user : null;
+            } catch (err) { }
+        }
+
+        function handleAccountClick(e) {
+            if (!window.currentUser) {
+                e.preventDefault();
+                alert('يرجى تسجيل الدخول أولاً للوصول إلى حسابك.');
+                window.location.href = 'index.html';
+            }
+        }
     </script>
 </body>
 
