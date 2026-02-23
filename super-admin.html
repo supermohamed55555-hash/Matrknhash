@@ -170,7 +170,7 @@
 
                     // --- Socket.io Real-time Notifications for Admin ---
                     const socket = io();
-                    socket.emit('register', data.user._id);
+                    socket.emit('register', { userId: data.user._id, role: 'admin' });
 
                     socket.on('new_order', (orderData) => {
                         console.log('Admin: New Order Received:', orderData);
@@ -264,19 +264,58 @@
                     `;
                 }
 
+                // Add Manual Status Override for Super Admin
+                const statusOptions = ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'].map(s =>
+                    `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s}</option>`
+                ).join('');
+
+                const itemsList = o.items.map(i => `<div class="text-[10px] opacity-70">• ${i.name} (x${i.quantity})</div>`).join('');
+
                 return `
                 <tr class="border-b border-slate-50">
                     <td class="py-4 px-4 font-mono text-xs">#${o._id.toString().slice(-6)}</td>
-                    <td class="py-4 px-4">${o.user?.name || 'مجهول'}</td>
-                    <td class="py-4 px-4 text-sm text-slate-400">${new Date(o.createdAt).toLocaleDateString('ar-EG')}</td>
+                    <td class="py-4 px-4">
+                        <div class="font-600">${o.user?.name || 'مجهول'}</div>
+                        <div class="text-[10px] text-slate-400">${o.user?.email || ''}</div>
+                    </td>
+                    <td class="py-4 px-4 text-sm text-slate-400">
+                        ${new Date(o.createdAt).toLocaleDateString('ar-EG')}
+                        <div class="mt-1">${itemsList}</div>
+                    </td>
                     <td class="py-4 px-4 font-700">${o.totalPrice} ج.م</td>
                     <td class="py-4 px-4">
-                        <span class="status-badge ${o.status === 'Shipped' ? 'status-active' : 'status-pending'}">${o.status}</span>
+                        <select onchange="overrideOrderStatus('${o._id}', this.value)" class="text-[10px] border border-slate-200 rounded p-1">
+                            ${statusOptions}
+                        </select>
                     </td>
                     <td class="py-4 px-4">${shippingBtn}</td>
                 </tr>
                 `;
             }).join('');
+        }
+
+        async function overrideOrderStatus(orderId, newStatus) {
+            try {
+                // We'll use the vendor API or a super-admin specific one if needed
+                // Currently, the vendor one works if the user is authenticated, 
+                // let's create a dedicated one for admin in server.js or reuse if logic allows.
+                const res = await fetch(`/api/admin/orders/${orderId}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (res.ok) {
+                    alert('تم تحديث حالة الطلب من قبل الإدارة!');
+                    loadAllOrders();
+                    loadStats();
+                } else {
+                    const err = await res.json();
+                    alert('خطأ: ' + err.error);
+                }
+            } catch (e) {
+                alert('حدث خطأ في الاتصال بالخادم');
+            }
         }
 
         async function confirmOrder(id, carrier) {
