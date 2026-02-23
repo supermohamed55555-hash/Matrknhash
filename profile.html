@@ -7,469 +7,506 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حسابي - متركنهاش</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <style>
         :root {
             --primary: #1a237e;
             --bg: #f5f5f5;
         }
 
-        body {
-            font-family: 'Cairo', sans-serif;
-            background: var(--bg);
-            margin: 0;
-        }
-
-        .header {
-            background: white;
-            padding: 20px;
-            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .user-blok {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .avatar {
-            width: 60px;
-            height: 60px;
-            background: #eee;
-            border-radius: 50%;
-            display: flex;
+        /* Success Overlay */
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.98);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            color: var(--primary);
-            font-weight: bold;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 0 15px;
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 20px;
+        .success-animation-box {
+            width: 350px;
+            height: 350px;
         }
 
-        .sidebar {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            height: fit-content;
-        }
-
-        .menu-item {
-            padding: 12px;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 5px;
-            color: #555;
-        }
-
-        .menu-item:hover,
-        .menu-item.active {
-            background: #eef2ff;
-            color: var(--primary);
-            font-weight: bold;
-        }
-
-        .content-area {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            min-height: 500px;
-        }
-
-        .section-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        /* Orders Style */
-        .order-card {
-            border: 1px solid #eee;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            color: #777;
-        }
-
-        .order-status {
-            background: #fff3cd;
-            color: #856404;
-            padding: 2px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-        }
-
-        .order-item {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .order-img {
-            width: 60px;
-            height: 60px;
-            background: #f9f9f9;
-            border-radius: 8px;
-            object-fit: contain;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        @media(max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
             }
 
-            .sidebar {
-                display: flex;
-                overflow-x: auto;
-                padding: 10px;
-                gap: 10px;
-            }
-
-            .menu-item {
-                min-width: 100px;
-                justify-content: center;
+            to {
+                opacity: 1;
             }
         }
     </style>
 </head>
 
 <body>
-
-    <div class="header">
-        <div class="user-blok">
-            <div class="avatar" id="avatarLetter">م</div>
-            <div>
-                <h3 style="margin:0" id="userNameLabel">أهلاً محمد</h3>
-                <span style="font-size:0.85rem; color:#777;" id="userEmailLabel">mohamed@example.com</span>
-            </div>
-        </div>
-        <a href="test1.html" style="text-decoration:none; color:var(--primary); font-weight:bold;">العودة للرئيسية
-            🏠</a>
+    <div id="successOverlay" class="success-overlay">
+        <div id="successAnimation" class="success-animation-box"></div>
+        <h2 class="text-3xl font-bold text-slate-800 mb-2">تم تأكيد طلبك بنجاح! 🎉</h2>
+        <p class="text-slate-500 max-w-md">جاري تجهيز الشحنة فوراً.. هتستلمها في أسرع وقت ممكن. متابعة الحالة من لوحة
+            الطلبات.</p>
+        <button onclick="dismissSuccess()"
+            style="margin-top:30px; padding:12px 40px; background:var(--primary); color:white; border:none; border-radius:30px; font-weight:bold; cursor:pointer;">عرض
+            طلباتي</button>
     </div>
 
-    <div class="container">
-        <!-- Sidebar Menu -->
-        <div class="sidebar">
-            <div class="menu-item active" id="tab-orders" onclick="showTab('orders')">الطلبات</div>
-            <div class="menu-item" id="tab-cart" onclick="showTab('cart')">سلة المشتريات 🛒</div>
-            <div class="menu-item" id="tab-returns" onclick="showTab('returns')">المرتجعات</div>
-            <div class="menu-item" id="tab-addresses" onclick="showTab('addresses')">العناوين</div>
-            <div class="menu-item" id="tab-garage" onclick="showTab('garage')">كراجي 🚗</div>
-            <div class="menu-item" id="tab-wallet" onclick="showTab('wallet')">المحفظة</div>
-            <div class="menu-item" id="tab-settings" onclick="showTab('settings')">الإعدادات</div>
-            <div class="menu-item hidden" id="tab-super-admin" onclick="window.location.href='/super-admin.html'"
-                style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5;">لوحة المدير العام 👑</div>
-            <div class="menu-item" onclick="logout()" style="color:red; margin-top:20px;"> تسجيل خروج</div>
+    .header {
+    background: white;
+    padding: 20px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    }
+
+    .user-blok {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    }
+
+    .avatar {
+    width: 60px;
+    height: 60px;
+    background: #eee;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--primary);
+    font-weight: bold;
+    }
+
+    .container {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 0 15px;
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 20px;
+    }
+
+    .sidebar {
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    height: fit-content;
+    }
+
+    .menu-item {
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+    color: #555;
+    }
+
+    .menu-item:hover,
+    .menu-item.active {
+    background: #eef2ff;
+    color: var(--primary);
+    font-weight: bold;
+    }
+
+    .content-area {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    min-height: 500px;
+    }
+
+    .section-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    }
+
+    /* Orders Style */
+    .order-card {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    }
+
+    .order-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: #777;
+    }
+
+    .order-status {
+    background: #fff3cd;
+    color: #856404;
+    padding: 2px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    }
+
+    .order-item {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    }
+
+    .order-img {
+    width: 60px;
+    height: 60px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    object-fit: contain;
+    }
+
+    .hidden {
+    display: none !important;
+    }
+
+    @media(max-width: 768px) {
+    .container {
+    grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+    display: flex;
+    overflow-x: auto;
+    padding: 10px;
+    gap: 10px;
+    }
+
+    .menu-item {
+    min-width: 100px;
+    justify-content: center;
+    }
+    }
+    </style>
+    </head>
+
+    <body>
+
+        <div class="header">
+            <div class="user-blok">
+                <div class="avatar" id="avatarLetter">م</div>
+                <div>
+                    <h3 style="margin:0" id="userNameLabel">أهلاً محمد</h3>
+                    <span style="font-size:0.85rem; color:#777;" id="userEmailLabel">mohamed@example.com</span>
+                </div>
+            </div>
+            <a href="test1.html" style="text-decoration:none; color:var(--primary); font-weight:bold;">العودة للرئيسية
+                🏠</a>
         </div>
 
-        <!-- Content Content -->
-
-        <!-- 1. Orders Tab -->
-        <div id="orders" class="content-area">
-            <div class="section-title">طلباتي السابقة</div>
-            <div class="orders-list">
-                <!-- داتا حقيقية ستظهر هنا -->
-                <p style="text-align:center; padding:20px; opacity:0.5;">جاري تحميل طلباتك...</p>
-            </div>
-        </div>
-
-        <!-- 1.5 Cart Tab (New) -->
-        <div id="cart" class="content-area hidden">
-            <div class="section-title">سلة المشتريات</div>
-            <div id="cartItemsList">
-                <!-- Items from localStorage -->
+        <div class="container">
+            <!-- Sidebar Menu -->
+            <div class="sidebar">
+                <div class="menu-item active" id="tab-orders" onclick="showTab('orders')">الطلبات</div>
+                <div class="menu-item" id="tab-cart" onclick="showTab('cart')">سلة المشتريات 🛒</div>
+                <div class="menu-item" id="tab-returns" onclick="showTab('returns')">المرتجعات</div>
+                <div class="menu-item" id="tab-addresses" onclick="showTab('addresses')">العناوين</div>
+                <div class="menu-item" id="tab-garage" onclick="showTab('garage')">كراجي 🚗</div>
+                <div class="menu-item" id="tab-wallet" onclick="showTab('wallet')">المحفظة</div>
+                <div class="menu-item" id="tab-settings" onclick="showTab('settings')">الإعدادات</div>
+                <div class="menu-item hidden" id="tab-super-admin" onclick="window.location.href='/super-admin.html'"
+                    style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5;">لوحة المدير العام 👑</div>
+                <div class="menu-item" onclick="logout()" style="color:red; margin-top:20px;"> تسجيل خروج</div>
             </div>
 
-            <div id="checkoutSection" class="hidden"
-                style="margin-top:20px; padding:20px; border-top:2px solid #f0f0f0;">
-                <h4 style="margin-bottom:15px;">إتمام الطلب (One-Step Checkout)</h4>
+            <!-- Content Content -->
 
-                <div style="margin-bottom:15px;">
-                    <label style="display:block; margin-bottom:5px; font-weight:bold;">عنوان الشحن:</label>
-                    <select id="checkoutAddressSelect"
-                        style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;">
-                        <!-- Addresses loaded here -->
-                    </select>
+            <!-- 1. Orders Tab -->
+            <div id="orders" class="content-area">
+                <div class="section-title">طلباتي السابقة</div>
+                <div class="orders-list">
+                    <!-- داتا حقيقية ستظهر هنا -->
+                    <p style="text-align:center; padding:20px; opacity:0.5;">جاري تحميل طلباتك...</p>
+                </div>
+            </div>
+
+            <!-- 1.5 Cart Tab (New) -->
+            <div id="cart" class="content-area hidden">
+                <div class="section-title">سلة المشتريات</div>
+                <div id="cartItemsList">
+                    <!-- Items from localStorage -->
                 </div>
 
-                <div style="margin-bottom:20px;">
-                    <label style="display:block; margin-bottom:10px; font-weight:bold;">طريقة الدفع:</label>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                        <label
-                            style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
-                            class="payment-option">
-                            <input type="radio" name="paymentOption" value="COD" checked>
-                            <span>💵 كاش (عند الاستلام)</span>
-                        </label>
-                        <label
-                            style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
-                            class="payment-option">
-                            <input type="radio" name="paymentOption" value="Vodafone Cash">
-                            <span>📱 فودافون كاش</span>
-                        </label>
-                        <label
-                            style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
-                            class="payment-option">
-                            <input type="radio" name="paymentOption" value="Visa">
-                            <span>💳 فيزا / ماستر كارد</span>
-                        </label>
-                        <label
-                            style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
-                            class="payment-option">
-                            <input type="radio" name="paymentOption" value="Wallet">
-                            <span>🧧 المحفظة (<small id="checkoutWalletBalance">0.00</small>)</span>
-                        </label>
+                <div id="checkoutSection" class="hidden"
+                    style="margin-top:20px; padding:20px; border-top:2px solid #f0f0f0;">
+                    <h4 style="margin-bottom:15px;">إتمام الطلب (One-Step Checkout)</h4>
+
+                    <div style="margin-bottom:15px;">
+                        <label style="display:block; margin-bottom:5px; font-weight:bold;">عنوان الشحن:</label>
+                        <select id="checkoutAddressSelect"
+                            style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;">
+                            <!-- Addresses loaded here -->
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom:20px;">
+                        <label style="display:block; margin-bottom:10px; font-weight:bold;">طريقة الدفع:</label>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                            <label
+                                style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
+                                class="payment-option">
+                                <input type="radio" name="paymentOption" value="COD" checked>
+                                <span>💵 كاش (عند الاستلام)</span>
+                            </label>
+                            <label
+                                style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
+                                class="payment-option">
+                                <input type="radio" name="paymentOption" value="Vodafone Cash">
+                                <span>📱 فودافون كاش</span>
+                            </label>
+                            <label
+                                style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
+                                class="payment-option">
+                                <input type="radio" name="paymentOption" value="Visa">
+                                <span>💳 فيزا / ماستر كارد</span>
+                            </label>
+                            <label
+                                style="display:flex; align-items:center; gap:8px; padding:12px; border:1px solid #ddd; border-radius:10px; cursor:pointer;"
+                                class="payment-option">
+                                <input type="radio" name="paymentOption" value="Wallet">
+                                <span>🧧 المحفظة (<small id="checkoutWalletBalance">0.00</small>)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div
+                        style="padding:15px; background:var(--primary); color:white; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-size:0.8rem; opacity:0.8;">الإجمالي المطلوب</div>
+                            <div style="font-size:1.4rem; font-weight:bold;" id="cartTotalPrice">0.00 ج.م</div>
+                        </div>
+                        <button onclick="processCheckout()" id="checkoutBtn"
+                            style="background:#ffb300; color:var(--primary); border:none; padding:12px 25px; border-radius:30px; font-weight:800; cursor:pointer;">تأكيد
+                            وطلب الآن</button>
                     </div>
                 </div>
+            </div>
 
+            <!-- 2. Returns Tab -->
+            <div id="returns" class="content-area hidden">
+                <div class="section-title">طلبات المرتجعات</div>
+                <div class="returns-list">
+                    <p style="text-align:center; padding:20px; opacity:0.5;">جاري تحميل المرتجعات...</p>
+                </div>
+            </div>
+
+            <!-- 3. Addresses Tab -->
+            <div id="addresses" class="content-area hidden">
+                <div class="section-title">العناوين المحفوظة</div>
+                <div class="addresses-list">
+                    <!-- داتا حقيقية ستظهر هنا -->
+                </div>
+                <button onclick="openAddressModal()"
+                    style="margin-top:15px; padding:12px; width:100%; border:2px dashed var(--primary); color:var(--primary); background:#f0f4ff; cursor:pointer; border-radius:10px; font-weight:bold;">+
+                    إضافة عنوان جديد</button>
+            </div>
+
+            <!-- Address Modal -->
+            <div id="addressModal" class="hidden"
+                style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
+                <div style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px;">
+                    <h3 style="margin-top:0">إضافة عنوان جديد</h3>
+                    <input type="text" id="addrLabel" placeholder="اسم العنوان (مثال: المنزل)"
+                        style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+                    <textarea id="addrDetails" placeholder="العنوان بالتفصيل"
+                        style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px; height:100px;"></textarea>
+                    <div style="margin-bottom:15px;">
+                        <input type="checkbox" id="addrDefault">
+                        <label for="addrDefault">تعيين كعنوان افتراضي</label>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="saveAddress()"
+                            style="flex:1; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer;">حفظ</button>
+                        <button onclick="closeAddressModal()"
+                            style="flex:1; padding:10px; background:#eee; border:none; border-radius:8px; cursor:pointer;">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Garage Tab -->
+            <div id="garage" class="content-area hidden">
+                <div class="section-title">كراجي 🚗</div>
+                <p style="font-size:0.9rem; color:#666; margin-bottom:15px;">سجل بيانات عربيتك عشان الموقع يتفصل عليها
+                    وتعرف
+                    القطع المتوافقة فوراً.</p>
+                <div class="garage-list">
+                    <!-- Cars will appear here -->
+                </div>
+                <button onclick="openGarageModal()"
+                    style="margin-top:15px; padding:12px; width:100%; border:2px dashed var(--primary); color:var(--primary); background:#f0f4ff; cursor:pointer; border-radius:10px; font-weight:bold;">+
+                    إضافة سيارة جديدة</button>
+            </div>
+
+            <!-- Garage Modal -->
+            <div id="garageModal" class="hidden"
+                style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
+                <div style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px;">
+                    <h3 style="margin-top:0">إضافة سيارة للكراج</h3>
+                    <input type="text" id="carMake" placeholder="ماركة السيارة (مثال: تويوتا)"
+                        style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+                    <input type="text" id="carModel" placeholder="الموديل (مثال: كورولا)"
+                        style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+                    <input type="text" id="carYear" placeholder="سنة الصنع (مثال: 2020)"
+                        style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+                    <input type="text" id="carEngine" placeholder="الموتور (مثال: 1600cc)"
+                        style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="saveCar()"
+                            style="flex:1; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer;">حفظ
+                            السيارة</button>
+                        <button onclick="closeGarageModal()"
+                            style="flex:1; padding:10px; background:#eee; border:none; border-radius:8px; cursor:pointer;">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+            <div id="wallet" class="content-area hidden">
+                <div class="section-title">المحفظة (VIP)</div>
                 <div
-                    style="padding:15px; background:var(--primary); color:white; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div style="font-size:0.8rem; opacity:0.8;">الإجمالي المطلوب</div>
-                        <div style="font-size:1.4rem; font-weight:bold;" id="cartTotalPrice">0.00 ج.م</div>
-                    </div>
-                    <button onclick="processCheckout()" id="checkoutBtn"
-                        style="background:#ffb300; color:var(--primary); border:none; padding:12px 25px; border-radius:30px; font-weight:800; cursor:pointer;">تأكيد
-                        وطلب الآن</button>
+                    style="background:linear-gradient(45deg, #1a237e, #3949ab); color:white; padding:30px; border-radius:15px; text-align:center;">
+                    <div style="font-size:0.9rem; opacity:0.8;">رصيدك الحالي</div>
+                    <div style="font-size:2.5rem; font-weight:bold;" id="walletBalance">0.00 <span
+                            style="font-size:1rem;">ج.م</span></div>
+                </div>
+                <div style="margin-top:20px; text-align:center; color:#777;">
+                    يمكنك استخدام الرصيد في عمليات الشراء القادمة.
                 </div>
             </div>
-        </div>
-
-        <!-- 2. Returns Tab -->
-        <div id="returns" class="content-area hidden">
-            <div class="section-title">طلبات المرتجعات</div>
-            <div class="returns-list">
-                <p style="text-align:center; padding:20px; opacity:0.5;">جاري تحميل المرتجعات...</p>
+            <div id="settings" class="content-area hidden">
+                <div class="section-title">الإعدادات والشحن</div>
+                <p>تغيير كلمة المرور</p>
+                <p>اللغة (العربية)</p>
             </div>
+
         </div>
 
-        <!-- 3. Addresses Tab -->
-        <div id="addresses" class="content-area hidden">
-            <div class="section-title">العناوين المحفوظة</div>
-            <div class="addresses-list">
-                <!-- داتا حقيقية ستظهر هنا -->
-            </div>
-            <button onclick="openAddressModal()"
-                style="margin-top:15px; padding:12px; width:100%; border:2px dashed var(--primary); color:var(--primary); background:#f0f4ff; cursor:pointer; border-radius:10px; font-weight:bold;">+
-                إضافة عنوان جديد</button>
-        </div>
+        <script>
+            async function loadProfile() {
+                try {
+                    // 1. Check Login Status
+                    const userRes = await fetch('/auth/login/success');
+                    const userData = await userRes.json();
 
-        <!-- Address Modal -->
-        <div id="addressModal" class="hidden"
-            style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
-            <div style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px;">
-                <h3 style="margin-top:0">إضافة عنوان جديد</h3>
-                <input type="text" id="addrLabel" placeholder="اسم العنوان (مثال: المنزل)"
-                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
-                <textarea id="addrDetails" placeholder="العنوان بالتفصيل"
-                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px; height:100px;"></textarea>
-                <div style="margin-bottom:15px;">
-                    <input type="checkbox" id="addrDefault">
-                    <label for="addrDefault">تعيين كعنوان افتراضي</label>
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <button onclick="saveAddress()"
-                        style="flex:1; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer;">حفظ</button>
-                    <button onclick="closeAddressModal()"
-                        style="flex:1; padding:10px; background:#eee; border:none; border-radius:8px; cursor:pointer;">إلغاء</button>
-                </div>
-            </div>
-        </div>
+                    if (userData.success) {
+                        const user = userData.user;
+                        document.getElementById('userNameLabel').innerText = 'أهلاً ' + user.name;
+                        document.getElementById('userEmailLabel').innerText = user.email || '';
+                        document.getElementById('avatarLetter').innerText = user.name.charAt(0).toUpperCase();
 
-        <!-- 4. Garage Tab -->
-        <div id="garage" class="content-area hidden">
-            <div class="section-title">كراجي 🚗</div>
-            <p style="font-size:0.9rem; color:#666; margin-bottom:15px;">سجل بيانات عربيتك عشان الموقع يتفصل عليها وتعرف
-                القطع المتوافقة فوراً.</p>
-            <div class="garage-list">
-                <!-- Cars will appear here -->
-            </div>
-            <button onclick="openGarageModal()"
-                style="margin-top:15px; padding:12px; width:100%; border:2px dashed var(--primary); color:var(--primary); background:#f0f4ff; cursor:pointer; border-radius:10px; font-weight:bold;">+
-                إضافة سيارة جديدة</button>
-        </div>
+                        // --- Socket.io Real-time Notifications ---
+                        const socket = io();
+                        socket.emit('register', { userId: user._id, role: user.role }); // Register with role
 
-        <!-- Garage Modal -->
-        <div id="garageModal" class="hidden"
-            style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
-            <div style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px;">
-                <h3 style="margin-top:0">إضافة سيارة للكراج</h3>
-                <input type="text" id="carMake" placeholder="ماركة السيارة (مثال: تويوتا)"
-                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
-                <input type="text" id="carModel" placeholder="الموديل (مثال: كورولا)"
-                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
-                <input type="text" id="carYear" placeholder="سنة الصنع (مثال: 2020)"
-                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
-                <input type="text" id="carEngine" placeholder="الموتور (مثال: 1600cc)"
-                    style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+                        socket.on('new_order', (data) => {
+                            console.log('Real-time Notification:', data);
+                            // Show a nice popup/toast
+                            if (Notification.permission === "granted") {
+                                new Notification("متركنهاش - طلب جديد!", { body: data.message });
+                            }
+                            alert(data.message + "\nرقم الطلب: #" + data.orderId.slice(-6));
 
-                <div style="display:flex; gap:10px;">
-                    <button onclick="saveCar()"
-                        style="flex:1; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer;">حفظ
-                        السيارة</button>
-                    <button onclick="closeGarageModal()"
-                        style="flex:1; padding:10px; background:#eee; border:none; border-radius:8px; cursor:pointer;">إلغاء</button>
-                </div>
-            </div>
-        </div>
-        <div id="wallet" class="content-area hidden">
-            <div class="section-title">المحفظة (VIP)</div>
-            <div
-                style="background:linear-gradient(45deg, #1a237e, #3949ab); color:white; padding:30px; border-radius:15px; text-align:center;">
-                <div style="font-size:0.9rem; opacity:0.8;">رصيدك الحالي</div>
-                <div style="font-size:2.5rem; font-weight:bold;" id="walletBalance">0.00 <span
-                        style="font-size:1rem;">ج.م</span></div>
-            </div>
-            <div style="margin-top:20px; text-align:center; color:#777;">
-                يمكنك استخدام الرصيد في عمليات الشراء القادمة.
-            </div>
-        </div>
-        <div id="settings" class="content-area hidden">
-            <div class="section-title">الإعدادات والشحن</div>
-            <p>تغيير كلمة المرور</p>
-            <p>اللغة (العربية)</p>
-        </div>
+                            // Auto-refresh orders if they are a vendor
+                            if (user.role === 'vendor') {
+                                loadOrders();
+                            }
+                        });
 
-    </div>
-
-    <script>
-        async function loadProfile() {
-            try {
-                // 1. Check Login Status
-                const userRes = await fetch('/auth/login/success');
-                const userData = await userRes.json();
-
-                if (userData.success) {
-                    const user = userData.user;
-                    document.getElementById('userNameLabel').innerText = 'أهلاً ' + user.name;
-                    document.getElementById('userEmailLabel').innerText = user.email || '';
-                    document.getElementById('avatarLetter').innerText = user.name.charAt(0).toUpperCase();
-
-                    // --- Socket.io Real-time Notifications ---
-                    const socket = io();
-                    socket.emit('register', { userId: user._id, role: user.role }); // Register with role
-
-                    socket.on('new_order', (data) => {
-                        console.log('Real-time Notification:', data);
-                        // Show a nice popup/toast
-                        if (Notification.permission === "granted") {
-                            new Notification("متركنهاش - طلب جديد!", { body: data.message });
+                        // Request browser notification permission
+                        if (Notification.permission !== "denied") {
+                            Notification.requestPermission();
                         }
-                        alert(data.message + "\nرقم الطلب: #" + data.orderId.slice(-6));
 
-                        // Auto-refresh orders if they are a vendor
-                        if (user.role === 'vendor') {
-                            loadOrders();
-                        }
-                    });
+                        setupSidebarByRole(user.role);
 
-                    // Request browser notification permission
-                    if (Notification.permission !== "denied") {
-                        Notification.requestPermission();
+                        // Initial load
+                        loadOrders();
+                        loadAddresses();
+                        loadGarage();
+                        loadWallet();
+                        loadReturns();
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                } catch (err) {
+                    console.error('Profile Error:', err);
+                }
+            }
+
+            function setupSidebarByRole(role) {
+                const tabs = {
+                    'orders': document.getElementById('tab-orders'),
+                    'cart': document.getElementById('tab-cart'),
+                    'returns': document.getElementById('tab-returns'),
+                    'addresses': document.getElementById('tab-addresses'),
+                    'garage': document.getElementById('tab-garage'),
+                    'wallet': document.getElementById('tab-wallet'),
+                    'settings': document.getElementById('tab-settings'),
+                    'superAdmin': document.getElementById('tab-super-admin')
+                };
+
+                // Reset all
+                Object.values(tabs).forEach(tab => tab.classList.add('hidden'));
+
+                if (role === 'admin' || role === 'super-admin') {
+                    // Admin View
+                    if (tabs.superAdmin) tabs.superAdmin.classList.remove('hidden');
+                    if (tabs.settings) {
+                        tabs.settings.classList.remove('hidden');
+                        tabs.settings.innerText = 'إعدادات المنصة ⚙️';
                     }
 
-                    setupSidebarByRole(user.role);
-
-                    // Initial load
-                    loadOrders();
-                    loadAddresses();
-                    loadGarage();
-                    loadWallet();
-                    loadReturns();
+                    // If on a shopping tab, redirect to settings
+                    const currentHash = window.location.hash.replace('#', '');
+                    if (['cart', 'orders', 'returns', 'garage', 'addresses'].includes(currentHash) || !currentHash) {
+                        showTab('settings');
+                    } else {
+                        showTab(currentHash);
+                    }
+                } else if (role === 'vendor') {
+                    // Vendor View
+                    if (tabs.orders) {
+                        tabs.orders.classList.remove('hidden');
+                        tabs.orders.innerText = 'طلبات المبيعات 📈';
+                    }
+                    if (tabs.wallet) {
+                        tabs.wallet.classList.remove('hidden');
+                        tabs.wallet.innerText = 'أرباحي 💰';
+                    }
+                    if (tabs.settings) tabs.settings.classList.remove('hidden');
+                    showTab('orders');
                 } else {
-                    window.location.href = 'index.html';
+                    // User View
+                    Object.values(tabs).forEach(tab => {
+                        if (tab && tab.id !== 'tab-super-admin') tab.classList.remove('hidden');
+                    });
+                    showTab('orders');
                 }
-            } catch (err) {
-                console.error('Profile Error:', err);
             }
-        }
 
-        function setupSidebarByRole(role) {
-            const tabs = {
-                'orders': document.getElementById('tab-orders'),
-                'cart': document.getElementById('tab-cart'),
-                'returns': document.getElementById('tab-returns'),
-                'addresses': document.getElementById('tab-addresses'),
-                'garage': document.getElementById('tab-garage'),
-                'wallet': document.getElementById('tab-wallet'),
-                'settings': document.getElementById('tab-settings'),
-                'superAdmin': document.getElementById('tab-super-admin')
-            };
+            async function loadOrders() {
+                try {
+                    const res = await fetch('/api/user-orders');
+                    const orders = await res.json();
+                    const container = document.querySelector('#orders .orders-list');
 
-            // Reset all
-            Object.values(tabs).forEach(tab => tab.classList.add('hidden'));
-
-            if (role === 'admin' || role === 'super-admin') {
-                // Admin View
-                if (tabs.superAdmin) tabs.superAdmin.classList.remove('hidden');
-                if (tabs.settings) {
-                    tabs.settings.classList.remove('hidden');
-                    tabs.settings.innerText = 'إعدادات المنصة ⚙️';
-                }
-
-                // If on a shopping tab, redirect to settings
-                const currentHash = window.location.hash.replace('#', '');
-                if (['cart', 'orders', 'returns', 'garage', 'addresses'].includes(currentHash) || !currentHash) {
-                    showTab('settings');
-                } else {
-                    showTab(currentHash);
-                }
-            } else if (role === 'vendor') {
-                // Vendor View
-                if (tabs.orders) {
-                    tabs.orders.classList.remove('hidden');
-                    tabs.orders.innerText = 'طلبات المبيعات 📈';
-                }
-                if (tabs.wallet) {
-                    tabs.wallet.classList.remove('hidden');
-                    tabs.wallet.innerText = 'أرباحي 💰';
-                }
-                if (tabs.settings) tabs.settings.classList.remove('hidden');
-                showTab('orders');
-            } else {
-                // User View
-                Object.values(tabs).forEach(tab => {
-                    if (tab && tab.id !== 'tab-super-admin') tab.classList.remove('hidden');
-                });
-                showTab('orders');
-            }
-        }
-
-        async function loadOrders() {
-            try {
-                const res = await fetch('/api/user-orders');
-                const orders = await res.json();
-                const container = document.querySelector('#orders .orders-list');
-
-                if (orders.length > 0) {
-                    container.innerHTML = orders.map(order => `
+                    if (orders.length > 0) {
+                        container.innerHTML = orders.map(order => `
                         <div class="order-card">
                             <div class="order-header">
                                 <span>رقم الطلب: #${order._id.slice(-5)}</span>
@@ -501,20 +538,20 @@
                             </div>` : ''}
                         </div>
                     `).join('');
-                } else {
-                    container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.6;">ليس لديك طلبات سابقة حالياً.</p>';
-                }
-            } catch (err) { console.error(err); }
-        }
+                    } else {
+                        container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.6;">ليس لديك طلبات سابقة حالياً.</p>';
+                    }
+                } catch (err) { console.error(err); }
+            }
 
-        async function loadAddresses() {
-            try {
-                const res = await fetch('/api/user/addresses');
-                const addresses = await res.json();
-                const container = document.querySelector('.addresses-list');
+            async function loadAddresses() {
+                try {
+                    const res = await fetch('/api/user/addresses');
+                    const addresses = await res.json();
+                    const container = document.querySelector('.addresses-list');
 
-                if (addresses.length > 0) {
-                    container.innerHTML = addresses.map(addr => `
+                    if (addresses.length > 0) {
+                        container.innerHTML = addresses.map(addr => `
                         <div style="padding:15px; border:1px solid #eee; border-radius:10px; margin-bottom:10px; position:relative;">
                             <strong>${addr.label}</strong>
                             <p style="margin:5px 0; color:#555; font-size:0.9rem;">${addr.details}</p>
@@ -522,28 +559,28 @@
                             <button onclick="deleteAddress('${addr._id}')" style="background:none; border:none; color:red; cursor:pointer; font-size:0.8rem; margin-top:5px;">حذف</button>
                         </div>
                     `).join('');
-                } else {
-                    container.innerHTML = '<p style="text-align:center; color:#999;">لم تقم بإضافة أي عناوين بعد.</p>';
-                }
-            } catch (err) { console.error(err); }
-        }
+                    } else {
+                        container.innerHTML = '<p style="text-align:center; color:#999;">لم تقم بإضافة أي عناوين بعد.</p>';
+                    }
+                } catch (err) { console.error(err); }
+            }
 
-        async function loadWallet() {
-            try {
-                const res = await fetch('/api/user/wallet');
-                const data = await res.json();
-                document.getElementById('walletBalance').innerHTML = `${data.balance.toFixed(2)} <span style="font-size:1rem;">ج.م</span>`;
-            } catch (err) { console.error(err); }
-        }
+            async function loadWallet() {
+                try {
+                    const res = await fetch('/api/user/wallet');
+                    const data = await res.json();
+                    document.getElementById('walletBalance').innerHTML = `${data.balance.toFixed(2)} <span style="font-size:1rem;">ج.م</span>`;
+                } catch (err) { console.error(err); }
+            }
 
-        async function loadReturns() {
-            try {
-                const res = await fetch('/api/user-returns');
-                const returns = await res.json();
-                const container = document.querySelector('.returns-list');
+            async function loadReturns() {
+                try {
+                    const res = await fetch('/api/user-returns');
+                    const returns = await res.json();
+                    const container = document.querySelector('.returns-list');
 
-                if (returns.length > 0) {
-                    container.innerHTML = returns.map(ret => `
+                    if (returns.length > 0) {
+                        container.innerHTML = returns.map(ret => `
                         <div class="order-card">
                             <div class="order-header">
                                 <span>طلب مرتجع #${ret._id.slice(-5)}</span>
@@ -552,63 +589,63 @@
                             <div style="font-size:0.9rem; color:#666;">السبب: ${ret.returnReason}</div>
                         </div>
                     `).join('');
-                } else {
-                    container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.6;">لا يوجد طلبات استرجاع حالياً.</p>';
-                }
-            } catch (err) { console.error(err); }
-        }
+                    } else {
+                        container.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.6;">لا يوجد طلبات استرجاع حالياً.</p>';
+                    }
+                } catch (err) { console.error(err); }
+            }
 
-        function openAddressModal() {
-            const modal = document.getElementById('addressModal');
-            modal.classList.remove('hidden');
-            modal.style.display = 'flex';
-        }
+            function openAddressModal() {
+                const modal = document.getElementById('addressModal');
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+            }
 
-        function closeAddressModal() {
-            const modal = document.getElementById('addressModal');
-            modal.classList.add('hidden');
-            modal.style.display = 'none';
-        }
+            function closeAddressModal() {
+                const modal = document.getElementById('addressModal');
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }
 
-        async function saveAddress() {
-            const label = document.getElementById('addrLabel').value;
-            const details = document.getElementById('addrDetails').value;
-            const isDefault = document.getElementById('addrDefault').checked;
+            async function saveAddress() {
+                const label = document.getElementById('addrLabel').value;
+                const details = document.getElementById('addrDetails').value;
+                const isDefault = document.getElementById('addrDefault').checked;
 
-            if (!label || !details) return alert('برجاء ملء البيانات');
+                if (!label || !details) return alert('برجاء ملء البيانات');
 
-            try {
-                const res = await fetch('/api/user/addresses', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ label, details, isDefault })
-                });
-                if (res.ok) {
-                    closeAddressModal();
+                try {
+                    const res = await fetch('/api/user/addresses', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ label, details, isDefault })
+                    });
+                    if (res.ok) {
+                        closeAddressModal();
+                        loadAddresses();
+                        // Reset fields
+                        document.getElementById('addrLabel').value = '';
+                        document.getElementById('addrDetails').value = '';
+                    }
+                } catch (err) { alert('فشل حفظ العنوان'); }
+            }
+
+            async function deleteAddress(id) {
+                if (!confirm('هل أنت متأكد من حذف هذا العنوان؟')) return;
+                try {
+                    await fetch(`/api/user/addresses/${id}`, { method: 'DELETE' });
                     loadAddresses();
-                    // Reset fields
-                    document.getElementById('addrLabel').value = '';
-                    document.getElementById('addrDetails').value = '';
-                }
-            } catch (err) { alert('فشل حفظ العنوان'); }
-        }
+                } catch (err) { alert('فشل الحذف'); }
+            }
 
-        async function deleteAddress(id) {
-            if (!confirm('هل أنت متأكد من حذف هذا العنوان؟')) return;
-            try {
-                await fetch(`/api/user/addresses/${id}`, { method: 'DELETE' });
-                loadAddresses();
-            } catch (err) { alert('فشل الحذف'); }
-        }
+            async function loadGarage() {
+                try {
+                    const res = await fetch('/api/user/garage');
+                    const garage = await res.json();
+                    const container = document.querySelector('.garage-list');
 
-        async function loadGarage() {
-            try {
-                const res = await fetch('/api/user/garage');
-                const garage = await res.json();
-                const container = document.querySelector('.garage-list');
-
-                if (garage.length > 0) {
-                    container.innerHTML = garage.map(car => `
+                    if (garage.length > 0) {
+                        container.innerHTML = garage.map(car => `
                         <div style="padding:15px; border:1px solid #eef2ff; border-radius:15px; margin-bottom:10px; position:relative; background:#fafbff;">
                             <div style="display:flex; align-items:center; gap:15px;">
                                 <div style="font-size:2rem;">🚗</div>
@@ -616,118 +653,118 @@
                                     <strong style="font-size:1.1rem;">${car.make} ${car.model}</strong>
                                     <p style="margin:5px 0; color:#666; font-size:0.9rem;">الموديل: ${car.year} | المحرك: ${car.engine}</p>
                                     ${car.isPrimary ? '<span style="background:var(--primary); color:white; padding:2px 10px; border-radius:20px; font-size:0.75rem;">السيارة الأساسية</span>' :
-                            `<button onclick="setPrimaryCar('${car._id}')" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:0.8rem; text-decoration:underline;">اجعلها الأساسية</button>`}
+                                `<button onclick="setPrimaryCar('${car._id}')" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:0.8rem; text-decoration:underline;">اجعلها الأساسية</button>`}
                                 </div>
                                 <button onclick="deleteCar('${car._id}')" style="background:none; border:none; color:#ff4d4f; cursor:pointer; padding:5px;">🗑️</button>
                             </div>
                         </div>
                     `).join('');
-                } else {
-                    container.innerHTML = '<div style="text-align:center; padding:30px; border:1px dashed #ddd; border-radius:15px; color:#999;">كراجك فاضي.. ضيف عربيتك عشان نفلتر لك القطع</div>';
-                }
-            } catch (err) { console.error(err); }
-        }
-
-        function openGarageModal() {
-            const modal = document.getElementById('garageModal');
-            modal.classList.remove('hidden');
-            modal.style.display = 'flex';
-        }
-
-        function closeGarageModal() {
-            const modal = document.getElementById('garageModal');
-            modal.classList.add('hidden');
-            modal.style.display = 'none';
-        }
-
-        async function saveCar() {
-            const make = document.getElementById('carMake').value;
-            const model = document.getElementById('carModel').value;
-            const year = document.getElementById('carYear').value;
-            const engine = document.getElementById('carEngine').value;
-
-            if (!make || !model) return alert('برجاء إدخال الماركة والموديل');
-
-            try {
-                const res = await fetch('/api/user/garage', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ make, model, year, engine })
-                });
-                if (res.ok) {
-                    closeGarageModal();
-                    loadGarage();
-                    // Reset fields
-                    document.getElementById('carMake').value = '';
-                    document.getElementById('carModel').value = '';
-                    document.getElementById('carYear').value = '';
-                    document.getElementById('carEngine').value = '';
-                }
-            } catch (err) { alert('فشل إضافة السيارة'); }
-        }
-
-        async function deleteCar(id) {
-            if (!confirm('هل أنت متأكد من حذف هذه السيارة من كراجك؟')) return;
-            try {
-                await fetch(`/api/user/garage/${id}`, { method: 'DELETE' });
-                loadGarage();
-            } catch (err) { alert('فشل الحذف'); }
-        }
-
-        async function setPrimaryCar(id) {
-            try {
-                const res = await fetch(`/api/user/garage/${id}/primary`, { method: 'PATCH' });
-                if (res.ok) loadGarage();
-            } catch (err) { alert('فشل تعيين السيارة الأساسية'); }
-        }
-
-        async function requestReturn(id) {
-            const reason = prompt('برجاء ذكر سبب الاسترجاع:');
-            if (!reason) return;
-
-            try {
-                const res = await fetch(`/api/orders/${id}/return`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ reason })
-                });
-                if (res.ok) {
-                    alert('تم تقديم طلب الاسترجاع بنجاح');
-                    loadOrders();
-                    loadReturns();
-                }
-            } catch (err) { alert('فشل تقديم الطلب'); }
-        }
-
-        function showTab(tabId) {
-            document.querySelectorAll('.content-area').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-            const tab = document.getElementById(tabId);
-            if (tab) tab.classList.remove('hidden');
-            const menu = document.getElementById('tab-' + tabId);
-            if (menu) menu.classList.add('active');
-
-            if (tabId === 'cart') loadCartView();
-        }
-
-        // --- Cart & Checkout Logic ---
-        function loadCartView() {
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            const list = document.getElementById('cartItemsList');
-            const checkout = document.getElementById('checkoutSection');
-
-            if (cart.length === 0) {
-                list.innerHTML = '<div style="text-align:center; padding:40px; opacity:0.5;">سلة المشتريات فارغة حالياً.. اطلب قطع غيار الآن!</div>';
-                checkout.classList.add('hidden');
-                return;
+                    } else {
+                        container.innerHTML = '<div style="text-align:center; padding:30px; border:1px dashed #ddd; border-radius:15px; color:#999;">كراجك فاضي.. ضيف عربيتك عشان نفلتر لك القطع</div>';
+                    }
+                } catch (err) { console.error(err); }
             }
 
-            checkout.classList.remove('hidden');
-            let total = 0;
+            function openGarageModal() {
+                const modal = document.getElementById('garageModal');
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+            }
 
-            list.innerHTML = cart.map((item, index) => {
-                total += item.price * (item.quantity || 1);
-                return `
+            function closeGarageModal() {
+                const modal = document.getElementById('garageModal');
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }
+
+            async function saveCar() {
+                const make = document.getElementById('carMake').value;
+                const model = document.getElementById('carModel').value;
+                const year = document.getElementById('carYear').value;
+                const engine = document.getElementById('carEngine').value;
+
+                if (!make || !model) return alert('برجاء إدخال الماركة والموديل');
+
+                try {
+                    const res = await fetch('/api/user/garage', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ make, model, year, engine })
+                    });
+                    if (res.ok) {
+                        closeGarageModal();
+                        loadGarage();
+                        // Reset fields
+                        document.getElementById('carMake').value = '';
+                        document.getElementById('carModel').value = '';
+                        document.getElementById('carYear').value = '';
+                        document.getElementById('carEngine').value = '';
+                    }
+                } catch (err) { alert('فشل إضافة السيارة'); }
+            }
+
+            async function deleteCar(id) {
+                if (!confirm('هل أنت متأكد من حذف هذه السيارة من كراجك؟')) return;
+                try {
+                    await fetch(`/api/user/garage/${id}`, { method: 'DELETE' });
+                    loadGarage();
+                } catch (err) { alert('فشل الحذف'); }
+            }
+
+            async function setPrimaryCar(id) {
+                try {
+                    const res = await fetch(`/api/user/garage/${id}/primary`, { method: 'PATCH' });
+                    if (res.ok) loadGarage();
+                } catch (err) { alert('فشل تعيين السيارة الأساسية'); }
+            }
+
+            async function requestReturn(id) {
+                const reason = prompt('برجاء ذكر سبب الاسترجاع:');
+                if (!reason) return;
+
+                try {
+                    const res = await fetch(`/api/orders/${id}/return`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ reason })
+                    });
+                    if (res.ok) {
+                        alert('تم تقديم طلب الاسترجاع بنجاح');
+                        loadOrders();
+                        loadReturns();
+                    }
+                } catch (err) { alert('فشل تقديم الطلب'); }
+            }
+
+            function showTab(tabId) {
+                document.querySelectorAll('.content-area').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+                const tab = document.getElementById(tabId);
+                if (tab) tab.classList.remove('hidden');
+                const menu = document.getElementById('tab-' + tabId);
+                if (menu) menu.classList.add('active');
+
+                if (tabId === 'cart') loadCartView();
+            }
+
+            // --- Cart & Checkout Logic ---
+            function loadCartView() {
+                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                const list = document.getElementById('cartItemsList');
+                const checkout = document.getElementById('checkoutSection');
+
+                if (cart.length === 0) {
+                    list.innerHTML = '<div style="text-align:center; padding:40px; opacity:0.5;">سلة المشتريات فارغة حالياً.. اطلب قطع غيار الآن!</div>';
+                    checkout.classList.add('hidden');
+                    return;
+                }
+
+                checkout.classList.remove('hidden');
+                let total = 0;
+
+                list.innerHTML = cart.map((item, index) => {
+                    total += item.price * (item.quantity || 1);
+                    return `
                     <div style="display:flex; gap:15px; align-items:center; padding:15px; border:1px solid #eee; border-radius:12px; margin-bottom:10px;">
                         <img src="${item.image}" style="width:60px; height:60px; object-fit:contain; border-radius:8px; background:#f9f9f9;">
                         <div style="flex:1">
@@ -738,97 +775,118 @@
                         <button onclick="removeFromCart(${index})" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
                     </div>
                 `;
-            }).join('');
+                }).join('');
 
-            document.getElementById('cartTotalPrice').innerText = total + ' ج.م';
+                document.getElementById('cartTotalPrice').innerText = total + ' ج.م';
 
-            // Load addresses into select
-            const addrSelect = document.getElementById('checkoutAddressSelect');
-            fetch('/api/user/addresses').then(r => r.json()).then(addrs => {
-                if (addrs.length === 0) {
-                    addrSelect.innerHTML = '<option value="">لا يوجد عناوين مسجلة - برجاء إضافة عنوان أولاً</option>';
-                    document.getElementById('checkoutBtn').disabled = true;
-                } else {
-                    addrSelect.innerHTML = addrs.map(a => `<option value="${a._id}">${a.label}: ${a.details}</option>`).join('');
-                    document.getElementById('checkoutBtn').disabled = false;
-                }
-            });
-
-            // Load wallet balance
-            fetch('/api/user/wallet').then(r => r.json()).then(data => {
-                document.getElementById('checkoutWalletBalance').innerText = data.balance.toFixed(2) + ' ج.م';
-            });
-        }
-
-        function removeFromCart(index) {
-            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            cart.splice(index, 1);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            loadCartView();
-        }
-
-        async function processCheckout() {
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            const addressId = document.getElementById('checkoutAddressSelect').value;
-            const paymentMethod = document.querySelector('input[name="paymentOption"]:checked').value;
-            const btn = document.getElementById('checkoutBtn');
-
-            if (!addressId) return alert('الرجاء اختيار عنوان الشحن');
-
-            btn.disabled = true;
-            btn.innerText = 'جاري إتمام الطلب...';
-
-            try {
-                // 1. Get address details
-                const addrRes = await fetch('/api/user/addresses');
-                const addrs = await addrRes.json();
-                const selectedAddr = addrs.find(a => a._id === addressId);
-
-                const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-
-                const res = await fetch('/api/orders', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        items: cart,
-                        totalPrice: total,
-                        shippingAddress: {
-                            details: selectedAddr.details,
-                            label: selectedAddr.label
-                        },
-                        paymentMethod: paymentMethod
-                    })
+                // Load addresses into select
+                const addrSelect = document.getElementById('checkoutAddressSelect');
+                fetch('/api/user/addresses').then(r => r.json()).then(addrs => {
+                    if (addrs.length === 0) {
+                        addrSelect.innerHTML = '<option value="">لا يوجد عناوين مسجلة - برجاء إضافة عنوان أولاً</option>';
+                        document.getElementById('checkoutBtn').disabled = true;
+                    } else {
+                        addrSelect.innerHTML = addrs.map(a => `<option value="${a._id}">${a.label}: ${a.details}</option>`).join('');
+                        document.getElementById('checkoutBtn').disabled = false;
+                    }
                 });
 
-                const data = await res.json();
-                if (data.success) {
-                    alert('✅ تم إتمام الطلب بنجاح! شكراً لثقتك في متركنهاش.');
-                    localStorage.setItem('cart', '[]'); // Clear cart
-                    showTab('orders');
-                    loadOrders();
-                    loadWallet();
-                } else {
-                    alert('❌ ' + (data.error || 'فشل إتمام الطلب'));
+                // Load wallet balance
+                fetch('/api/user/wallet').then(r => r.json()).then(data => {
+                    document.getElementById('checkoutWalletBalance').innerText = data.balance.toFixed(2) + ' ج.م';
+                });
+            }
+
+            function removeFromCart(index) {
+                let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                cart.splice(index, 1);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                loadCartView();
+            }
+
+            async function processCheckout() {
+                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                const addressId = document.getElementById('checkoutAddressSelect').value;
+                const paymentMethod = document.querySelector('input[name="paymentOption"]:checked').value;
+                const btn = document.getElementById('checkoutBtn');
+
+                if (!addressId) return alert('الرجاء اختيار عنوان الشحن');
+
+                btn.disabled = true;
+                btn.innerText = 'جاري إتمام الطلب... ⏳';
+
+                try {
+                    const addrRes = await fetch('/api/user/addresses');
+                    const addrs = await addrRes.json();
+                    const selectedAddr = addrs.find(a => a._id === addressId);
+
+                    const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+
+                    const res = await fetch('/api/orders', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            items: cart,
+                            totalPrice: total,
+                            shippingAddress: {
+                                details: selectedAddr.details,
+                                label: selectedAddr.label
+                            },
+                            paymentMethod: paymentMethod
+                        })
+                    });
+
+                    const data = await res.json();
+                    if (data.success) {
+                        localStorage.setItem('cart', '[]'); // Clear cart
+
+                        // --- Show Success Animation ---
+                        const overlay = document.getElementById('successOverlay');
+                        const container = document.getElementById('successAnimation');
+                        overlay.style.display = 'flex';
+
+                        lottie.loadAnimation({
+                            container: container,
+                            renderer: 'svg',
+                            loop: false,
+                            autoplay: true,
+                            path: 'https://assets9.lottiefiles.com/packages/lf20_pqnfmone.json' // Success Box
+                        });
+
+                    } else {
+                        alert('❌ ' + (data.error || 'فشل إتمام الطلب'));
+                        btn.disabled = false;
+                        btn.innerText = 'تأكيد وطلب الآن';
+                    }
+                } catch (err) {
+                    alert('حدث خطأ في الاتصال بالخادم');
+                    btn.disabled = false;
+                    btn.innerText = 'تأكيد وطلب الآن';
                 }
-            } catch (err) {
-                alert('حدث خطأ في الاتصال بالخادم');
-            } finally {
+            }
+
+            function dismissSuccess() {
+                document.getElementById('successOverlay').style.display = 'none';
+                showTab('orders');
+                loadOrders();
+                loadWallet();
+                // Reset button
+                const btn = document.getElementById('checkoutBtn');
                 btn.disabled = false;
                 btn.innerText = 'تأكيد وطلب الآن';
             }
-        }
 
-        function logout() {
-            window.location.href = '/logout'; // Trigger backend logout
-        }
+            function logout() {
+                window.location.href = '/logout';
+            }
 
-        // Read hash for direct tab access
-        window.addEventListener('load', () => {
-            loadProfile().then(() => {
-                if (window.location.hash === '#cart') showTab('cart');
+            window.addEventListener('load', () => {
+                loadProfile().then(() => {
+                    if (window.location.hash === '#cart') showTab('cart');
+                });
             });
-        });
-    </script>
-</body>
+        </script>
+        <script src="/socket.io/socket.io.js"></script>
+    </body>
 
 </html>
