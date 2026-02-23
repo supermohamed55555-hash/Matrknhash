@@ -457,6 +457,45 @@ app.get('/api/vendor-orders', isAuthenticated, async (req, res) => {
     }
 });
 
+// Update Order Status (Vendor access)
+app.patch('/api/vendor-orders/:id/status', isAuthenticated, async (req, res) => {
+    try {
+        const { status } = req.body;
+        const validStatuses = ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'];
+
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ error: 'حالة غير صحيحة' });
+        }
+
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ error: 'الطلب غير موجود' });
+
+        // Security check: Does this order belong to this vendor?
+        const isVendorOrder = order.items.some(item => item.vendorId === req.user._id.toString());
+        if (!isVendorOrder) {
+            return res.status(403).json({ error: 'غير مسموح لك بتعديل هذا الطلب' });
+        }
+
+        order.status = status;
+        await order.save();
+
+        // --- Real-time Notification to Customer ---
+        const customerSocketId = connectedUsers.get(order.user.toString());
+        if (customerSocketId) {
+            io.to(customerSocketId).emit('new_order', {
+                message: `تحديث لطلبك #${order._id.substring(18)}: الحالة أصبحت الآن [${status}]`,
+                orderId: order._id,
+                status: status
+            });
+        }
+
+        res.json({ success: true, message: 'تم تحديث حالة الطلب بنجاح', status: order.status });
+    } catch (err) {
+        logger.error('Update Order Status Error:', err);
+        res.status(500).json({ error: 'فشل تحديث حالة الطلب' });
+    }
+});
+
 // Fitment Checker API (Real AI + Strict Fallback)
 app.post('/api/check-fitment', async (req, res) => {
     try {
@@ -936,6 +975,38 @@ app.post('/api/admin/orders/:id/confirm', isAdmin, async (req, res) => {
 
 app.get('/super-admin.html', isAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, 'super-admin.html'));
+});
+
+// 5. Override Order Status (Super Admin)
+app.patch('/api/admin/orders/:id/status', isAdmin, async (req, res) => {
+    try {
+        const { status } = req.body;
+        const validStatuses = ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'];
+
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ error: 'حالة غير صحيحة' });
+        }
+
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ error: 'الطلب غير موجود' });
+
+        order.status = status;
+        await order.save();
+
+        // Notify Customer
+        const customerSocketId = connectedUsers.get(order.user.toString());
+        if (customerSocketId) {
+            io.to(customerSocketId).emit('notification', {
+                message: `تحديث إداري لطلبك #${order._id.substring(18)}: الحالة الآن [${status}]`,
+                orderId: order._id
+            });
+        }
+
+        res.json({ success: true, message: 'تم تحديث الحالة بواسطة الإدارة' });
+    } catch (err) {
+        logger.error('Admin Order Update Error:', err);
+        res.status(500).json({ error: 'فشل تحديث الحالة' });
+    }
 });
 
 app.patch('/api/user/garage/:carId/primary', isAuthenticated, async (req, res) => {
