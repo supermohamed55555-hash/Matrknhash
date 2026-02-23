@@ -12,6 +12,7 @@
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Cairo:wght@400;700&display=swap"
         rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <style>
         :root {
             --primary: #1a237e;
@@ -54,6 +55,50 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        /* --- Premium Animated Button --- */
+        .btn-animated {
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .lottie-container {
+            width: 24px;
+            height: 24px;
+            display: none;
+        }
+
+        .btn-loading .lottie-container {
+            display: block;
+        }
+
+        .btn-loading .btn-text {
+            display: none;
+        }
+
+        .truck-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 5000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+
+        .truck-animation-box {
+            width: 300px;
+            height: 300px;
         }
 
         /* --- Header Styles --- */
@@ -626,6 +671,10 @@
 </head>
 
 <body>
+    <div id="truckOverlay" class="truck-overlay">
+        <div id="truckAnimation" class="truck-animation-box"></div>
+        <h2 id="truckStatusText" class="text-2xl font-bold mt-4">جاري تجهيز القطعة... 🚚</h2>
+    </div>
     <header class="header" id="mainHeader">
         <div class="nav-container">
             <a href="test1.html" class="logo">متركنهاش</a>
@@ -943,7 +992,10 @@
                         <div class="result-price">${part.price} ج.م</div>
                         <div class="result-actions">
                             <button class="result-button details" onclick="showPartDetails('${part.name}')">التفاصيل</button>
-                            <button class="result-button buy" onclick="addToCart('${part.name}', ${part.price})">أضف للسلة</button>
+                            <button class="result-button buy btn-animated" onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
+                                <span class="btn-text">أضف للسلة</span>
+                                <div class="lottie-container"></div>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1068,31 +1120,71 @@
                             <div class="result-price">${part.price} ج.م</div>
                             <div class="result-actions">
                                 <button class="result-button details" onclick="showPartDetails('${part.name}')">التفاصيل</button>
-                                <button class="result-button buy" onclick="addToCart('${part.name}', ${part.price})">أضف للسلة</button>
+                                <button class="result-button buy btn-animated" onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
+                                    <span class="btn-text">أضف للسلة</span>
+                                    <div class="lottie-container"></div>
+                                </button>
                             </div>
                         </div>
                     </div>`).join('');
             }
         }
 
-        async function addToCart(partName, price) {
-            const part = partsDatabase.find(p => p.name === partName);
-            if (!part) return;
+        // --- NEW PREVENT RE-CLICK LOGIC ---
+        let isProcessingAdd = false;
 
-            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            cart.push({
-                productId: part._id,
-                _id: part._id,
-                name: part.name,
-                price: part.price,
-                image: part.image,
-                seller: part.vendorName || 'متركنهاش',
-                quantity: 1
+        async function addToCart(btn, partName, price, partId) {
+            if (isProcessingAdd) return;
+            isProcessingAdd = true;
+
+            const part = partsDatabase.find(p => p._id === partId || p.name === partName);
+            if (!part) { isProcessingAdd = false; return; }
+
+            // 1. Show Truck Animation Overlay
+            const overlay = document.getElementById('truckOverlay');
+            const truckAnimBox = document.getElementById('truckAnimation');
+            const statusText = document.getElementById('truckStatusText');
+
+            overlay.style.display = 'flex';
+            statusText.innerText = `جاري تجهيز [${partName}]... 🚚`;
+
+            truckAnimBox.innerHTML = ''; // Clear previous
+            const anim = lottie.loadAnimation({
+                container: truckAnimBox,
+                renderer: 'svg',
+                loop: true,
+                autoplay: true,
+                path: 'https://assets1.lottiefiles.com/packages/lf20_jpxsS6.json' // Delivery Truck
             });
 
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartBadge();
-            alert('✅ تمت إضافة "' + partName + '" للسلة بنجاح!');
+            // 2. Simulate Processing
+            setTimeout(async () => {
+                // Actual Cart Update
+                let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                cart.push({
+                    productId: part._id,
+                    _id: part._id,
+                    name: part.name,
+                    price: part.price,
+                    image: part.image,
+                    seller: part.vendorName || 'متركنهاش',
+                    quantity: 1
+                });
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartBadge();
+
+                // 3. Show Success in Overlay
+                statusText.innerText = '✅ تمت الإضافة بنجاح!';
+                statusText.style.color = '#10b981';
+
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    anim.destroy();
+                    isProcessingAdd = false;
+                    statusText.style.color = 'white'; // Reset for next time
+                }, 1500);
+
+            }, 2500); // Wait for truck animation feel
         }
 
         function showPartDetails(partName) {
