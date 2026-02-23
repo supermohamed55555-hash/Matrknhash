@@ -47,6 +47,7 @@
             margin-bottom: 40px;
             background: linear-gradient(to right, var(--primary), var(--secondary));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             text-align: center;
         }
@@ -116,6 +117,165 @@
         }
 
         /* Form Styling */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .section-header i {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .section-title-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .form-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Stats colors and animation */
+        .stat-card.sales {
+            border-top: 4px solid #10b981;
+        }
+
+        .stat-card.orders {
+            border-top: 4px solid #f59e0b;
+        }
+
+        .stat-card.products {
+            border-top: 4px solid var(--primary);
+        }
+
+        .stat-card .value {
+            transition: all 0.5s ease-out;
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-count {
+            animation: countUp 0.5s ease-out forwards;
+        }
+
+        /* Preview Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--dark);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            padding: 30px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .preview-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .helper-text {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.1) 0%, rgba(79, 172, 254, 0.1) 100%);
+            border: 1px solid var(--glass-border);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .welcome-banner .icon {
+            font-size: 3rem;
+        }
+
+        .btn-preview {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .btn-preview:hover {
+            background: rgba(0, 242, 254, 0.1);
+        }
+
         .card {
             background: var(--glass);
             border: 1px solid var(--glass-border);
@@ -249,16 +409,6 @@
             background: var(--accent);
             color: white;
         }
-
-        @media (max-width: 1000px) {
-            .sidebar {
-                display: none;
-            }
-
-            .main-content {
-                margin-right: 0;
-            }
-        }
     </style>
 </head>
 
@@ -275,22 +425,32 @@
     <!-- Main Content -->
     <div class="main-content">
         <div class="header-stats" id="statsContainer">
-            <div class="stat-card">
-                <h3>إجمالي المنتجات</h3>
+            <div class="stat-card products">
+                <h3>📦 إجمالي المنتجات</h3>
                 <div class="value" id="totalProducts">0</div>
             </div>
-            <div class="stat-card">
-                <h3>طلبات بانتظار الشحن</h3>
+            <div class="stat-card orders">
+                <h3>⏳ طلبات بانتظار الشحن</h3>
                 <div class="value" id="pendingOrders">0</div>
             </div>
-            <div class="stat-card">
-                <h3>إجمالي المبيعات</h3>
+            <div class="stat-card sales">
+                <h3>💰 إجمالي الأرباح</h3>
                 <div class="value" id="totalSales">0 ج.م</div>
             </div>
         </div>
 
         <!-- Products Tab -->
         <div id="tab-products" class="tab-content active">
+            <div id="welcomeBanner" class="welcome-banner hidden">
+                <div class="icon">👋</div>
+                <div>
+                    <h2 style="margin:0 0 5px 0;">أهلاً بك في لوحة التاجر!</h2>
+                    <p style="margin:0; opacity:0.8;">ابدأ برفع أول منتج لك الآن وابدأ في زيادة مبيعاتك.</p>
+                </div>
+                <button class="submit-btn" style="width:auto; padding:10px 25px;" onclick="showTab('add')">أضف منتجك
+                    الأول</button>
+            </div>
+
             <h2 style="margin-bottom: 25px;">📦 إدارة المنتجات</h2>
             <div id="vendorProductsGrid" class="product-grid">
                 <!-- Products load here -->
@@ -309,61 +469,104 @@
         <!-- Add Product Tab -->
         <div id="tab-add" class="tab-content">
             <div class="card">
-                <h2 id="formTitle">إضافة منتج جديد للبيع</h2>
+                <h2 id="formTitle" style="margin-bottom: 25px;">إضافة منتج جديد للبيع</h2>
                 <form id="addProductForm">
                     <input type="hidden" id="editingId">
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>اسم المنتج</label>
-                            <input type="text" id="name" required placeholder="مثلاً: طقم مساعدين تويوتا">
+
+                    <!-- Section 1: Product Info -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <span>📦</span>
+                            <span class="section-title-text">معلومات المنتج الأساسية</span>
                         </div>
-                        <div class="form-group">
-                            <label>الماركة</label>
-                            <input type="text" id="brand" required placeholder="Toyota, KYB, Valeo...">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>اسم المنتج</label>
+                                <input type="text" id="name" required placeholder="مثلاً: طقم مساعدين تويوتا">
+                                <span class="helper-text">اسم واضح يسهل على المشتري البحث عنه</span>
+                            </div>
+                            <div class="form-group">
+                                <label>الماركة</label>
+                                <input type="text" id="brand" required placeholder="Toyota, KYB, Valeo...">
+                            </div>
                         </div>
-                    </div>
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>السعر (جنية)</label>
-                            <input type="number" id="price" required placeholder="0.00">
-                        </div>
-                        <div class="form-group">
-                            <label>الكمية المتوفرة (Stock)</label>
-                            <input type="number" id="stockQuantity" required value="1">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>رابط الصورة</label>
-                        <input type="text" id="image" required placeholder="رابط صورة المنتج">
-                    </div>
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>الفئة</label>
-                            <select id="category">
-                                <option value="Wheels">جنوط</option>
-                                <option value="Tires">كاوتش</option>
-                                <option value="Accessories">اكسسوارات</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>الحالة</label>
-                            <select id="condition">
-                                <option value="جديد">جديد</option>
-                                <option value="استيراد - خلع">استيراد - خلع</option>
-                                <option value="used">مستعمل</option>
-                            </select>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>الفئة</label>
+                                <select id="category">
+                                    <option value="Wheels">جنوط</option>
+                                    <option value="Tires">كاوتش</option>
+                                    <option value="Accessories">اكسسوارات</option>
+                                    <option value="Filters">فلاتر</option>
+                                    <option value="Brakes">فرامل</option>
+                                    <option value="Engine">أجزاء محرك</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>الحالة</label>
+                                <select id="condition">
+                                    <option value="جديد">جديد</option>
+                                    <option value="استيراد - خلع">استيراد - خلع</option>
+                                    <option value="used">مستعمل</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>التوافق (السيارات)</label>
-                        <textarea id="compatibilityInput" placeholder="Toyota Corolla 2010-2015 | BMW 320 2015-2020"
-                            rows="2"></textarea>
+
+                    <!-- Section 2: Pricing & Stock -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <span>💰</span>
+                            <span class="section-title-text">السعر والمخزون</span>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>السعر (جنية)</label>
+                                <input type="number" id="price" required placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label>الكمية المتوفرة (Stock)</label>
+                                <input type="number" id="stockQuantity" required value="1">
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>كلمات دلالية للذكاء الاصطناعي (Tags)</label>
-                        <input type="text" id="tags" placeholder="مساعدين, عفشة, مساعد خلفي (افصل بكومة)">
+
+                    <!-- Section 3: Compatibility & Tags -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <span>🚗</span>
+                            <span class="section-title-text">التوافق والكلمات الدلالية</span>
+                        </div>
+                        <div class="form-group">
+                            <label>التوافق (السيارات)</label>
+                            <textarea id="compatibilityInput" placeholder="Toyota Corolla 2010-2015 | BMW 320 2015-2020"
+                                rows="2"></textarea>
+                            <span class="helper-text">افصل بين السيارات بعلامة | (مثال: Toyota Corolla 2010-2015)</span>
+                        </div>
+                        <div class="form-group">
+                            <label>كلمات دلالية للذكاء الاصطناعي (Tags)</label>
+                            <input type="text" id="tags" placeholder="مساعدين, عفشة, مساعد خلفي (افصل بكومة)">
+                        </div>
                     </div>
-                    <button type="submit" id="submitBtn" class="submit-btn">نشر المنتج على المنصة</button>
+
+                    <!-- Section 4: Image -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <span>🖼️</span>
+                            <span class="section-title-text">صورة المنتج</span>
+                        </div>
+                        <div class="form-group">
+                            <label>رابط الصورة</label>
+                            <input type="text" id="image" required placeholder="رابط صورة المنتج">
+                            <span class="helper-text">يفضل صورة بخلفية بيضاء لرؤية أفضل</span>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <button type="submit" id="submitBtn" class="submit-btn">نشر المنتج على المنصة</button>
+                        <button type="button" onclick="openPreview()" class="btn-preview">👁️ معاينة المنتج</button>
+                    </div>
+
                     <button type="button" id="cancelBtn" onclick="resetForm()"
                         style="background:#475569; margin-top:10px; display:none;" class="submit-btn text-white">إلغاء
                         التعديل</button>
@@ -372,7 +575,62 @@
         </div>
     </div>
 
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closePreview()">&times;</span>
+            <h2 style="margin-bottom: 25px; color: var(--primary);">👁️ معاينة شكل المنتج للعملاء</h2>
+            <div class="preview-grid">
+                <div
+                    style="background: white; border-radius: 15px; padding: 20px; display: flex; align-items: center; justify-content: center;">
+                    <img id="previewImage" src="" style="max-width: 100%; max-height: 400px; border-radius: 10px;">
+                </div>
+                <div>
+                    <div id="previewBadge" class="preview-badge">جديد</div>
+                    <h1 id="previewName" style="font-size: 2rem; margin-bottom: 10px; color: white;">اسم المنتج</h1>
+                    <div id="previewBrand" style="color: #94a3b8; margin-bottom: 20px;">الماركة</div>
+                    <div id="previewPrice"
+                        style="font-size: 2.5rem; font-weight: 800; color: var(--primary); margin-bottom: 25px;">0 ج.م
+                    </div>
+
+                    <div
+                        style="background: var(--glass); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <div style="font-weight: bold; margin-bottom: 10px; color: var(--primary);">التوافق:</div>
+                        <div id="previewComp" style="font-size: 0.9rem; line-height: 1.6;"></div>
+                    </div>
+                </div>
+            </div>
+            <button class="submit-btn" style="margin-top: 30px;" onclick="closePreview()">العودة للتعديل</button>
+        </div>
+    </div>
+
     <script>
+        // Counter Animation Function
+        function animateValue(id, start, end, duration, isCurrency = false) {
+            const obj = document.getElementById(id);
+            if (!obj) return;
+
+            // Just updated directly if it's too fast or first time
+            if (duration === 0) {
+                obj.innerText = isCurrency ? end + ' ج.م' : end;
+                return;
+            }
+
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const current = Math.floor(progress * (end - start) + start);
+                obj.innerHTML = isCurrency ? current + ' <small style="font-size:0.8rem">ج.م</small>' : current;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+            obj.classList.add('animate-count');
+            setTimeout(() => obj.classList.remove('animate-count'), 500);
+        }
+
         async function checkAuth() {
             try {
                 const res = await fetch('/auth/login/success');
@@ -388,7 +646,14 @@
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
 
             document.getElementById('tab-' + tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+
+            // Find the nav item
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(tabId)) {
+                    item.classList.add('active');
+                }
+            });
 
             if (tabId === 'products') fetchVendorProducts();
             if (tabId === 'orders') fetchVendorOrders();
@@ -398,17 +663,27 @@
             try {
                 const res = await fetch('/api/vendor-products');
                 const products = await res.json();
-                document.getElementById('totalProducts').innerText = products.length;
+
+                const oldTotal = parseInt(document.getElementById('totalProducts').innerText) || 0;
+                animateValue('totalProducts', oldTotal, products.length, 1000);
+
+                // Guidance: Show welcome banner if no products
+                const banner = document.getElementById('welcomeBanner');
+                if (products.length === 0) {
+                    banner.classList.remove('hidden');
+                } else {
+                    banner.classList.add('hidden');
+                }
 
                 const grid = document.getElementById('vendorProductsGrid');
                 if (products.length === 0) {
-                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; opacity:0.5;">لم ترفع أي منتجات بعد.</p>';
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; opacity:0.5; padding: 40px;">ليس لديك أي منتجات معروضة حالياً.</p>';
                 } else {
                     grid.innerHTML = products.map(p => `
                         <div class="product-item">
                             <img src="${p.image}" alt="${p.name}">
                             <div style="font-weight: bold;">${p.name}</div>
-                            <div style="color: var(--primary);">${p.price} ج.م</div>
+                            <div style="color: var(--primary); font-weight: 800; margin: 5px 0;">${p.price} ج.م</div>
                             <div style="font-size: 0.8rem; opacity: 0.6;">المخزون: ${p.stockQuantity}</div>
                             <div class="action-btns">
                                 <button class="btn-small btn-edit" onclick="editProduct('${p._id}')">تعديل</button>
@@ -426,26 +701,47 @@
                 const orders = await res.json();
                 const container = document.getElementById('vendorOrdersContainer');
 
-                document.getElementById('pendingOrders').innerText = orders.filter(o => o.status === 'Pending').length;
-                document.getElementById('totalSales').innerText = orders.reduce((sum, o) => sum + o.totalPrice, 0) + ' ج.م';
+                const oldPending = parseInt(document.getElementById('pendingOrders').innerText) || 0;
+                const newPending = orders.filter(o => o.status === 'Pending').length;
+                animateValue('pendingOrders', oldPending, newPending, 1000);
+
+                const oldSales = parseInt(document.getElementById('totalSales').innerText.replace(/[^0-9]/g, '')) || 0;
+                const newSales = orders.reduce((sum, o) => sum + o.totalPrice, 0);
+                animateValue('totalSales', oldSales, newSales, 1000, true);
 
                 if (orders.length === 0) {
-                    container.innerHTML = '<p style="text-align: center; opacity: 0.5;">لا توجد طلبات حالياً.</p>';
+                    container.innerHTML = '<p style="text-align: center; opacity: 0.5; padding: 40px;">لا توجد طلبات واردة حالياً.</p>';
                 } else {
                     container.innerHTML = orders.map(o => `
                         <div class="order-card">
                             <div>
-                                <div style="font-weight:bold;">طلب رقم: ${o._id.substring(18)}</div>
-                                <div style="font-size:0.8rem; opacity:0.7;">قيمة الطلب: ${o.totalPrice} ج.م</div>
+                                <div style="font-weight:bold;">طلب رقم: #${o._id.substring(18)}</div>
+                                <div style="font-size:0.8rem; opacity:0.7;">القيمة: ${o.totalPrice} ج.م | ${new Date(o.createdAt).toLocaleDateString('ar-EG')}</div>
                             </div>
                             <div class="status-badge ${o.status === 'Pending' ? 'status-pending' : 'status-shipped'}">
-                                ${o.status === 'Pending' ? 'بانتظار الشحن' : 'تم الشحن'}
+                                ${o.status === 'Pending' ? '⏳ بانتظار الشحن' : '✅ تم الشحن'}
                             </div>
-                            <button class="btn-small btn-edit" style="width:auto; padding:8px 20px;">التفاصيل</button>
+                            <button class="btn-small btn-edit" style="width:auto; padding:8px 20px;" onclick="alert('تفاصيل الطلب: ' + '${o._id}')">التفاصيل</button>
                         </div>
                     `).join('');
                 }
             } catch (e) { console.error(e); }
+        }
+
+        // Preview Logic
+        function openPreview() {
+            document.getElementById('previewName').innerText = document.getElementById('name').value || 'اسم المنتج سيظهر هنا';
+            document.getElementById('previewBrand').innerText = document.getElementById('brand').value || 'الماركة التجارية';
+            document.getElementById('previewPrice').innerText = (document.getElementById('price').value || '0') + ' ج.م';
+            document.getElementById('previewImage').src = document.getElementById('image').value || 'https://via.placeholder.com/400x400?text=منتجك+هنا';
+            document.getElementById('previewBadge').innerText = document.getElementById('condition').value;
+            document.getElementById('previewComp').innerText = document.getElementById('compatibilityInput').value || 'بيانات التوافق مع السيارات ستظهر هنا';
+
+            document.getElementById('previewModal').style.display = 'flex';
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').style.display = 'none';
         }
 
         async function editProduct(id) {
