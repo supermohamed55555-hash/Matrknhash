@@ -48,16 +48,18 @@
     top: 0;
     width: 100%;
     z-index: 1000;
-    padding: 1.2rem 0;
+    padding: 1.5rem 0;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     background: transparent;
 }
 
 .header.scrolled {
-    background: var(--white);
+    background: rgba(10, 11, 30, 0.85);
+    /* Dark Indigo Glass */
+    backdrop-filter: blur(15px);
     padding: 0.8rem 0;
-    box-shadow: var(--shadow-md);
-    border-bottom: 0px solid var(--border-light);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .header.scrolled .logo {
@@ -112,14 +114,14 @@
 /* --- Hero Section --- */
 .hero {
     position: relative;
-    background: #0f172a;
-    min-height: 60vh;
+    background: #0a0b1e;
+    min-height: 75vh;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     color: white;
-    padding: 140px 20px 100px;
+    padding: 140px 20px 140px;
     overflow: hidden;
 }
 
@@ -128,14 +130,15 @@
     position: absolute;
     inset: 0;
     background: url('https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&q=80') center/cover;
-    opacity: 0.3;
+    opacity: 0.35;
+    mix-blend-mode: overlay;
 }
 
 .hero::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
+    background: linear-gradient(to bottom, #0a0b1e80 0%, #0a0b1e 100%);
 }
 
 .hero-content {
@@ -168,40 +171,42 @@
 /* --- Buttons --- */
 /* --- Buttons (Formal & Rectangular) --- */
 .cta-primary {
-    background: var(--accent);
-    color: var(--white);
-    padding: 1.1rem 3rem;
-    border-radius: 4px;
-    font-weight: 700;
+    background: var(--accent-gradient);
+    color: white;
+    padding: 1rem 3rem;
+    border-radius: 50px;
+    /* Pill shape */
+    font-weight: 800;
     text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
     display: inline-block;
-    transition: 0.3s;
+    transition: 0.4s;
     border: none;
+    box-shadow: 0 10px 20px rgba(245, 158, 11, 0.2);
 }
 
 .cta-primary:hover {
-    background: var(--accent-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(245, 158, 11, 0.3);
 }
 
 .cta-secondary {
-    background: transparent;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(5px);
     color: white;
-    padding: 1.1rem 3rem;
-    border-radius: 4px;
-    font-weight: 700;
-    border: 2px solid white;
+    padding: 1rem 3rem;
+    border-radius: 50px;
+    /* Pill shape */
+    font-weight: 800;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
     text-decoration: none;
     display: inline-block;
-    transition: 0.3s;
+    transition: 0.4s;
 }
 
 .cta-secondary:hover {
-    background: white;
-    color: var(--primary);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-3px);
 }
 
 /* --- Search Section --- */
@@ -214,10 +219,11 @@
 
 .search-container {
     background: white;
-    padding: 3rem;
-    border-radius: 8px;
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border-light);
+    padding: 2.5rem;
+    border-radius: 30px;
+    /* Highly rounded as in screenshot */
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.03);
 }
 
 .search-form {
@@ -230,24 +236,42 @@
 .search-input,
 .search-select {
     width: 100%;
-    padding: 16px 20px;
-    border: 1px solid var(--border-light);
-    border-radius: 4px;
+    padding: 18px 24px;
+    border: 1.5px solid #f1f5f9;
+    border-radius: 16px;
+    /* Rounded inputs */
     font-size: 1rem;
     color: var(--text-dark);
-    background: var(--white);
+    background: #f8fafc;
     transition: 0.3s;
+    outline: none;
+}
+
+.search-input:focus,
+.search-select:focus {
+    border-color: var(--accent);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
 }
 
 .search-button {
     background: var(--primary);
     color: white;
-    padding: 16px 40px;
+    padding: 18px 45px;
     border: none;
-    border-radius: 4px;
-    font-weight: 700;
+    border-radius: 16px;
+    /* Match inputs */
+    font-weight: 800;
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.4s;
+    box-shadow: 0 10px 20px rgba(10, 11, 30, 0.1);
+}
+
+.search-button:hover {
+    background: #1e1b4b;
+    /* Indigo 900 */
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(10, 11, 30, 0.15);
 }
 
 /* --- Products Grid --- */
