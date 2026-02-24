@@ -54,11 +54,11 @@
 }
 
 .header.scrolled {
-    background: var(--header-gradient);
-    backdrop-filter: blur(15px);
+    background: rgba(26, 35, 126, 0.85);
+    backdrop-filter: var(--blur);
     padding: 0.8rem 0;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--shadow-lg);
+    border-bottom: 1px solid var(--glass-border);
 }
 
 .header.scrolled .logo {
@@ -147,11 +147,12 @@
 }
 
 .hero h1 {
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    font-weight: 800;
-    line-height: 1.2;
-    margin-bottom: 1.5rem;
-    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+    letter-spacing: -1px;
+    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .hero p {
@@ -172,41 +173,42 @@
 .cta-primary {
     background: var(--accent);
     color: var(--primary);
-    /* Indigo text on yellow */
-    padding: 1rem 3rem;
-    border-radius: 50px;
-    /* Pill shape */
+    padding: 1.25rem 3.5rem;
+    border-radius: var(--radius-full);
     font-weight: 800;
     text-decoration: none;
-    display: inline-block;
-    transition: 0.4s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     border: none;
-    box-shadow: 0 10px 20px rgba(255, 235, 59, 0.3);
+    box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
 }
 
 .cta-primary:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 15px 30px rgba(245, 158, 11, 0.3);
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(245, 158, 11, 0.4);
 }
 
 .cta-secondary {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(5px);
+    background: var(--glass);
+    backdrop-filter: var(--blur);
     color: white;
-    padding: 1rem 3rem;
-    border-radius: 50px;
-    /* Pill shape */
+    padding: 1.25rem 3.5rem;
+    border-radius: var(--radius-full);
     font-weight: 800;
-    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    border: 1.5px solid var(--glass-border);
     text-decoration: none;
-    display: inline-block;
-    transition: 0.4s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s ease;
 }
 
 .cta-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.5);
-    transform: translateY(-3px);
+    background: var(--glass-heavy);
+    transform: translateY(-5px);
+    border-color: white;
 }
 
 /* --- Search Section --- */
@@ -219,13 +221,24 @@
 }
 
 .search-container {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    padding: 2.5rem;
-    border-radius: 30px;
-    /* Highly rounded as in screenshot */
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    padding: 3rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--white);
+    position: relative;
+    overflow: hidden;
+}
+
+.search-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
 }
 
 .search-form {
@@ -240,7 +253,7 @@
     width: 100%;
     padding: 18px 24px;
     border: 1.5px solid #f1f5f9;
-    border-radius: 16px;
+    border-radius: var(--radius-md);
     /* Rounded inputs */
     font-size: 1rem;
     color: var(--text-dark);
@@ -257,23 +270,21 @@
 }
 
 .search-button {
-    background: var(--accent);
-    color: var(--primary);
+    background: var(--primary);
+    color: white;
     padding: 18px 45px;
     border: none;
-    border-radius: 16px;
-    /* Match inputs */
+    border-radius: var(--radius-md);
     font-weight: 800;
     cursor: pointer;
-    transition: 0.4s;
-    box-shadow: 0 10px 20px rgba(255, 235, 59, 0.2);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
+    box-shadow: 0 10px 20px rgba(26, 35, 126, 0.2);
 }
 
 .search-button:hover {
-    background: var(--accent-hover);
-    /* Indigo 900 */
-    transform: translateY(-2px);
-    box-shadow: 0 15px 30px rgba(255, 235, 59, 0.3);
+    background: #312e81;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(26, 35, 126, 0.3);
 }
 
 /* --- Products Grid --- */
@@ -286,19 +297,19 @@
 
 .search-result-item {
     background: white;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     overflow: hidden;
     box-shadow: var(--shadow-md);
-    transition: 0.3s ease;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid var(--border-light);
     position: relative;
     padding-bottom: 1rem;
 }
 
 .search-result-item:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--accent);
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary-light);
 }
 
 .result-image {

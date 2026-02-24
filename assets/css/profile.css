@@ -58,44 +58,45 @@
 
 .sidebar {
     background: white;
-    border-radius: 24px;
+    border-radius: var(--radius-lg);
     padding: 20px;
     height: fit-content;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
-    border: 1px solid rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-light);
 }
 
 .menu-item {
-    padding: 14px 18px;
+    padding: 14px 20px;
     cursor: pointer;
-    border-radius: 14px;
-    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: var(--radius-md);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 8px;
-    color: #64748b;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
     font-weight: 600;
 }
 
 .menu-item:hover {
-    background: #f8fafc;
+    background: var(--bg-light);
     color: var(--primary);
+    transform: translateX(-5px);
 }
 
 .menu-item.active {
     background: var(--primary);
     color: white;
-    box-shadow: 0 10px 20px rgba(10, 11, 30, 0.15);
+    box-shadow: var(--shadow-md);
 }
 
 .content-area {
     background: white;
-    border-radius: 24px;
-    padding: 30px;
+    border-radius: var(--radius-lg);
+    padding: 35px;
     min-height: 600px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
-    border: 1px solid rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-light);
 }
 
 .section-title {
