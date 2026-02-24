@@ -3,7 +3,8 @@ const router = express.Router();
 const Product = require('../models/Product');
 const mongoose = require('mongoose');
 const logger = require('../utils/logger');
-const fetch = require('node-fetch'); // Ensure node-fetch is used if on older node, else native fetch
+// Native fetch is available in Node 22, no need for node-fetch requirement.
+
 
 router.post('/check-fitment', async (req, res) => {
     try {

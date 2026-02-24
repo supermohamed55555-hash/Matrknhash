@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\DELL\\OneDrive\\Desktop\\Database2025\\متركنهاش\\logs\\.3fade857bff22c06df82d3616472a44a7e63a2b3-audit.json",
+    "files": [
+        {
+            "date": 1771931507199,
+            "name": "C:\\Users\\DELL\\OneDrive\\Desktop\\Database2025\\متركنهاش\\logs\\error-2026-02-24.log",
+            "hash": "ce868c580ead176eac5bc8de5df5b9959f5d2cd21f9f12db0abde823f7a26e81"
+        }
+    ],
+    "hashType": "sha256"
+}
