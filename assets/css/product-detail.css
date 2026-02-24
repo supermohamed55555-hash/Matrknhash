@@ -154,15 +154,23 @@
 }
 
 .buy-now-btn {
-    background: var(--accent-gradient);
-    color: white;
+    background: var(--accent);
+    color: var(--primary);
+    /* Indigo text on yellow background for visibility */
     padding: 14px 35px;
-    border-radius: 50px;
+    border-radius: var(--radius-full);
     font-weight: 800;
     text-decoration: none;
     border: none;
     cursor: pointer;
-    box-shadow: 0 10px 20px rgba(245, 158, 11, 0.15);
+    box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+    transition: all 0.3s ease;
+}
+
+.buy-now-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(245, 158, 11, 0.4);
 }
 
 .whatsapp-btn-v2 {

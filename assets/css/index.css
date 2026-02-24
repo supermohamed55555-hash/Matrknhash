@@ -291,7 +291,8 @@
 .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
+    gap: 2.5rem;
+    justify-content: center;
     margin-top: 3rem;
 }
 
