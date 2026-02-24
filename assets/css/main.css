@@ -3,10 +3,10 @@
     /* Indigo 900 */
     --primary-light: #3949ab;
     /* Indigo 700 */
-    --accent: #ffeb3b;
-    /* Vibrant Yellow */
-    --accent-hover: #fdd835;
-    /* Darker Yellow */
+    --accent: #f59e0b;
+    /* Warm Amber/Gold */
+    --accent-hover: #d97706;
+    /* Deep Amber */
     --accent-gradient: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
     --header-gradient: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
     --text-dark: #333333;
