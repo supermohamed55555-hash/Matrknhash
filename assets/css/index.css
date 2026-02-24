@@ -54,12 +54,11 @@
 }
 
 .header.scrolled {
-    background: rgba(10, 11, 30, 0.85);
-    /* Dark Indigo Glass */
+    background: var(--header-gradient);
     backdrop-filter: blur(15px);
     padding: 0.8rem 0;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header.scrolled .logo {
@@ -114,7 +113,7 @@
 /* --- Hero Section --- */
 .hero {
     position: relative;
-    background: #0a0b1e;
+    background: var(--header-gradient);
     min-height: 75vh;
     display: flex;
     align-items: center;
@@ -138,7 +137,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, #0a0b1e80 0%, #0a0b1e 100%);
+    background: linear-gradient(to bottom, rgba(26, 35, 126, 0.8) 0%, rgba(57, 73, 171, 0.8) 100%);
 }
 
 .hero-content {
@@ -171,8 +170,9 @@
 /* --- Buttons --- */
 /* --- Buttons (Formal & Rectangular) --- */
 .cta-primary {
-    background: var(--accent-gradient);
-    color: white;
+    background: var(--accent);
+    color: var(--primary);
+    /* Indigo text on yellow */
     padding: 1rem 3rem;
     border-radius: 50px;
     /* Pill shape */
@@ -181,7 +181,7 @@
     display: inline-block;
     transition: 0.4s;
     border: none;
-    box-shadow: 0 10px 20px rgba(245, 158, 11, 0.2);
+    box-shadow: 0 10px 20px rgba(255, 235, 59, 0.3);
 }
 
 .cta-primary:hover {
@@ -215,15 +215,17 @@
     margin-top: -80px;
     position: relative;
     z-index: 10;
+    background: var(--header-gradient);
 }
 
 .search-container {
-    background: white;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
     padding: 2.5rem;
     border-radius: 30px;
     /* Highly rounded as in screenshot */
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .search-form {
@@ -255,8 +257,8 @@
 }
 
 .search-button {
-    background: var(--primary);
-    color: white;
+    background: var(--accent);
+    color: var(--primary);
     padding: 18px 45px;
     border: none;
     border-radius: 16px;
@@ -264,14 +266,14 @@
     font-weight: 800;
     cursor: pointer;
     transition: 0.4s;
-    box-shadow: 0 10px 20px rgba(10, 11, 30, 0.1);
+    box-shadow: 0 10px 20px rgba(255, 235, 59, 0.2);
 }
 
 .search-button:hover {
-    background: #1e1b4b;
+    background: var(--accent-hover);
     /* Indigo 900 */
     transform: translateY(-2px);
-    box-shadow: 0 15px 30px rgba(10, 11, 30, 0.15);
+    box-shadow: 0 15px 30px rgba(255, 235, 59, 0.3);
 }
 
 /* --- Products Grid --- */
@@ -358,7 +360,7 @@
 }
 
 .result-button.buy {
-    background: var(--accent);
+    background: var(--success);
     color: var(--white);
     border: none;
 }
@@ -402,7 +404,7 @@
 
 /* --- Footer --- */
 .footer-premium {
-    background: #0f172a;
+    background: #0d1421;
     color: white;
     padding: 5rem 0 2rem;
     margin-top: 5rem;
