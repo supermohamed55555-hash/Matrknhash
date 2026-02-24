@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>متركنهاش - قطع السيارات الأصلية</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/index.css">
+</head>
+
+<body>
+    <div id="truckOverlay" class="truck-overlay">
+        <div id="truckAnimation" class="truck-animation-box"></div>
+        <h2 id="truckStatusText" class="text-2xl font-bold mt-4">جاري تجهيز القطعة... 🚚</h2>
+    </div>
+    <header class="header" id="mainHeader">
+        <div class="nav-container">
+            <a href="/" class="logo">متركنهاش</a>
+
+            <!-- Mid Search Bar for Header -->
+            <div class="header-search-container" style="flex: 1; max-width: 400px; margin: 0 2rem; position: relative;"
+                id="headerSearchGroup">
+                <input type="text" id="headerSearchInput" placeholder="ابحث عن قطعة..."
+                    style="width: 100%; padding: 8px 40px 8px 15px; border-radius: 50px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.5); font-family: inherit; font-size: 0.9rem; outline: none; transition: 0.3s;">
+                <span
+                    style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); opacity: 0.5;">🔍</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li><a href="/">الرئيسية</a></li>
+                <li><a href="#search">البحث</a></li>
+                <li><a href="/profile.html" onclick="handleAccountClick(event)">حسابي</a></li>
+                <li id="loginNavItem">
+                    <a href="javascript:void(0)" onclick="openLoginModal()" class="cta-primary"
+                        style="padding: 0.5rem 1.2rem; font-size: 0.85rem;">
+                        سجل الآن
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>مستقبل تجارة قطع الغيار في مصر</h1>
+            <p>قطع أصلية من موردين موثوقين، مع تجربة شراء ذكية وآمنة ١٠٠٪</p>
+            <div class="hero-btns">
+                <a href="#search" class="cta-primary">ابدأ التسوق الآن</a>
+                <a href="javascript:void(0)"
+                    onclick="openLoginModal(); togglePremiumAuth('register'); setPremiumRole('vendor');"
+                    class="cta-secondary">انضم كتاجر</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="search" class="search-section">
+        <div class="container">
+            <div class="search-container">
+                <div class="search-form">
+                    <div class="suggestions-container" style="position:relative;">
+                        <input type="text" class="search-input" id="partName"
+                            placeholder="عن ماذا تبحث اليوم؟ (مثلاً: تيل فرامل، مساعدين...)" autocomplete="off">
+                        <div id="suggestionsBox" class="suggestions-box"></div>
+                    </div>
+                    <select class="search-select" id="carBrand">
+                        <option value="">كل الماركات</option>
+                        <option value="toyota">تويوتا</option>
+                        <option value="nissan">نيسان</option>
+                        <option value="hyundai">هيونداي</option>
+                        <option value="bmw">BMW</option>
+                        <option value="mercedes">مرسيدس</option>
+                    </select>
+                    <select class="search-select" id="carCategory">
+                        <option value="">كل الفئات</option>
+                        <option value="Wheels">جنوط</option>
+                        <option value="Tires">كاوتش</option>
+                        <option value="Accessories">اكسسوارات</option>
+                    </select>
+                    <button type="button" class="search-button" onclick="searchParts()">ابحث الآن</button>
+                </div>
+
+                <div id="searchResults" class="features-grid">
+                    <!-- Results Load Here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="products">
+        <div class="container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <h2 style="font-size:2rem; font-weight:900; color:var(--primary);">قطع مميزة مختارة</h2>
+                <a href="#search" style="color:var(--accent); font-weight:800; text-decoration:none;">عرض الكل ←</a>
+            </div>
+            <div id="featuredProducts" class="features-grid">
+                <!-- Products Load Here -->
+            </div>
+        </div>
+    </section>
+
+    <section id="features" style="padding: 5rem 0; background: #fff;">
+        <div class="container">
+            <div class="features-grid">
+                <div style="text-align:center; padding:2rem;">
+                    <div style="font-size:3rem; margin-bottom:1rem;">🛡️</div>
+                    <h3 style="margin-bottom:1rem; font-weight:800;">جودة مضمونة</h3>
+                    <p style="color:var(--text-light);">فحص دقيق لكل القطع المعروضة لضمان أفضل أداء لسيارتك.</p>
+                </div>
+                <div style="text-align:center; padding:2rem;">
+                    <div style="font-size:3rem; margin-bottom:1rem;">🚚</div>
+                    <h3 style="margin-bottom:1rem; font-weight:800;">شحن سريع</h3>
+                    <p style="color:var(--text-light);">توصيل لباب البيت في أسرع وقت ممكن وبأقل التكاليف.</p>
+                </div>
+                <div style="text-align:center; padding:2rem;">
+                    <div style="font-size:3rem; margin-bottom:1rem;">💳</div>
+                    <h3 style="margin-bottom:1rem; font-weight:800;">دفع آمن</h3>
+                    <p style="color:var(--text-light);">خيارات دفع متعددة وآمنة تماماً لحفظ حقوقك كبائع أو مشتري.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer-premium">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h2 style="color:white; font-weight:900; margin-bottom:1.5rem;">متركنهاش</h2>
+                    <p style="color:rgba(255,255,255,0.6);">المنصة الأولى والوحيدة المتخصصة في سوق قطع غيار السيارات في
+                        مصر والوطن العربي. نجمع لك أفضل التجار في مكان واحد.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>روابط سريعة</h3>
+                    <ul>
+                        <li><a href="/">الرئيسية</a></li>
+                        <li><a href="#search">ابحث عن قطعة</a></li>
+                        <li><a href="#">الشروط والأحكام</a></li>
+                        <li><a href="#">سياسة الخصوصية</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>الدعم الفني</h3>
+                    <ul>
+                        <li><a href="#">مركز المساعدة</a></li>
+                        <li><a href="#">تواصل معنا</a></li>
+                        <li><a href="#">الأسئلة الشائعة</a></li>
+                        <li><a href="#">إبلاغ عن مشكلة</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>تابعنا</h3>
+                    <div style="display:flex; gap:1rem; margin-top:1rem;">
+                        <a href="#" style="font-size:1.5rem;">📱</a>
+                        <a href="#" style="font-size:1.5rem;">📸</a>
+                        <a href="#" style="font-size:1.5rem;">🐦</a>
+                    </div>
+                </div>
+            </div>
+            <div
+                style="padding-top:2rem; border-top:1px solid rgba(255,255,255,0.1); text-align:center; color:rgba(255,255,255,0.4);">
+                <p>© 2025 متركنهاش - جميع الحقوق محفوظة. صنع بكل ❤️ لخدمة أصحاب السيارات.</p>
+            </div>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/201148311900" class="whatsapp-float" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="واتساب">
+    </a>
+
+    <div id="loginModal" class="modal">
+        <div class="min-h-screen bg-transparent flex items-center justify-center p-4">
+            <main class="w-full max-w-md mx-auto premium-glass p-8 rounded-3xl relative"
+                style="background: rgba(15, 23, 42, 0.8);">
+                <span class="close-modal text-white/50 hover:text-white" onclick="closeLoginModal()">&times;</span>
+
+                <div id="authCard" class="text-white">
+                    <div class="mb-6 text-center">
+                        <h2 id="authTitle" class="text-3xl font-bold">تسجيل الدخول</h2>
+                        <p id="authSubtitle" class="text-slate-300">سجل دخولك باستخدام البريد الإلكتروني</p>
+                    </div>
+
+                    <!-- Social buttons -->
+                    <div class="flex gap-3 mb-6">
+                        <a href="/auth/google"
+                            class="flex-1 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition inline-flex items-center justify-center gap-2 no-underline text-white">
+                            <svg width="20" height="20" viewBox="0 0 48 48">
+                                <path fill="#FFC107"
+                                    d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C33.7 6.3 29.1 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c10.1 0 19-7.3 19-20 0-1.3-.1-2.7-.4-3.5z">
+                                </path>
+                                <path fill="#FF3D00"
+                                    d="M6.3 14.7l6.6 4.8C14.6 16.3 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C33.7 6.3 29.1 4 24 4c-7.9 0-14.6 4.6-17.7 11.3z">
+                                </path>
+                                <path fill="#4CAF50"
+                                    d="M24 44c5.1 0 9.7-1.9 13.1-5.1l-6.1-5.1C29.2 36 26.8 37 24 37c-5.2 0-9.6-3.2-11.3-7.7l-6.5 5c3.1 6.6 9.8 11.7 17.8 11.7z">
+                                </path>
+                                <path fill="#1976D2"
+                                    d="M43.6 20.5H42V20H24v8h11.3c-1.3 3.1-4.1 5.5-7.3 6.3l6.1 5.1C37.1 36.9 40 31.9 40 24c0-1.3-.1-2.7-.4-3.5z">
+                                </path>
+                            </svg>
+                            جوجل
+                        </a>
+                        <a href="/auth/facebook"
+                            class="flex-1 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition inline-flex items-center justify-center gap-2 no-underline text-white">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2">
+                                <path
+                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                            </svg>
+                            فيسبوك
+                        </a>
+                    </div>
+
+                    <!-- Separator -->
+                    <div class="flex items-center gap-3 my-6">
+                        <div class="h-px flex-1 bg-white/10"></div>
+                        <span class="text-xs text-slate-400">أو تواصل باستخدام البريد</span>
+                        <div class="h-px flex-1 bg-white/10"></div>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="authForm" class="space-y-4">
+                        <!-- Role Selector -->
+                        <div id="roleSelector" class="hidden">
+                            <div class="flex gap-2 mb-4">
+                                <div id="roleUser"
+                                    class="flex-1 text-center py-2 rounded-xl border border-white/10 bg-indigo-600 cursor-pointer"
+                                    onclick="setPremiumRole('user')">عميل</div>
+                                <div id="roleVendor"
+                                    class="flex-1 text-center py-2 rounded-xl border border-white/10 bg-white/5 cursor-pointer"
+                                    onclick="setPremiumRole('vendor')">تاجر</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="regRole" value="user">
+
+                        <!-- Name (Register only) -->
+                        <div id="nameField" class="hidden">
+                            <input id="regName" type="text"
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                                placeholder="الاسم بالكامل">
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <input id="authEmail" type="email" required
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                                placeholder="البريد الإلكتروني">
+                        </div>
+
+                        <!-- Merchant Fields (Register & Vendor only) -->
+                        <div id="vendorFields" class="hidden space-y-4">
+                            <input id="regShopName" type="text"
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                                placeholder="اسم المحل">
+                            <input id="regLocation" type="text"
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                                placeholder="المكان (المحافظة/الحي)">
+                        </div>
+
+                        <!-- Password -->
+                        <div class="relative">
+                            <input id="authPassword" type="password" required
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                                placeholder="كلمة المرور">
+
+                            <div id="passwordStrength" class="h-1 mt-2 rounded bg-white/10 overflow-hidden hidden">
+                                <div id="strengthBar" class="h-full w-0 bg-indigo-500 transition-all"></div>
+                            </div>
+                        </div>
+
+                        <!-- Phone (Register only) -->
+                        <div id="phoneField" class="hidden">
+                            <input id="regPhone" type="tel"
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                                placeholder="رقم الهاتف">
+                        </div>
+
+                        <button id="submitBtn" type="submit"
+                            class="w-full py-3 rounded-xl auth-gradient-btn font-bold text-white shadow-lg">
+                            تسجيل الدخول
+                        </button>
+                    </form>
+
+                    <p id="toggleText" class="mt-6 text-sm text-slate-300 text-center">
+                        ليس لديك حساب؟
+                        <button onclick="togglePremiumAuth('register')" class="text-indigo-300 underline font-bold">سجل
+                            الآن</button>
+                    </p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- External Logic -->
+    <script src="/assets/js/common.js"></script>
+    <script src="/assets/js/index.js"></script>
+</body>
+
+</html>

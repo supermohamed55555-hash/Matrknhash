@@ -1,0 +1,152 @@
+/* Success Overlay */
+.success-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.success-animation-box {
+    width: 350px;
+    height: 350px;
+}
+
+.header {
+    background: white;
+    padding: 20px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.user-blok {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    background: #eee;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 0 15px;
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 20px;
+}
+
+.sidebar {
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    height: fit-content;
+}
+
+.menu-item {
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.menu-item:hover,
+.menu-item.active {
+    background: #eef2ff;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.content-area {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    min-height: 500px;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Orders Style */
+.order-card {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.order-status {
+    background: #fff3cd;
+    color: #856404;
+    padding: 2px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+}
+
+.order-item {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.order-img {
+    width: 60px;
+    height: 60px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    object-fit: contain;
+}
+
+@media(max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        display: flex;
+        overflow-x: auto;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .menu-item {
+        min-width: 100px;
+        justify-content: center;
+    }
+}

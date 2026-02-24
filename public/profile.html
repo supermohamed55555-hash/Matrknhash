@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حسابي - متركنهاش</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/profile.css">
+</head>
+
+<body style="font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0;">
+
+    <!-- Order Success Overlay -->
+    <div id="successOverlay" class="success-overlay" style="display: none;">
+        <div class="success-card">
+            <div id="successAnimation" style="width: 200px; height: 200px; margin: 0 auto;"></div>
+            <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-bottom: 0.5rem;">تم طلبك
+                بنجاح!
+            </h2>
+            <p style="color: #666; margin-bottom: 2rem;">جاري تجهيز طلبك الآن وشحنه في أسرع وقت. يمكنك متابعة الحالة من
+                قسم طلباتي.</p>
+            <button onclick="dismissSuccess()"
+                style="background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%;">فهمت
+                ذلك</button>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="header-content">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="avatar" id="avatarLetter">U</div>
+                <div>
+                    <h1 id="userNameLabel" style="margin: 0; font-size: 1.2rem; font-weight: 800;">جاري التحميل...</h1>
+                    <p id="userEmailLabel" style="margin: 0; font-size: 0.85rem; opacity: 0.6;"></p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="window.location.href='/'"
+                    style="background: #f0f2f5; border: none; padding: 8px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    🏠 الرئيسية
+                </button>
+                <button onclick="logout()"
+                    style="background: #fff0f0; border: none; color: #ff4d4f; padding: 8px 20px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="menu-item active" id="tab-orders" onclick="showTab('orders')">📦 طلباتي</div>
+            <div class="menu-item" id="tab-cart" onclick="showTab('cart')">🛒 سلة المشتريات</div>
+            <div class="menu-item" id="tab-returns" onclick="showTab('returns')">🔄 المرتجعات</div>
+            <div class="menu-item" id="tab-addresses" onclick="showTab('addresses')">📍 عناويني</div>
+            <div class="menu-item" id="tab-garage" onclick="showTab('garage')">🚗 كراجي</div>
+            <div class="menu-item" id="tab-wallet" onclick="showTab('wallet')">💰 المحفظة</div>
+            <div class="menu-item" id="tab-settings" onclick="showTab('settings')">⚙️ الإعدادات</div>
+            <div class="menu-item hidden" id="tab-super-admin" onclick="window.location.href='/super-admin.html'">👑
+                لوحة الإدارة</div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <section class="content">
+
+            <!-- Orders Section -->
+            <div id="orders" class="content-area">
+                <h2 style="margin-top: 0; margin-bottom: 1.5rem; font-weight: 800;">طلباتي السابقة</h2>
+                <div class="orders-list">
+                    <!-- Loaded via JS -->
+                    <div style="text-align: center; padding: 40px; opacity: 0.5;">جاري تحميل طلباتك...</div>
+                </div>
+            </div>
+
+            <!-- Cart Section -->
+            <div id="cart" class="content-area hidden">
+                <h2 style="margin-top: 0; margin-bottom: 0.5rem; font-weight: 800;">سلة المشتريات</h2>
+                <p style="color:#777; margin-bottom: 1.5rem;">راجع القطع التي اخترتها قبل إتمام الدفع</p>
+
+                <div id="cartItemsList" class="space-y-4 mb-8">
+                    <!-- Loaded via JS -->
+                </div>
+
+                <div id="checkoutSection" class="hidden">
+                    <div
+                        style="background:white; padding:25px; border-radius:20px; border:1px solid #eee; margin-top:20px;">
+                        <h3
+                            style="margin-top:0; margin-bottom:1.5rem; font-weight:800; border-bottom:1px solid #f5f5f5; padding-bottom:10px;">
+                            إتمام الطلب</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label
+                                    style="display:block; margin-bottom:8px; font-weight:bold; font-size:0.9rem;">عنوان
+                                    الشحن</label>
+                                <select id="checkoutAddressSelect"
+                                    style="width:100%; padding:12px; border-radius:12px; border:2px solid #f0f0f0; font-family:inherit; outline:none; transition:0.3s;">
+                                    <!-- Options via JS -->
+                                </select>
+                                <button onclick="showTab('addresses'); openAddressModal();"
+                                    style="color:var(--primary); background:none; border:none; padding:8px 0; font-size:0.85rem; cursor:pointer; text-decoration:underline;">+
+                                    إضافة عنوان جديد</button>
+                            </div>
+
+                            <div>
+                                <label
+                                    style="display:block; margin-bottom:8px; font-weight:bold; font-size:0.9rem;">طريقة
+                                    الدفع</label>
+                                <div class="space-y-3">
+                                    <label
+                                        class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50 cursor-pointer hover:bg-gray-100 transition">
+                                        <input type="radio" name="paymentOption" value="cod" checked>
+                                        <div style="flex:1">
+                                            <div style="font-weight:bold; font-size:0.9rem;">الدفع عند الاستلام</div>
+                                            <div style="font-size:0.75rem; color:#888;">ادفع كاش للمندوب عند وصول الشحنة
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label
+                                        class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50 cursor-pointer hover:bg-gray-100 transition">
+                                        <input type="radio" name="paymentOption" value="wallet">
+                                        <div style="flex:1">
+                                            <div style="font-weight:bold; font-size:0.9rem;">المحفظة الإلكترونية</div>
+                                            <div id="checkoutWalletBalance"
+                                                style="font-size:0.75rem; color:var(--primary);">رصيدك: 0.00 ج.م</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px dashed #ddd; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-size:0.9rem; color:#777;">إجمالي المبلغ المستحق:</div>
+                                <div id="cartTotalPrice"
+                                    style="font-size:1.8rem; font-weight:900; color:var(--primary);">0 ج.م</div>
+                            </div>
+                            <button id="checkoutBtn" onclick="processCheckout()" class="btn-primary"
+                                style="padding:15px 40px; font-size:1.1rem; border-radius:15px; box-shadow:0 10px 20px rgba(79, 70, 229, 0.2);">تأكيد
+                                وطلب الآن</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Returns Section -->
+            <div id="returns" class="content-area hidden">
+                <h2 style="margin-top: 0; margin-bottom: 1.5rem; font-weight: 800;">طلبات الاسترجاع</h2>
+                <div class="returns-list space-y-4">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+
+            <!-- Address Section -->
+            <div id="addresses" class="content-area hidden">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                    <h2 style="margin:0; font-weight:800;">عناوين التوصيل</h2>
+                    <button class="btn-primary" onclick="openAddressModal()">+ إضافة عنوان</button>
+                </div>
+                <div class="addresses-list">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+
+            <!-- Garage Section -->
+            <div id="garage" class="content-area hidden">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                    <div>
+                        <h2 style="margin:0; font-weight:800;">كراجي الخاص</h2>
+                        <p style="color:#777; margin:5px 0 0 0; font-size:0.9rem;">أضف سياراتك لنقترح عليك قطع الغيار
+                            المناسبة تماماً</p>
+                    </div>
+                    <button class="btn-primary" onclick="openGarageModal()">+ إضافة سيارة</button>
+                </div>
+                <div class="garage-list">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+
+            <!-- Wallet Section -->
+            <div id="wallet" class="content-area hidden">
+                <h2 style="margin-top: 0; margin-bottom: 1.5rem; font-weight: 800;">محفظتي الرقمية</h2>
+                <div
+                    style="background: linear-gradient(135deg, var(--primary), #818cf8); color:white; padding:40px; border-radius:25px; text-align:center; box-shadow:0 15px 30px rgba(79, 70, 229, 0.2);">
+                    <div style="font-size:0.9rem; opacity:0.8; margin-bottom:0.5rem;">الرصيد المتاح حالياً</div>
+                    <div id="walletBalance" style="font-size:3.5rem; font-weight:900; margin:0;">0.00 <span
+                            style="font-size:1.5rem;">ج.م</span></div>
+                    <div style="margin-top:2rem; display:flex; justify-content:center; gap:10px;">
+                        <button
+                            style="background:rgba(255,255,255,0.2); border:none; color:white; padding:10px 25px; border-radius:12px; font-weight:bold; cursor:pointer;"
+                            onclick="alert('شحن الرصيد متاح قريباً')">شحن المحفظة</button>
+                        <button
+                            style="background:white; border:none; color:var(--primary); padding:10px 25px; border-radius:12px; font-weight:bold; cursor:pointer;"
+                            onclick="alert('سحب الرصيد متاح قريباً')">سحب الأرباح</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings" class="content-area hidden">
+                <h2 style="margin-top: 0; margin-bottom: 1.5rem; font-weight: 800;">الإعدادات</h2>
+                <div style="background:white; padding:25px; border-radius:20px; border:1px solid #eee;">
+                    <div style="padding:15px; border-bottom:1px solid #f5f5f5;">
+                        <label style="display:block; font-weight:bold; margin-bottom:5px;">اللغة / Language</label>
+                        <select style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;">
+                            <option>العربية (افتراضي)</option>
+                            <option>English</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="addressModal" class="hidden"
+        style="position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:white; padding:25px; border-radius:20px; width:400px;">
+            <h3 style="margin-top:0;">إضافة عنوان جديد</h3>
+            <input id="addrLabel" type="text" placeholder="اسم العنوان (مثلاً: المنزل، العمل)"
+                style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
+            <textarea id="addrDetails" placeholder="العنوان بالتفصيل"
+                style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd; height:80px;"></textarea>
+            <label style="display:flex; align-items:center; gap:8px; margin-bottom:15px; cursor:pointer;">
+                <input type="checkbox" id="addrDefault"> تعيين كعنوان افتراضي
+            </label>
+            <div style="display:flex; gap:10px;">
+                <button onclick="saveAddress()"
+                    style="flex:1; background:var(--primary); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">حفظ</button>
+                <button onclick="closeAddressModal()"
+                    style="flex:1; background:#f0f2f5; border:none; padding:10px; border-radius:8px; cursor:pointer;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="garageModal" class="hidden"
+        style="position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:white; padding:25px; border-radius:20px; width:400px;">
+            <h3 style="margin-top:0;">إضافة سيارة جديدة 🚗</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <input id="carMake" type="text" placeholder="الماركة (تويوتا..)"
+                    style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
+                <input id="carModel" type="text" placeholder="الموديل (كورولا..)"
+                    style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
+                <input id="carYear" type="number" placeholder="سنة الصنع"
+                    style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
+                <input id="carEngine" type="text" placeholder="سعة المحرك"
+                    style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
+            </div>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button onclick="saveCar()"
+                    style="flex:1; background:var(--primary); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">إضافة
+                    للكراج</button>
+                <button onclick="closeGarageModal()"
+                    style="flex:1; background:#f0f2f5; border:none; padding:10px; border-radius:8px; cursor:pointer;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- External Logic -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/assets/js/common.js"></script>
+    <script src="/assets/js/profile.js"></script>
+</body>
+
+</html>

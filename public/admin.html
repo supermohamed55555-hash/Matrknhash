@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التاجر - متركنهاش</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Cairo:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">متركنهاش - التاجر</div>
+        <div class="nav-item active" onclick="showTab('products')">📦 منتجاتي</div>
+        <div class="nav-item" onclick="showTab('orders')">🛒 الطلبات الواردة</div>
+        <div class="nav-item" onclick="showTab('add')">➕ إضافة منتج</div>
+        <div class="nav-item" onclick="window.location.href='/'">🏠 العودة للموقع</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header-stats" id="statsContainer">
+            <div class="stat-card products">
+                <h3>📦 إجمالي المنتجات</h3>
+                <div class="value" id="totalProducts">0</div>
+            </div>
+            <div class="stat-card orders">
+                <h3>⏳ طلبات بانتظار الشحن</h3>
+                <div class="value" id="pendingOrders">0</div>
+            </div>
+            <div class="stat-card sales">
+                <h3>💰 إجمالي الأرباح</h3>
+                <div class="value" id="totalSales">0 ج.م</div>
+            </div>
+        </div>
+
+        <!-- Products Tab -->
+        <div id="tab-products" class="tab-content active">
+            <div id="welcomeBanner" class="welcome-banner hidden">
+                <div class="icon">👋</div>
+                <div>
+                    <h2 style="margin:0 0 5px 0;">أهلاً بك في لوحة التاجر!</h2>
+                    <p style="margin:0; opacity:0.8;">ابدأ برفع أول منتج لك الآن وابدأ في زيادة مبيعاتك.</p>
+                </div>
+                <button class="submit-btn" style="width:auto; padding:10px 25px;" onclick="showTab('add')">أضف منتجك
+                    الأول</button>
+            </div>
+
+            <h2 style="margin-bottom: 25px;">📦 إدارة المنتجات</h2>
+            <div id="vendorProductsGrid" class="product-grid">
+                <!-- Products load here -->
+            </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div id="tab-orders" class="tab-content">
+            <h2 style="margin-bottom: 25px;">🛒 طلبات العملاء</h2>
+            <div id="vendorOrdersContainer">
+                <p style="text-align: center; opacity: 0.5;">لا توجد طلبات حالياً لمشاهدتها.</p>
+            </div>
+        </div>
+
+        <!-- Add Product Tab -->
+        <div id="tab-add" class="tab-content">
+            <div class="card">
+                <h2 id="formTitle" style="margin-bottom: 25px;">إضافة منتج جديد للبيع</h2>
+                <form id="addProductForm">
+                    <input type="hidden" id="editingId">
+
+                    <div class="form-section">
+                        <div class="section-header">
+                            <span class="section-title-text">معلومات المنتج الأساسية</span>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>اسم المنتج</label>
+                                <input type="text" id="name" required placeholder="مثلاً: طقم مساعدين تويوتا">
+                                <span style="font-size:0.8rem; color:#64748b; margin-top:5px; display:block;">اسم واضح
+                                    يسهل على المشتري البحث عنه</span>
+                            </div>
+                            <div class="form-group">
+                                <label>الماركة</label>
+                                <input type="text" id="brand" required placeholder="Toyota, KYB, Valeo...">
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>الفئة</label>
+                                <select id="category">
+                                    <option value="Wheels">جنوط</option>
+                                    <option value="Tires">كاوتش</option>
+                                    <option value="Accessories">اكسسوارات</option>
+                                    <option value="Filters">فلاتر</option>
+                                    <option value="Brakes">فرامل</option>
+                                    <option value="Engine">أجزاء محرك</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>الحالة</label>
+                                <select id="condition">
+                                    <option value="جديد">جديد</option>
+                                    <option value="استيراد - خلع">استيراد - خلع</option>
+                                    <option value="used">مستعمل</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-header">
+                            <span class="section-title-text">السعر والمخزون</span>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>السعر (جنية)</label>
+                                <input type="number" id="price" required placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label>الكمية المتوفرة (Stock)</label>
+                                <input type="number" id="stockQuantity" required value="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-header">
+                            <span class="section-title-text">التوافق والكلمات الدلالية</span>
+                        </div>
+                        <div class="form-group">
+                            <label>التوافق (السيارات)</label>
+                            <textarea id="compatibilityInput" placeholder="Toyota Corolla 2010-2015 | BMW 320 2015-2020"
+                                rows="2"></textarea>
+                            <span style="font-size:0.8rem; color:#64748b; margin-top:5px; display:block;">افصل بين
+                                السيارات بعلامة | (مثال: Toyota Corolla 2010-2015)</span>
+                        </div>
+                        <div class="form-group">
+                            <label>كلمات دلالية للذكاء الاصطناعي (Tags)</label>
+                            <input type="text" id="tags" placeholder="مساعدين, عفشة, مساعد خلفي (افصل بكومة)">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-header">
+                            <span class="section-title-text">صورة المنتج</span>
+                        </div>
+                        <div class="form-group">
+                            <label>رابط الصورة</label>
+                            <input type="text" id="image" required placeholder="رابط صورة المنتج">
+                            <span style="font-size:0.8rem; color:#64748b; margin-top:5px; display:block;">يفضل صورة
+                                بخلفية بيضاء لرؤية أفضل</span>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <button type="submit" id="submitBtn" class="submit-btn">نشر المنتج على المنصة</button>
+                        <button type="button" onclick="openPreview()" class="btn-preview">👁️ معاينة المنتج</button>
+                    </div>
+
+                    <button type="button" id="cancelBtn" onclick="resetForm()"
+                        style="background:#475569; margin-top:10px; display:none;" class="submit-btn">إلغاء
+                        التعديل</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closePreview()">&times;</span>
+            <h2 style="margin-bottom: 25px; color: var(--primary);">👁️ معاينة شكل المنتج للعملاء</h2>
+            <div class="preview-grid">
+                <div
+                    style="background: white; border-radius: 15px; padding: 20px; display: flex; align-items: center; justify-content: center;">
+                    <img id="previewImage" src="" style="max-width: 100%; max-height: 400px; border-radius: 10px;">
+                </div>
+                <div>
+                    <div id="previewBadge" class="preview-badge">جديد</div>
+                    <h1 id="previewName" style="font-size: 2rem; margin-bottom: 10px; color: white;">اسم المنتج</h1>
+                    <div id="previewBrand" style="color: #94a3b8; margin-bottom: 20px;">الماركة</div>
+                    <div id="previewPrice"
+                        style="font-size: 2.5rem; font-weight: 800; color: var(--primary); margin-bottom: 25px;">0 ج.م
+                    </div>
+                    <div
+                        style="background: var(--glass); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <div style="font-weight: bold; margin-bottom: 10px; color: var(--primary);">التوافق:</div>
+                        <div id="previewComp" style="font-size: 0.9rem; line-height: 1.6;"></div>
+                    </div>
+                </div>
+            </div>
+            <button class="submit-btn" style="margin-top: 30px;" onclick="closePreview()">العودة للتعديل</button>
+        </div>
+    </div>
+
+    <script src="/assets/js/admin.js"></script>
+</body>
+
+</html>

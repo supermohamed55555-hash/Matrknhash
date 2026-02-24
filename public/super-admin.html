@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة المدير العام - متركنهاش</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .stat-card {
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .status-suspended {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+
+<body class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="sidebar w-64 text-white p-6 hidden md:block">
+        <h1 class="text-2xl font-800 mb-10 text-yellow-500">متركنهاش <span
+                class="text-sm font-400 block text-white opacity-50">Admin Panel</span></h1>
+        <nav class="space-y-4">
+            <a href="#" onclick="showTab('overview')" class="block py-2 px-4 rounded hover:bg-slate-700 transition">📊
+                الإحصائيات العامة</a>
+            <a href="#" onclick="showTab('vendors')" class="block py-2 px-4 rounded hover:bg-slate-700 transition">🏪
+                إدارة التجار</a>
+            <a href="#" onclick="showTab('orders')" class="block py-2 px-4 rounded hover:bg-slate-700 transition">📦
+                مراقبة الطلبات</a>
+            <a href="/" class="block py-2 px-4 rounded hover:bg-red-900 mt-20 transition">🏠 العودة للموقع</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+        <header class="flex justify-between items-center mb-10">
+            <h2 id="tabTitle" class="text-3xl font-800 text-slate-800">نظرة عامة على المنصة</h2>
+            <div class="bg-white p-2 rounded-full shadow-sm flex items-center gap-3 px-4">
+                <span id="adminName" class="font-600 text-slate-600">تحميل...</span>
+                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white">A</div>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <section id="overview" class="tab-content transition-all">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+                <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-slate-500 text-sm mb-1">إجمالي المبيعات</p>
+                    <h3 id="statRevenue" class="text-2xl font-800 text-slate-800">0 ج.م</h3>
+                </div>
+                <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-slate-500 text-sm mb-1">الطلبات المنفذة</p>
+                    <h3 id="statOrders" class="text-2xl font-800 text-blue-600">0</h3>
+                </div>
+                <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-slate-500 text-sm mb-1">عدد التجار</p>
+                    <h3 id="statVendors" class="text-2xl font-800 text-green-600">0</h3>
+                </div>
+                <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-slate-500 text-sm mb-1">عمولة المنصة (10%)</p>
+                    <h3 id="statCommission" class="text-2xl font-800 text-yellow-600">0 ج.م</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h4 class="text-xl font-700 mb-4">آخـر العمليات</h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right">
+                        <thead>
+                            <tr class="border-b border-slate-100 text-slate-400">
+                                <th class="py-3 px-4">العميل</th>
+                                <th class="py-3 px-4">المبلغ</th>
+                                <th class="py-3 px-4">الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentOrdersBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vendors Tab -->
+        <section id="vendors" class="tab-content hidden">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <table class="w-full text-right">
+                    <thead>
+                        <tr class="border-b border-slate-100 text-slate-400">
+                            <th class="py-3 px-4">اسم التاجر</th>
+                            <th class="py-3 px-4">اسم المحل</th>
+                            <th class="py-3 px-4">الحالة</th>
+                            <th class="py-3 px-4">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vendorsTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Orders Tab -->
+        <section id="orders" class="tab-content hidden">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <table class="w-full text-right">
+                    <thead>
+                        <tr class="border-b border-slate-100 text-slate-400">
+                            <th class="py-3 px-4">رقم الطلب</th>
+                            <th class="py-3 px-4">العميل</th>
+                            <th class="py-3 px-4">التاريخ</th>
+                            <th class="py-3 px-4">المبلغ</th>
+                            <th class="py-3 px-4">الحالة</th>
+                            <th class="py-3 px-4">إجراءات الشحن</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersFullTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/assets/js/super-admin.js"></script>
+</body>
+
+</html>
