@@ -290,10 +290,17 @@
 /* --- Products Grid --- */
 .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 3rem;
     justify-content: center;
     margin-top: 3rem;
+}
+
+.features-grid>div {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center !important;
+    text-align: center !important;
 }
 
 .search-result-item {
@@ -373,8 +380,13 @@
 
 .result-button.buy {
     background: var(--success);
-    color: var(--white);
+    color: white !important;
     border: none;
+    font-weight: 800;
+}
+
+.result-button.buy .btn-text {
+    color: white !important;
 }
 
 .result-button:hover {
