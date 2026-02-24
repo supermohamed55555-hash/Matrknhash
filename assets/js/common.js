@@ -13,13 +13,13 @@ async function checkLoginStatus() {
             if (user.role === 'admin' || user.role === 'super-admin') {
                 vendorDashboardBtn = `
                     <a href="/super-admin.html" class="flex items-center gap-2 px-4 py-2 rounded-full border border-orange-300 bg-orange-50 hover:bg-orange-100 transition text-orange-700 font-bold text-sm shadow-sm">
-                        👑 لوحة المدير
+                        لوحة الإدارة
                     </a>
                 `;
             } else if (user.role === 'vendor') {
                 vendorDashboardBtn = `
                     <a href="/admin.html" class="flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 hover:bg-primary/20 transition text-primary font-bold text-sm">
-                        📊 لوحة التاجر
+                        لوحة التاجر
                     </a>
                 `;
             }
@@ -36,7 +36,7 @@ async function checkLoginStatus() {
                         <span style="font-size: 1.3rem;">🛒</span>
                         <span id="cartBadge" style="position:absolute; top:-5px; right:-5px; background:#ff4757; color:white; font-size:0.6rem; padding:1px 5px; border-radius:50%; display:none;">0</span>
                     </div>
-                `;
+                `;/* Keeping the cart emoji for now as it's an icon, but I'll make it more professional if I find a better way */
             }
 
             loginNavItem.innerHTML = `
@@ -77,11 +77,11 @@ function updateHeroForRole(user) {
         if (productsSection) productsSection.style.display = 'none';
         if (featuresSection) featuresSection.style.display = 'none';
 
-        heroTitle.innerText = 'لوحة تحكم المدير';
-        heroSub.innerText = `أهلاً بك يا ${user.name}. جميع أدوات الإدارة متاحة لك الآن للتحكم في المنصة.`;
+        heroTitle.innerText = 'لوحة تحكم الإدارة';
+        heroSub.innerText = `مرحباً ${user.name}. كافة أدوات الإدارة متاحة الآن للتحكم في المنصة.`;
         if (heroBtns) {
             heroBtns.innerHTML = `
-                <a href="/super-admin.html" class="cta-primary">فتح لوحة المدير</a>
+                <a href="/super-admin.html" class="cta-primary">فتح لوحة الإدارة</a>
                 <a href="profile.html" class="cta-secondary">الملف الشخصي</a>
             `;
         }
@@ -94,7 +94,7 @@ function updateHeroForRole(user) {
         if (featuresSection) featuresSection.style.display = 'none';
 
         heroTitle.innerText = 'مركز إدارة المبيعات';
-        heroSub.innerText = `أهلاً بك يا ${user.name}. تابع مبيعاتك، أضف منتجات جديدة، وقم بإدارة متجرك بسهولة من هنا.`;
+        heroSub.innerText = `مرحباً ${user.name}. يمكنك متابعة طلبات المبيعات وإدارة المخزون والمنتجات من هنا.`;
         if (heroBtns) {
             heroBtns.innerHTML = `
                 <a href="/admin.html" class="cta-primary">فتح لوحة التاجر</a>
@@ -104,8 +104,8 @@ function updateHeroForRole(user) {
     } else {
         if (heroBtns) {
             heroBtns.innerHTML = `
-                <a href="#search" class="cta-primary">تصفح القطع الآن</a>
-                <span class="text-white/80 font-bold mr-4">منور يا ${user.name.split(' ')[0]}!</span>
+                <a href="#search" class="cta-primary">تصفح المنتجات</a>
+                <span class="text-white/80 font-bold mr-4">مرحباً بك ${user.name.split(' ')[0]}</span>
             `;
         }
     }

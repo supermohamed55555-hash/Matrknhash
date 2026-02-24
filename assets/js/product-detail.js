@@ -54,7 +54,7 @@ async function fetchOtherSellers() {
                                     ${s.isTrusted ? '<span class="trusted-badge-v2">موثوق ✅</span>' : ''}
                                 </div>
                                 <div class="merchant-rating-v2">
-                                    ⭐ ${s.rating} <span style="color:#64748b; font-size:0.8rem;">(متوفر حالياً)</span>
+                                    ⭐ ${s.rating} <span style="color:#64748b; font-size:0.8rem;">(متوفر)</span>
                                 </div>
                             </div>
                             <div class="merchant-price">${s.price.toLocaleString()} ج.م</div>
@@ -106,7 +106,7 @@ async function checkFitAI() {
             <div class="typing-indicator">
                 <span></span><span></span><span></span>
             </div>
-            <span style="color:#6366f1; font-weight:600;">المهندس عبود بيفكر...</span>
+            <span style="color:#6366f1; font-weight:600;">جاري تحليل البيانات...</span>
         </div>
     `;
     resultBox.className = "fit-result";
@@ -148,7 +148,7 @@ async function checkFitAI() {
 
     } catch (err) {
         console.error('Fitment API Error:', err);
-        resultBox.innerHTML = '⚠️ فشل الاتصال بالمهندس عبود. حاول تاني كمان شوية.';
+        resultBox.innerHTML = 'حدث خطأ في معالجة طلب التوافق التقني. يرجى المحاولة لاحقاً.';
     }
 }
 
@@ -162,7 +162,7 @@ function sendToWhatsApp() {
     if (!chatInput || !chatInput.value) return;
     const msg = chatInput.value;
     const phone = "201102233317";
-    const text = `السلام عليكم، بستفسر عن المنتج: (${partName}).\n سؤالي: ${msg} `;
+    const text = `استفسار بخصوص منتج: (${partName}).\n نص الرسالة: ${msg} `;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
 }
 
@@ -199,19 +199,19 @@ async function checkGarageCompatibility() {
         if (data.status === 'success') {
             badge.classList.add('compatible');
             if (statusText) {
-                statusText.innerText = 'متوافق مع سيارتك المسجلة ✓';
+                statusText.innerText = 'القطعة متوافقة مع سيارتك';
                 statusText.style.color = '#065f46';
             }
             if (icon) icon.innerText = '✅';
         } else if (data.status === 'error') {
             badge.classList.add('not-compatible');
             if (statusText) {
-                statusText.innerText = 'قد لا يكون متوافقاً مع سيارتك ⚠️';
+                statusText.innerText = 'القطعة قد لا تكون متوافقة';
                 statusText.style.color = '#991b1b';
             }
             if (icon) icon.innerText = '❌';
         } else {
-            if (statusText) statusText.innerText = 'راجع المهندس عبود للتأكد من التوافق';
+            if (statusText) statusText.innerText = 'تأكد من التوافق الفني قبل الشراء';
         }
     } catch (err) {
         console.error('Garage Check Error:', err);
@@ -242,7 +242,7 @@ async function addToCartBySeller(btn, sellerName, customId = null, customName = 
 
     if (overlay && truckAnimBox && statusText) {
         overlay.style.display = 'flex';
-        statusText.innerText = `جاري تجهيز القطعة من [${sellerName}]... 🚚`;
+        statusText.innerText = `جاري معالجة طلب [${sellerName}]...`;
         truckAnimBox.innerHTML = '';
         const anim = lottie.loadAnimation({
             container: truckAnimBox,
@@ -266,7 +266,7 @@ async function addToCartBySeller(btn, sellerName, customId = null, customName = 
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartBadge();
 
-            statusText.innerText = '✅ تمت الإضافة للسلة بنجاح!';
+            statusText.innerText = 'تمت الإضافة للسلة';
             statusText.style.color = '#10b981';
 
             setTimeout(() => {

@@ -23,12 +23,12 @@ async function loadProfile() {
                 socket.on('new_order', (data) => {
                     console.log('Real-time Notification:', data);
                     if (Notification.permission === "granted") {
-                        new Notification("متركنهاش - طلب جديد!", { body: data.message });
+                        new Notification("متركنهاش - طلب جديد", { body: data.message });
                     }
-                    alert(data.message + "\nرقم الطلب: #" + data.orderId.slice(-6));
+                    loadOrders(); // Load orders for all roles on new order notification
 
                     if (user.role === 'vendor') {
-                        loadOrders();
+                        // Vendor specific actions if needed, but loadOrders() is already called above
                     }
                 });
 
@@ -72,7 +72,7 @@ function setupSidebarByRole(role) {
         if (tabs.superAdmin) tabs.superAdmin.classList.remove('hidden');
         if (tabs.settings) {
             tabs.settings.classList.remove('hidden');
-            tabs.settings.innerText = 'إعدادات المنصة ⚙️';
+            tabs.settings.innerText = 'إعدادات المنصة';
         }
 
         const currentHash = window.location.hash.replace('#', '');
@@ -84,11 +84,11 @@ function setupSidebarByRole(role) {
     } else if (role === 'vendor') {
         if (tabs.orders) {
             tabs.orders.classList.remove('hidden');
-            tabs.orders.innerText = 'طلبات المبيعات 📈';
+            tabs.orders.innerText = 'طلبات المبيعات';
         }
         if (tabs.wallet) {
             tabs.wallet.classList.remove('hidden');
-            tabs.wallet.innerText = 'أرباحي 💰';
+            tabs.wallet.innerText = 'أرباحي';
         }
         if (tabs.settings) tabs.settings.classList.remove('hidden');
         showTab('orders');
@@ -343,8 +343,7 @@ async function requestReturn(id) {
             body: JSON.stringify({ reason })
         });
         if (res.ok) {
-            alert('تم تقديم طلب الاسترجاع بنجاح');
-            loadOrders();
+            alert('تم تقديم طلب الإرجاع بنجاح');
             loadReturns();
         }
     } catch (err) { alert('فشل تقديم الطلب'); }
@@ -414,7 +413,7 @@ function loadCartView() {
     fetch('/api/user/wallet').then(r => r.json()).then(data => {
         const checkoutWalletBalance = document.getElementById('checkoutWalletBalance');
         if (checkoutWalletBalance) {
-            checkoutWalletBalance.innerText = data.balance.toFixed(2) + ' ج.م';
+            if (checkoutWalletBalance) checkoutWalletBalance.innerText = data.balance.toLocaleString() + ' ج.م';
         }
     });
 }

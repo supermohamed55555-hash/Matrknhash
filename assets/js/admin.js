@@ -113,10 +113,10 @@ async function fetchVendorOrders() {
                         <div>
                             <div style="font-weight:bold; font-size: 1.1rem;">طلب رقم: #${o._id.substring(18)}</div>
                             <div style="font-size:0.85rem; opacity:0.7; margin-top: 5px;">
-                                🗓️ ${new Date(o.createdAt).toLocaleString('ar-EG')} | 💰 الإجمالي: ${o.totalPrice} ج.م
+                                تم الإنشاء في: ${new Date(o.createdAt).toLocaleString('ar-EG')} | الإجمالي: ${o.totalPrice} ج.م
                             </div>
                             <div style="font-size:0.85rem; color: var(--primary); margin-top: 5px;">
-                                📍 العنوان: ${o.shippingAddress?.details || 'غير محدد'}
+                                العنوان: ${o.shippingAddress?.details || 'غير محدد'}
                             </div>
                         </div>
                         <div class="status-badge ${getStatusClass(o.status)}">
@@ -138,11 +138,11 @@ async function fetchVendorOrders() {
                         <div style="flex: 1;">
                             <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 5px;">تغيير حالة الطلب:</label>
                             <select onchange="updateOrderStatus('${o._id}', this.value)" style="padding: 5px 10px; font-size: 0.85rem; height: auto;">
-                                <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>⏳ بانتظار الشحن (Pending)</option>
-                                <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>✅ تم التأكيد (Confirmed)</option>
-                                <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>🚚 قيد الشحن (Shipped)</option>
-                                <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>🏁 تم التسليم (Delivered)</option>
-                                <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>❌ ملغي (Cancelled)</option>
+                                <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>بانتظار الشحن (Pending)</option>
+                                <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>تم التأكيد (Confirmed)</option>
+                                <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>قيد الشحن (Shipped)</option>
+                                <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>تم التسليم (Delivered)</option>
+                                <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>ملغي (Cancelled)</option>
                             </select>
                         </div>
                         <button class="btn-small btn-edit" style="width:auto; padding:8px 20px; height: 38px; margin-top: 20px;" onclick="window.location.href='/order-details.html?id=${o._id}'">التفاصيل الكاملة</button>
@@ -165,11 +165,11 @@ function getStatusClass(status) {
 
 function getStatusText(status) {
     const texts = {
-        'Pending': '⏳ بانتظار الشحن',
-        'Confirmed': '✅ تم التأكيد',
-        'Shipped': '🚚 قيد الشحن',
-        'Delivered': '🏁 تم التسليم',
-        'Cancelled': '❌ ملغي'
+        'Pending': 'بانتظار الشحن',
+        'Confirmed': 'تم التأكيد',
+        'Shipped': 'قيد الشحن',
+        'Delivered': 'تم التسليم',
+        'Cancelled': 'ملغي'
     };
     return texts[status] || status;
 }

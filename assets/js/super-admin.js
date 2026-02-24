@@ -118,7 +118,7 @@ async function loadAllOrders() {
                 shippingBtn = `
                     <div class="flex flex-col gap-1 items-start">
                         <span class="text-[10px] text-slate-400">رقم التتبع: ${o.trackingNumber}</span>
-                        <a href="${o.shippingLabelUrl}" target="_blank" class="text-[10px] text-blue-500 underline">تحميل البوليصة 📄</a>
+                        <a href="${o.shippingLabelUrl}" target="_blank" class="text-[10px] text-blue-500 underline">تحميل بوليصة الشحن</a>
                     </div>
                 `;
             }
@@ -162,7 +162,7 @@ async function overrideOrderStatus(orderId, newStatus) {
         });
 
         if (res.ok) {
-            alert('تم تحديث حالة الطلب من قبل الإدارة!');
+            alert('تم تحديث حالة الطلب بنجاح');
             loadAllOrders();
             loadStats();
         } else {
@@ -186,7 +186,7 @@ async function confirmOrder(id, carrier) {
         const data = await res.json();
 
         if (data.success) {
-            alert('✅ تم تأكيد الطلب بنجاح! رقم التتبع: ' + data.trackingNumber);
+            alert('تم تأكيد الطلب بنجاح. رقم التتبع: ' + data.trackingNumber);
             loadAllOrders();
             loadStats();
         } else {

@@ -17,7 +17,8 @@
 <body>
     <div id="truckOverlay" class="truck-overlay">
         <div id="truckAnimation" class="truck-animation-box"></div>
-        <h2 id="truckStatusText" class="text-2xl font-bold mt-4">جاري تجهيز القطعة... 🚚</h2>
+        <h2 id="truckStatusText" class="text-2xl font-bold mt-4">جاري المعالجة...</h2>
+
     </div>
     <header class="header" id="mainHeader">
         <div class="nav-container">
@@ -48,13 +49,13 @@
 
     <section class="hero">
         <div class="hero-content">
-            <h1>مستقبل تجارة قطع الغيار في مصر</h1>
-            <p>قطع أصلية من موردين موثوقين، مع تجربة شراء ذكية وآمنة ١٠٠٪</p>
+            <h1>المنصة الرائدة لتجارة قطع الغيار الأصلية</h1>
+            <p>استعرض جميع قطع غيار السيارات الأصلية لدينا بسهولة وسرعة من موردين معتمدين بأفضل الأسعار.</p>
             <div class="hero-btns">
-                <a href="#search" class="cta-primary">ابدأ التسوق الآن</a>
+                <a href="#search" class="cta-primary">استعرض المنتجات</a>
                 <a href="javascript:void(0)"
                     onclick="openLoginModal(); togglePremiumAuth('register'); setPremiumRole('vendor');"
-                    class="cta-secondary">انضم كتاجر</a>
+                    class="cta-secondary">التسجيل كتاجر</a>
             </div>
         </div>
     </section>
@@ -65,7 +66,7 @@
                 <div class="search-form">
                     <div class="suggestions-container" style="position:relative;">
                         <input type="text" class="search-input" id="partName"
-                            placeholder="عن ماذا تبحث اليوم؟ (مثلاً: تيل فرامل، مساعدين...)" autocomplete="off">
+                            placeholder="ابحث عن قطعة غيار محددة..." autocomplete="off">
                         <div id="suggestionsBox" class="suggestions-box"></div>
                     </div>
                     <select class="search-select" id="carBrand">
@@ -95,8 +96,8 @@
     <section class="products">
         <div class="container">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
-                <h2 style="font-size:2rem; font-weight:900; color:var(--primary);">قطع مميزة مختارة</h2>
-                <a href="#search" style="color:var(--accent); font-weight:800; text-decoration:none;">عرض الكل ←</a>
+                <h2 style="font-size:2rem; font-weight:800; color:var(--primary);">منتجات مختارة</h2>
+                <a href="#search" style="color:var(--accent); font-weight:700; text-decoration:none;">عرض كافة المنتجات</a>
             </div>
             <div id="featuredProducts" class="features-grid">
                 <!-- Products Load Here -->
@@ -108,19 +109,19 @@
         <div class="container">
             <div class="features-grid">
                 <div style="text-align:center; padding:2rem;">
-                    <div style="font-size:3rem; margin-bottom:1rem;">🛡️</div>
-                    <h3 style="margin-bottom:1rem; font-weight:800;">جودة مضمونة</h3>
-                    <p style="color:var(--text-light);">فحص دقيق لكل القطع المعروضة لضمان أفضل أداء لسيارتك.</p>
+                    <div style="font-size:2.5rem; margin-bottom:1rem; color:var(--accent);">🛡️</div>
+                    <h3 style="margin-bottom:1rem; font-weight:800;">جودة واعتمادية</h3>
+                    <p style="color:var(--text-secondary);">نظام فحص دقيق لكافة القطع المعروضة لضمان توافقها التام مع المعايير الفنية.</p>
                 </div>
                 <div style="text-align:center; padding:2rem;">
-                    <div style="font-size:3rem; margin-bottom:1rem;">🚚</div>
-                    <h3 style="margin-bottom:1rem; font-weight:800;">شحن سريع</h3>
-                    <p style="color:var(--text-light);">توصيل لباب البيت في أسرع وقت ممكن وبأقل التكاليف.</p>
+                    <div style="font-size:2.5rem; margin-bottom:1rem; color:var(--accent);">🚛</div>
+                    <h3 style="margin-bottom:1rem; font-weight:800;">خدمات الشحن واللوجستيات</h3>
+                    <p style="color:var(--text-secondary);">نظام توصيل متكامل يضمن وصول طلباتكم في الوقت المحدد وبأعلى معايير الأمان.</p>
                 </div>
                 <div style="text-align:center; padding:2rem;">
-                    <div style="font-size:3rem; margin-bottom:1rem;">💳</div>
-                    <h3 style="margin-bottom:1rem; font-weight:800;">دفع آمن</h3>
-                    <p style="color:var(--text-light);">خيارات دفع متعددة وآمنة تماماً لحفظ حقوقك كبائع أو مشتري.</p>
+                    <div style="font-size:2.5rem; margin-bottom:1rem; color:var(--accent);">💳</div>
+                    <h3 style="margin-bottom:1rem; font-weight:800;">بوابة دفع آمنة</h3>
+                    <p style="color:var(--text-secondary);">بروتوكولات حماية متقدمة لضمان سرية وأمان كافة المعاملات المالية على المنصة.</p>
                 </div>
             </div>
         </div>

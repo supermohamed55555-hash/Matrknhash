@@ -33,7 +33,7 @@ function renderFeaturedProducts() {
                 <div class="result-actions">
                     <button class="result-button details" onclick="showPartDetails('${part.name}')">التفاصيل</button>
                     <button class="result-button buy btn-animated" onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
-                        <span class="btn-text">أضف للسلة</span>
+                        <span class="btn-text">إضافة للسلة</span>
                         <div class="lottie-container"></div>
                     </button>
                 </div>
@@ -165,7 +165,7 @@ function displayResults(results) {
                     <div class="result-actions">
                         <button class="result-button details" onclick="showPartDetails('${part.name}')">التفاصيل</button>
                         <button class="result-button buy btn-animated" onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
-                            <span class="btn-text">أضف للسلة</span>
+                            <span class="btn-text">إضافة للسلة</span>
                             <div class="lottie-container"></div>
                         </button>
                     </div>
@@ -189,7 +189,7 @@ async function addToCart(btn, partName, price, partId) {
 
     if (overlay && truckAnimBox && statusText) {
         overlay.style.display = 'flex';
-        statusText.innerText = `جاري تجهيز [${partName}]... 🚚`;
+        statusText.innerText = `جاري معالجة طلب [${partName}]...`;
         truckAnimBox.innerHTML = '';
         const anim = lottie.loadAnimation({
             container: truckAnimBox,
@@ -213,7 +213,7 @@ async function addToCart(btn, partName, price, partId) {
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartBadge();
 
-            statusText.innerText = '✅ تمت الإضافة بنجاح!';
+            statusText.innerText = 'تمت الإضافة بنجاح';
             statusText.style.color = '#10b981';
 
             setTimeout(() => {
