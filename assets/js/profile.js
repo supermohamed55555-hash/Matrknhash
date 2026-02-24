@@ -102,7 +102,7 @@ function setupSidebarByRole(role) {
 
 async function loadOrders() {
     try {
-        const res = await fetch('/api/user-orders');
+        const res = await fetch('/api/orders/user');
         const orders = await res.json();
         const container = document.querySelector('#orders .orders-list');
         if (!container) return;
@@ -181,7 +181,7 @@ async function loadWallet() {
 
 async function loadReturns() {
     try {
-        const res = await fetch('/api/user-returns');
+        const res = await fetch('/api/user/returns');
         const returns = await res.json();
         const container = document.querySelector('.returns-list');
         if (!container) return;

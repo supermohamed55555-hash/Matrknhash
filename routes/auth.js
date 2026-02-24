@@ -25,6 +25,16 @@ router.get('/current', (req, res) => {
     res.json(req.user || null);
 });
 
+// For backward compatibility with some frontend scripts
+router.get('/login/success', (req, res) => {
+    if (req.user) {
+        res.json({ success: true, user: req.user });
+    } else {
+        res.json({ success: false, message: 'Not authenticated' });
+    }
+});
+
+
 // Register
 router.post('/register', [
     body('email').isEmail().withMessage('بريد إلكتروني غير صحيح'),

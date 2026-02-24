@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 if (currentAuthMode === 'login') {
-                    const res = await fetch('/api/login', {
+                    const res = await fetch('/auth/login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email, password })
@@ -375,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const shopName = document.getElementById('regShopName').value;
                     const location = document.getElementById('regLocation').value;
 
-                    const res = await fetch('/api/register', {
+                    const res = await fetch('/auth/register', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ name, email, password, phone, role, shopName, location })

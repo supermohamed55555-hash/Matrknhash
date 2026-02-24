@@ -52,7 +52,7 @@ function showTab(tabId) {
 
 async function fetchVendorProducts() {
     try {
-        const res = await fetch('/api/vendor-products');
+        const res = await fetch('/api/vendor/products');
         const products = await res.json();
 
         const totalProductsEl = document.getElementById('totalProducts');
@@ -88,7 +88,7 @@ async function fetchVendorProducts() {
 
 async function fetchVendorOrders() {
     try {
-        const res = await fetch('/api/vendor-orders');
+        const res = await fetch('/api/vendor/orders');
         const orders = await res.json();
         const container = document.getElementById('vendorOrdersContainer');
 
@@ -176,7 +176,7 @@ function getStatusText(status) {
 
 async function updateOrderStatus(orderId, newStatus) {
     try {
-        const res = await fetch(`/api/vendor-orders/${orderId}/status`, {
+        const res = await fetch(`/api/vendor/orders/${orderId}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: newStatus })
@@ -217,7 +217,7 @@ function closePreview() {
 }
 
 async function editProduct(id) {
-    const res = await fetch('/api/vendor-products');
+    const res = await fetch('/api/vendor/products');
     const products = await res.json();
     const p = products.find(x => x._id === id);
     if (!p) return;
