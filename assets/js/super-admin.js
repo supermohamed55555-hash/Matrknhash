@@ -22,7 +22,7 @@ async function checkAdmin() {
                 socket.on('new_order', (orderData) => {
                     console.log('Admin: New Order Received:', orderData);
                     if (Notification.permission === "granted") {
-                        new Notification("متركنهاش - طلب جديد على المنصة!", { body: `طلب جديد بقيمة ${orderData.totalPrice} ج.م` });
+                        new Notification("متركنهاش - طلب جديد على المنصة", { body: `طلب جديد بقيمة ${orderData.totalPrice} ج.م` });
                     }
                     loadStats();
                     const ordersTab = document.getElementById('orders');
@@ -190,7 +190,7 @@ async function confirmOrder(id, carrier) {
             loadAllOrders();
             loadStats();
         } else {
-            alert('❌ خطأ: ' + (data.error || 'فشل إنشاء الشحنة'));
+            alert('خطأ: ' + (data.error || 'فشل إنشاء الشحنة'));
         }
     } catch (err) {
         alert('حدث خطأ في الاتصال بالخادم');

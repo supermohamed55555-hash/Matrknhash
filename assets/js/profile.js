@@ -259,14 +259,18 @@ async function loadGarage() {
             container.innerHTML = garage.map(car => `
                 <div style="padding:15px; border:1px solid #eef2ff; border-radius:15px; margin-bottom:10px; position:relative; background:#fafbff;">
                     <div style="display:flex; align-items:center; gap:15px;">
-                        <div style="font-size:2rem;">🚗</div>
+                        <div style="color:var(--primary); background:var(--bg-light); padding:10px; border-radius:10px;">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                        </div>
                         <div style="flex:1">
                             <strong style="font-size:1.1rem;">${car.make} ${car.model}</strong>
                             <p style="margin:5px 0; color:#666; font-size:0.9rem;">الموديل: ${car.year} | المحرك: ${car.engine}</p>
                             ${car.isPrimary ? '<span style="background:var(--primary); color:white; padding:2px 10px; border-radius:20px; font-size:0.75rem;">السيارة الأساسية</span>' :
                     `<button onclick="setPrimaryCar('${car._id}')" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:0.8rem; text-decoration:underline;">اجعلها الأساسية</button>`}
                         </div>
-                        <button onclick="deleteCar('${car._id}')" style="background:none; border:none; color:#ff4d4f; cursor:pointer; padding:5px;">🗑️</button>
+                        <button onclick="deleteCar('${car._id}')" aria-label="Delete" style="background:none; border:none; color:#dc2626; cursor:pointer; padding:5px; opacity:0.6; transition:0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>
                     </div>
                 </div>
             `).join('');
@@ -385,7 +389,9 @@ function loadCartView() {
                     <div style="font-size:0.85rem; color:#777;">التاجر: ${item.seller}</div>
                     <div style="color:var(--primary); font-weight:bold;">${item.price} ج.م</div>
                 </div>
-                <button onclick="removeFromCart(${index})" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
+                <button onclick="removeFromCart(${index})" aria-label="Remove" style="background:none; border:none; color:#dc2626; cursor:pointer; opacity:0.6; transition:0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
             </div>
         `;
     }).join('');
@@ -435,7 +441,7 @@ async function processCheckout() {
     if (!addressId) return alert('الرجاء اختيار عنوان الشحن');
 
     btn.disabled = true;
-    btn.innerText = 'جاري إتمام الطلب... ⏳';
+    btn.innerText = 'جاري إتمام الطلب...';
 
     try {
         const addrRes = await fetch('/api/user/addresses');
@@ -475,7 +481,7 @@ async function processCheckout() {
                 });
             }
         } else {
-            alert('❌ ' + (data.error || 'فشل إتمام الطلب'));
+            alert('خطأ: ' + (data.error || 'فشل إتمام الطلب'));
             btn.disabled = false;
             btn.innerText = 'تأكيد وطلب الآن';
         }

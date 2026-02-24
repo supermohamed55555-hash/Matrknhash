@@ -51,20 +51,21 @@ async function fetchOtherSellers() {
                             <div>
                                 <div class="merchant-name">
                                     ${s.sellerName} 
-                                    ${s.isTrusted ? '<span class="trusted-badge-v2">موثوق ✅</span>' : ''}
+                                    ${s.isTrusted ? '<span class="trusted-badge-v2">موثوق <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg></span>' : ''}
                                 </div>
-                                <div class="merchant-rating-v2">
-                                    ⭐ ${s.rating} <span style="color:#64748b; font-size:0.8rem;">(متوفر)</span>
+                                <div class="merchant-rating-v2" style="display:flex; align-items:center; gap:4px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#d97706" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                    ${s.rating} <span style="color:#64748b; font-size:0.8rem;">(متوفر)</span>
                                 </div>
                             </div>
                             <div class="merchant-price">${s.price.toLocaleString()} ج.م</div>
                         </div>
                         
                         <div class="merchant-meta-grid">
-                            <div class="meta-item">📍 الموقع: <b>${s.location}</b></div>
-                            <div class="meta-item">📍 الحالة: <b>جديد</b></div>
-                            <div class="meta-item">🚚 الشحن: <b>${s.shipping}</b></div>
-                            <div class="meta-item">🛡️ الضمان: <b>${s.warranty}</b></div>
+                            <div class="meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-left:5px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> الموقع: <b>${s.location}</b></div>
+                            <div class="meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-left:5px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> الحالة: <b>جديد</b></div>
+                            <div class="meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-left:5px;"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> الشحن: <b>${s.shipping}</b></div>
+                            <div class="meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-left:5px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> الضمان: <b>${s.warranty}</b></div>
                         </div>
 
                         <div class="merchant-footer">
@@ -202,14 +203,14 @@ async function checkGarageCompatibility() {
                 statusText.innerText = 'القطعة متوافقة مع سيارتك';
                 statusText.style.color = '#065f46';
             }
-            if (icon) icon.innerText = '✅';
+            if (icon) icon.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#065f46" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
         } else if (data.status === 'error') {
             badge.classList.add('not-compatible');
             if (statusText) {
                 statusText.innerText = 'القطعة قد لا تكون متوافقة';
                 statusText.style.color = '#991b1b';
             }
-            if (icon) icon.innerText = '❌';
+            if (icon) icon.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#991b1b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
         } else {
             if (statusText) statusText.innerText = 'تأكد من التوافق الفني قبل الشراء';
         }

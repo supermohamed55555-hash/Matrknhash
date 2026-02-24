@@ -32,11 +32,11 @@ async function checkLoginStatus() {
             } else {
                 if (headerSearch) headerSearch.style.display = 'block';
                 cartIcon = `
-                    <div class="cart-icon-container" onclick="window.location.href='profile.html#cart'" style="cursor:pointer; position:relative; padding: 0 5px;">
-                        <span style="font-size: 1.3rem;">🛒</span>
-                        <span id="cartBadge" style="position:absolute; top:-5px; right:-5px; background:#ff4757; color:white; font-size:0.6rem; padding:1px 5px; border-radius:50%; display:none;">0</span>
+                    <div class="cart-icon-container" onclick="window.location.href='profile.html#cart'" style="cursor:pointer; position:relative; padding: 0 5px; display: flex; align-items: center;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        <span id="cartBadge" style="position:absolute; top:-8px; right:-8px; background:var(--accent); color:white; font-size:0.65rem; font-weight:bold; padding:2px 6px; border-radius:50%; border: 2px solid var(--primary); display:none;">0</span>
                     </div>
-                `;/* Keeping the cart emoji for now as it's an icon, but I'll make it more professional if I find a better way */
+                `;
             }
 
             loginNavItem.innerHTML = `

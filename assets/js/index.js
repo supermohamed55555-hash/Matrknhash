@@ -95,8 +95,8 @@ async function handleSuggestions(query) {
 
         if (suggestions.length > 0) {
             box.innerHTML = suggestions.map(s => `
-                <div class="suggestion-item" onclick="selectSuggestion('${s}')">
-                    <span class="suggestion-icon">🔍</span>
+                <div class="suggestion-item" onclick="selectSuggestion('${s}')" style="display:flex; align-items:center; gap:10px; padding:12px 15px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     <span>${s}</span>
                 </div>
             `).join('');
@@ -363,10 +363,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     const data = await res.json();
                     if (data.success) {
-                        alert('✅ تم تسجيل الدخول بنجاح');
+                        alert('تم تسجيل الدخول بنجاح');
                         location.reload();
                     } else {
-                        alert('❌ ' + (data.error || 'خطأ في تسجيل الدخول'));
+                        alert('خطأ: ' + (data.error || 'خطأ في تسجيل الدخول'));
                     }
                 } else {
                     const name = document.getElementById('regName').value;
@@ -382,14 +382,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     const data = await res.json();
                     if (data.success) {
-                        alert('✅ تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.');
+                        alert('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.');
                         togglePremiumAuth('login');
                     } else {
-                        alert('❌ ' + (data.error || 'فشل التسجيل'));
+                        alert('خطأ: ' + (data.error || 'فشل التسجيل'));
                     }
                 }
             } catch (err) {
-                alert('❌ حدث خطأ في الاتصال بالسيرفر');
+                alert('حدث خطأ في الاتصال بالسيرفر');
             } finally {
                 submitBtn.innerText = originalText;
                 submitBtn.disabled = false;

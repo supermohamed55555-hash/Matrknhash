@@ -42,8 +42,13 @@
             </div>
             <div style="display: flex; gap: 10px;">
                 <button onclick="window.location.href='/'"
-                    style="background: #f0f2f5; border: none; padding: 8px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                    🏠 الرئيسية
+                    style="background: #f0f2f5; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    الرئيسية
                 </button>
                 <button onclick="logout()"
                     style="background: #fff0f0; border: none; color: #ff4d4f; padding: 8px 20px; border-radius: 10px; font-weight: bold; cursor: pointer;">خروج</button>
@@ -54,15 +59,85 @@
     <main class="main-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
-            <div class="menu-item active" id="tab-orders" onclick="showTab('orders')">📦 طلباتي</div>
-            <div class="menu-item" id="tab-cart" onclick="showTab('cart')">🛒 سلة المشتريات</div>
-            <div class="menu-item" id="tab-returns" onclick="showTab('returns')">🔄 المرتجعات</div>
-            <div class="menu-item" id="tab-addresses" onclick="showTab('addresses')">📍 عناويني</div>
-            <div class="menu-item" id="tab-garage" onclick="showTab('garage')">🚗 كراجي</div>
-            <div class="menu-item" id="tab-wallet" onclick="showTab('wallet')">💰 المحفظة</div>
-            <div class="menu-item" id="tab-settings" onclick="showTab('settings')">⚙️ الإعدادات</div>
-            <div class="menu-item hidden" id="tab-super-admin" onclick="window.location.href='/super-admin.html'">👑
-                لوحة الإدارة</div>
+            <div class="menu-item active" id="tab-orders" onclick="showTab('orders')"
+                style="display:flex; align-items:center; gap:12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z">
+                    </path>
+                </svg>
+                طلباتي
+            </div>
+            <div class="menu-item" id="tab-cart" onclick="showTab('cart')"
+                style="display:flex; align-items:center; gap:12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                سلة المشتريات
+            </div>
+            <div class="menu-item" id="tab-returns" onclick="showTab('returns')"
+                style="display:flex; align-items:center; gap:12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                المرتجعات
+            </div>
+            <div class="menu-item" id="tab-addresses" onclick="showTab('addresses')"
+                style="display:flex; align-items:center; gap:12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                عناويني
+            </div>
+            <div class="menu-item" id="tab-garage" onclick="showTab('garage')"
+                style="display:flex; align-items:center; gap:12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+                كراجي
+            </div>
+            <div class="menu-item" id="tab-wallet" onclick="showTab('wallet')"
+                style="display:flex; align-items:center; gap:12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                المحفظة
+            </div>
+            <div class="menu-item" id="tab-settings" onclick="showTab('settings')"
+                style="display:flex; align-items:center; gap:12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
+                الإعدادات
+            </div>
+            <div class="menu-item hidden" id="tab-super-admin" onclick="window.location.href='/super-admin.html'"
+                style="display:flex; align-items:center; gap:12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z">
+                    </path>
+                </svg>
+                لوحة الإدارة
+            </div>
         </aside>
 
         <!-- Main Content Area -->
@@ -243,7 +318,16 @@
     <div id="garageModal" class="hidden"
         style="position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
         <div style="background:white; padding:25px; border-radius:20px; width:400px;">
-            <h3 style="margin-top:0;">إضافة سيارة جديدة 🚗</h3>
+            <h3 style="margin-top:0; display:flex; align-items:center; gap:10px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+                إضافة سيارة جديدة
+            </h3>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <input id="carMake" type="text" placeholder="الماركة (تويوتا..)"
                     style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">

@@ -29,8 +29,13 @@
                 id="headerSearchGroup">
                 <input type="text" id="headerSearchInput" placeholder="ابحث عن قطعة..."
                     style="width: 100%; padding: 8px 40px 8px 15px; border-radius: 50px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.5); font-family: inherit; font-size: 0.9rem; outline: none; transition: 0.3s;">
-                <span
-                    style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); opacity: 0.5;">🔍</span>
+                <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); opacity: 0.5;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </span>
             </div>
 
             <ul class="nav-menu">
@@ -65,8 +70,8 @@
             <div class="search-container">
                 <div class="search-form">
                     <div class="suggestions-container" style="position:relative;">
-                        <input type="text" class="search-input" id="partName"
-                            placeholder="ابحث عن قطعة غيار محددة..." autocomplete="off">
+                        <input type="text" class="search-input" id="partName" placeholder="ابحث عن قطعة غيار محددة..."
+                            autocomplete="off">
                         <div id="suggestionsBox" class="suggestions-box"></div>
                     </div>
                     <select class="search-select" id="carBrand">
@@ -97,7 +102,8 @@
         <div class="container">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
                 <h2 style="font-size:2rem; font-weight:800; color:var(--primary);">منتجات مختارة</h2>
-                <a href="#search" style="color:var(--accent); font-weight:700; text-decoration:none;">عرض كافة المنتجات</a>
+                <a href="#search" style="color:var(--accent); font-weight:700; text-decoration:none;">عرض كافة
+                    المنتجات</a>
             </div>
             <div id="featuredProducts" class="features-grid">
                 <!-- Products Load Here -->
@@ -109,19 +115,41 @@
         <div class="container">
             <div class="features-grid">
                 <div style="text-align:center; padding:2rem;">
-                    <div style="font-size:2.5rem; margin-bottom:1rem; color:var(--accent);">🛡️</div>
+                    <div style="margin-bottom:1.5rem; display:flex; justify-content:center;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                    </div>
                     <h3 style="margin-bottom:1rem; font-weight:800;">جودة واعتمادية</h3>
-                    <p style="color:var(--text-secondary);">نظام فحص دقيق لكافة القطع المعروضة لضمان توافقها التام مع المعايير الفنية.</p>
+                    <p style="color:var(--text-secondary);">نظام فحص دقيق لكافة القطع المعروضة لضمان توافقها التام مع
+                        المعايير الفنية.</p>
                 </div>
                 <div style="text-align:center; padding:2rem;">
-                    <div style="font-size:2.5rem; margin-bottom:1rem; color:var(--accent);">🚛</div>
+                    <div style="margin-bottom:1.5rem; display:flex; justify-content:center;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="1" y="3" width="15" height="13"></rect>
+                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                        </svg>
+                    </div>
                     <h3 style="margin-bottom:1rem; font-weight:800;">خدمات الشحن واللوجستيات</h3>
-                    <p style="color:var(--text-secondary);">نظام توصيل متكامل يضمن وصول طلباتكم في الوقت المحدد وبأعلى معايير الأمان.</p>
+                    <p style="color:var(--text-secondary);">نظام توصيل متكامل يضمن وصول طلباتكم في الوقت المحدد وبأعلى
+                        معايير الأمان.</p>
                 </div>
                 <div style="text-align:center; padding:2rem;">
-                    <div style="font-size:2.5rem; margin-bottom:1rem; color:var(--accent);">💳</div>
+                    <div style="margin-bottom:1.5rem; display:flex; justify-content:center;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                            <line x1="1" y1="10" x2="23" y2="10"></line>
+                        </svg>
+                    </div>
                     <h3 style="margin-bottom:1rem; font-weight:800;">بوابة دفع آمنة</h3>
-                    <p style="color:var(--text-secondary);">بروتوكولات حماية متقدمة لضمان سرية وأمان كافة المعاملات المالية على المنصة.</p>
+                    <p style="color:var(--text-secondary);">بروتوكولات حماية متقدمة لضمان سرية وأمان كافة المعاملات
+                        المالية على المنصة.</p>
                 </div>
             </div>
         </div>
@@ -156,15 +184,39 @@
                 <div class="footer-col">
                     <h3>تابعنا</h3>
                     <div style="display:flex; gap:1rem; margin-top:1rem;">
-                        <a href="#" style="font-size:1.5rem;">📱</a>
-                        <a href="#" style="font-size:1.5rem;">📸</a>
-                        <a href="#" style="font-size:1.5rem;">🐦</a>
+                        <a href="#" aria-label="WhatsApp" style="color:white; opacity:0.6; transition:0.3s;"
+                            onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                </path>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="Instagram" style="color:white; opacity:0.6; transition:0.3s;"
+                            onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="Twitter" style="color:white; opacity:0.6; transition:0.3s;"
+                            onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z">
+                                </path>
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </div>
             <div
                 style="padding-top:2rem; border-top:1px solid rgba(255,255,255,0.1); text-align:center; color:rgba(255,255,255,0.4);">
-                <p>© 2025 متركنهاش - جميع الحقوق محفوظة. صنع بكل ❤️ لخدمة أصحاب السيارات.</p>
+                <p>© 2025 متركنهاش - جميع الحقوق محفوظة. صنع بكل فخر لخدمة أصحاب السيارات.</p>
             </div>
         </div>
     </footer>
