@@ -35,6 +35,11 @@
     --radius-md: 16px;
     --radius-lg: 24px;
     --radius-full: 50px;
+
+    /* Semantic Colors */
+    --success: #10b981;
+    --error: #ef4444;
+    --warning: #f59e0b;
 }
 
 
