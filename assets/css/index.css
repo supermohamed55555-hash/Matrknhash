@@ -1,300 +1,186 @@
-/* Navbar Styles */
-.header {
-    background-color: var(--white);
-    border-bottom: 1px solid var(--border-base);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    padding: var(--space-4) 0;
-}
+/* index.css - Specialized styles for the Homepage */
 
-.nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--space-4);
-}
-
-.logo {
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: var(--primary);
-    letter-spacing: -1px;
-}
-
-.nav-menu {
-    display: flex;
-    gap: var(--space-8);
-    list-style: none;
-    align-items: center;
-}
-
-.nav-menu a {
-    color: var(--text-secondary);
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.nav-menu a:hover {
-    color: var(--accent);
-}
-
-/* Hero Section */
+/* --- 1. Hero Section (Phase 2 Refactor) --- */
 .hero {
     background-color: var(--primary);
-    color: var(--white);
-    padding: var(--space-12) 0;
+    background-image: linear-gradient(rgba(26, 35, 126, 0.85), rgba(57, 73, 171, 0.85)), 
+                      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%231a237e" width="1200" height="600"/><circle cx="200" cy="150" r="50" fill="%233949ab" fill-opacity="0.2"/><circle cx="600" cy="300" r="80" fill="%233949ab" fill-opacity="0.2"/><circle cx="1000" cy="200" r="60" fill="%233949ab" fill-opacity="0.2"/></svg>');
+    background-size: cover;
+    background-position: center;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    color: var(--white);
+    margin-top: 80px;
     position: relative;
-    overflow: hidden;
-}
-
-.hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at center, rgba(30, 41, 59, 0.8) 0%, var(--primary) 100%);
-    z-index: 1;
+    padding: var(--space-16) 0;
 }
 
 .hero-content {
-    position: relative;
+    max-width: 900px;
     z-index: 2;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0 var(--space-4);
 }
 
 .hero h1 {
-    color: var(--white);
-    font-size: 3rem;
-    line-height: 1.2;
-    margin-bottom: var(--space-6);
+    font-size: 4rem;
+    font-weight: 900;
+    margin-bottom: var(--space-4);
+    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    letter-spacing: -1px;
 }
 
 .hero p {
-    color: var(--text-muted);
-    font-size: 1.2rem;
-    margin-bottom: var(--space-8);
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: var(--space-12);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
 }
 
 .hero-btns {
     display: flex;
-    justify-content: center;
     gap: var(--space-4);
+    justify-content: center;
+    align-items: center;
 }
 
-/* Search Section */
+/* --- 2. Search Section (Floating Component) --- */
 .search-section {
-    margin-top: -40px;
+    margin-top: -60px;
     position: relative;
-    z-index: 3;
+    z-index: 10;
 }
 
 .search-container {
-    background: var(--bg-card);
-    padding: var(--space-6);
+    background: var(--white);
+    padding: var(--space-8);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-base);
 }
 
-.search-form {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr auto;
-    gap: var(--space-4);
+/* --- 3. Featured Products & Post-Hero Sections --- */
+.featured-header {
+    margin-bottom: var(--space-12);
 }
 
-/* Featured Products Grid */
-.features-grid {
-    display: grid;
-<<<<<<< HEAD
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--space-8);
-    margin-top: var(--space-8);
-=======
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2.5rem;
-    justify-content: center;
-    width: 100%;
->>>>>>> d06d25946f4ea54f9161d84aa27f0953171bc9d0
-}
-
-/* Product Card Refactor */
+/* Product Card Specifics */
 .product-card {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    height: 100%;
 }
 
 .product-img-wrapper {
-    position: relative;
-    width: 100%;
-    padding-top: 75%;
+    aspect-ratio: 4/3;
     overflow: hidden;
-    background-color: #f1f5f9;
+    background-color: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .product-img-wrapper img {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     transition: transform 0.5s ease;
 }
 
-.card:hover .product-img-wrapper img {
-    transform: scale(1.05);
+.product-card:hover img {
+    transform: scale(1.1);
 }
 
-.product-info {
-    padding: var(--space-4);
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
+/* --- 4. Value Proposition Overrides --- */
+.value-card {
+    padding: var(--space-8);
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    transition: all 0.3s ease;
 }
 
-.product-info h3 {
-    font-size: 1.1rem;
-    margin-bottom: var(--space-2);
+.value-card:hover {
+    background: var(--bg-main);
 }
 
-.product-price {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: var(--accent);
-    margin-top: auto;
-}
-
-/* Footer Section */
+/* --- 5. Footer Specifics --- */
 .footer-premium {
     background-color: var(--primary-dark);
     color: var(--white);
-    padding: var(--space-12) 0 var(--space-6);
-    margin-top: var(--space-12);
+    padding: var(--space-16) 0 var(--space-8);
 }
 
 .footer-grid {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: var(--space-8);
-    margin-bottom: var(--space-8);
+    gap: var(--space-12);
 }
 
 .footer-col h3 {
     color: var(--white);
     margin-bottom: var(--space-6);
-    font-size: 1.1rem;
+    font-size: 1.25rem;
+    font-weight: 800;
 }
 
 .footer-col ul {
     list-style: none;
+    padding: 0;
 }
 
-.footer-col ul li {
+.footer-col li {
     margin-bottom: var(--space-3);
 }
 
-.footer-col ul a {
+.footer-col a {
     color: var(--text-muted);
+    font-size: 0.95rem;
+    transition: color 0.3s;
 }
 
-.footer-col ul a:hover {
+.footer-col a:hover {
     color: var(--accent);
 }
 
-/* Auth Modal Styles Overrides */
-#loginModal .premium-glass {
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    box-shadow: var(--shadow-xl);
-}
-
-.auth-gradient-btn {
-    background-color: var(--accent);
-    color: var(--accent-text);
-    transition: all 0.3s ease;
-}
-
-.auth-gradient-btn:hover {
-    filter: brightness(1.1);
-    transform: translateY(-2px);
-}
-
-/* Responsive Overrides */
+/* --- 6. Responsive Behavior --- */
 @media (max-width: 992px) {
-    .search-form {
-        grid-template-columns: 1fr 1fr;
-    }
     .footer-grid {
         grid-template-columns: 1fr 1fr;
+    }
+    .hero h1 {
+        font-size: 3rem;
     }
 }
 
 @media (max-width: 600px) {
-    .search-form {
-        grid-template-columns: 1fr;
-    }
-<<<<<<< HEAD
-    .hero h1 {
-        font-size: 2rem;
-    }
     .footer-grid {
         grid-template-columns: 1fr;
+    }
+    .hero h1 {
+        font-size: 2.25rem;
     }
     .hero-btns {
         flex-direction: column;
     }
-}
-=======
-
-    .whatsapp-float {
-        bottom: 20px;
-        left: 20px;
-        width: 50px;
-        height: 50px;
-    }
-
-    .whatsapp-float img {
-        width: 30px;
-        height: 30px;
+    .hero-btns .btn {
+        width: 100%;
     }
 }
 
-/* --- WhatsApp Float --- */
+/* WhatsApp Float */
 .whatsapp-float {
     position: fixed;
     bottom: 30px;
     left: 30px;
-    width: 60px;
-    height: 60px;
-    background-color: #25d366;
-    color: #FFF;
-    border-radius: 50px;
-    text-align: center;
-    font-size: 30px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
     z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .whatsapp-float:hover {
-    transform: scale(1.1) rotate(5deg);
-    box-shadow: 2px 5px 20px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
 }
-
-.whatsapp-float img {
-    width: 35px;
-    height: 35px;
-}
->>>>>>> d06d25946f4ea54f9161d84aa27f0953171bc9d0
