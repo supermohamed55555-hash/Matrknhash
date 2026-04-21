@@ -1,21 +1,21 @@
 :root {
-    /* Design System: Carbon & Steel */
+    /* Design System: Navy & Gold */
     
-    /* Primary Palette (Slate/Charcoal) */
-    --primary: #0f172a; /* Slate 900 */
-    --primary-light: #1e293b; /* Slate 800 */
-    --primary-dark: #020617; /* Slate 950 */
+    /* Primary Palette */
+    --primary: #1a237e; 
+    --primary-light: #3949ab; 
+    --primary-dark: #0d1421; 
     
-    /* Accent Palette (Amber/Safety Orange) */
-    --accent: #f59e0b; /* Amber 500 */
-    --accent-hover: #d97706; /* Amber 600 */
-    --accent-text: #0f172a;
+    /* Accent Palette */
+    --accent: #ffeb3b; 
+    --accent-hover: #fdd835;
+    --accent-text: #1a237e;
     
     /* Semantic Colors */
-    --success: #10b981;
-    --error: #ef4444;
-    --warning: #f59e0b;
-    --info: #3b82f6;
+    --success: #4caf50;
+    --error: #f44336;
+    --warning: #ff9800;
+    --info: #2196f3;
 
     /* Neutrals */
     --text-primary: #1e293b;
@@ -26,7 +26,7 @@
     --border-base: #e2e8f0;
     --white: #ffffff;
 
-    /* Spacing & Sizing (8px Grid) */
+    /* Spacing System (8px Grid) */
     --space-1: 4px;
     --space-2: 8px;
     --space-3: 12px;
@@ -34,42 +34,25 @@
     --space-6: 24px;
     --space-8: 32px;
     --space-12: 48px;
+    --space-16: 64px;
 
-    /* Shadows & Effects */
+    /* Elevation */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     
-    /* Border Radius */
-    --radius-sm: 4px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --radius-xl: 16px;
+    /* Radii */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
 
-<<<<<<< HEAD
     /* Typography */
     --font-main: 'Inter', 'Cairo', sans-serif;
-=======
-    /* Glassmorphism Tokens */
-    --glass: rgba(255, 255, 255, 0.1);
-    --glass-heavy: rgba(255, 255, 255, 0.2);
-    --glass-border: rgba(255, 255, 255, 0.2);
-    --blur: blur(12px);
-
-    /* Border Radii */
-    --radius-sm: 8px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --radius-full: 50px;
-
-    /* Semantic Colors */
-    --success: #10b981;
-    --error: #ef4444;
-    --warning: #f59e0b;
->>>>>>> d06d25946f4ea54f9161d84aa27f0953171bc9d0
 }
 
-/* --- Base Styles --- */
+/* --- 1. Reset & Global --- */
 * {
     margin: 0;
     padding: 0;
@@ -84,115 +67,150 @@ body {
     direction: rtl;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    color: var(--primary);
-    font-weight: 700;
+/* --- 2. Component: Typography --- */
+.type-h1 { font-size: 3rem; font-weight: 900; line-height: 1.2; }
+.type-h2 { font-size: 2.25rem; font-weight: 800; line-height: 1.3; }
+.type-h3 { font-size: 1.5rem; font-weight: 700; }
+.type-body { font-size: 1rem; color: var(--text-secondary); }
+.type-small { font-size: 0.875rem; color: var(--text-muted); }
+
+/* --- 3. Component: Layout --- */
+.section {
+    padding: var(--space-16) 0;
 }
 
-a {
-    text-decoration: none;
-    transition: color 0.2s ease, opacity 0.2s ease;
+.section-dark {
+    background-color: var(--primary);
+    color: var(--white);
 }
 
-/* --- Layout Components --- */
 .container {
     width: 100%;
-<<<<<<< HEAD
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 var(--space-4);
+    padding: 0 var(--space-8);
 }
 
-/* --- Generic Components --- */
-
-/* Buttons */
+/* --- 4. Component: Buttons --- */
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: var(--space-3) var(--space-6);
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 0.95rem;
+    padding: var(--space-3) var(--space-8);
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    font-size: 1rem;
     cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
     gap: var(--space-2);
 }
 
 .btn-primary {
     background-color: var(--accent);
     color: var(--accent-text);
+    box-shadow: 0 4px 15px rgba(255, 235, 59, 0.2);
 }
 
 .btn-primary:hover {
     background-color: var(--accent-hover);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
-
-.btn-secondary {
-    background-color: var(--primary);
-    color: var(--white);
-}
-
-.btn-secondary:hover {
-    background-color: var(--primary-light);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 235, 59, 0.3);
 }
 
 .btn-outline {
     background-color: transparent;
-    border: 2px solid var(--primary);
-    color: var(--primary);
-}
-
-.btn-outline:hover {
-    background-color: var(--primary);
+    border-color: var(--white);
     color: var(--white);
 }
 
-/* Cards */
+.btn-outline:hover {
+    background-color: var(--white);
+    color: var(--primary);
+}
+
+.btn-sm {
+    padding: var(--space-2) var(--space-4);
+    font-size: 0.875rem;
+}
+
+/* --- 5. Component: Navigation --- */
+.header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: var(--white);
+    height: 80px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.header.scrolled {
+    height: 65px;
+    background: var(--primary-dark);
+    box-shadow: var(--shadow-lg);
+}
+
+/* --- 6. Component: Cards --- */
 .card {
     background-color: var(--bg-card);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-base);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
     transition: all 0.3s ease;
 }
 
 .card:hover {
-    box-shadow: var(--shadow-lg);
-    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
 }
 
-/* Inputs */
+.card-body {
+    padding: var(--space-6);
+}
+
+/* --- 7. Component: Forms --- */
+.input-group {
+    margin-bottom: var(--space-4);
+}
+
+.input-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: var(--space-1);
+}
+
 .form-input {
     width: 100%;
     padding: var(--space-3) var(--space-4);
-    border-radius: var(--radius-md);
     border: 1px solid var(--border-base);
+    border-radius: var(--radius-md);
+    background-color: var(--white);
     font-family: inherit;
-    font-size: 0.95rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.2s;
 }
 
 .form-input:focus {
     outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.1);
 }
 
-/* --- Mobile Responsiveness --- */
-@media (max-width: 768px) {
-    .container {
-        padding: 0 var(--space-4);
-    }
+/* --- 8. Component: Overlay & Modals --- */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
 }
-=======
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
-}
->>>>>>> d06d25946f4ea54f9161d84aa27f0953171bc9d0
