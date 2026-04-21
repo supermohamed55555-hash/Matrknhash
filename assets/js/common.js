@@ -1,4 +1,5 @@
 // --- Common Utility Functions ---
+// Designed for 'MetrknHash' Marketplace - Carbon & Steel System
 
 async function checkLoginStatus() {
     try {
@@ -10,16 +11,17 @@ async function checkLoginStatus() {
         if (loginNavItem && data.user) {
             const user = data.user;
             let vendorDashboardBtn = '';
+            
             if (user.role === 'admin' || user.role === 'super-admin') {
                 vendorDashboardBtn = `
-                    <a href="/super-admin.html" class="flex items-center gap-2 px-4 py-2 rounded-full border border-orange-300 bg-orange-50 hover:bg-orange-100 transition text-orange-700 font-bold text-sm shadow-sm">
+                    <a href="/super-admin.html" class="btn btn-secondary px-4 py-2 text-xs">
                         لوحة الإدارة
                     </a>
                 `;
             } else if (user.role === 'vendor') {
                 vendorDashboardBtn = `
-                    <a href="/admin.html" class="flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 hover:bg-primary/20 transition text-primary font-bold text-sm">
-                        لوحة التاجر
+                    <a href="/admin.html" class="btn btn-secondary px-4 py-2 text-xs">
+                        مركز التاجر
                     </a>
                 `;
             }
@@ -32,27 +34,26 @@ async function checkLoginStatus() {
             } else {
                 if (headerSearch) headerSearch.style.display = 'block';
                 cartIcon = `
-                    <div class="cart-icon-container" onclick="window.location.href='profile.html#cart'" style="cursor:pointer; position:relative; padding: 0 5px; display: flex; align-items: center;">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                        <span id="cartBadge" style="position:absolute; top:-8px; right:-8px; background:var(--accent); color:white; font-size:0.65rem; font-weight:bold; padding:2px 6px; border-radius:50%; border: 2px solid var(--primary); display:none;">0</span>
+                    <div class="cart-icon-container" onclick="window.location.href='profile.html#cart'" style="cursor:pointer; position:relative; padding: 0 10px; display: flex; align-items: center;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        <span id="cartBadge" class="absolute -top-1 -right-1 bg-amber-600 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
                     </div>
                 `;
             }
 
             loginNavItem.innerHTML = `
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-4">
                     ${vendorDashboardBtn}
                     ${cartIcon}
-                    <div class="flex items-center gap-2 pr-3 py-1 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 transition cursor-pointer" onclick="window.location.href='/profile.html'" style="min-width: fit-content;">
-                        <span class="text-white font-bold text-xs">${user.name.split(' ')[0]}</span>
-                        <div class="w-7 h-7 rounded-full bg-accent flex items-center justify-center">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                    <div class="flex items-center gap-3 pr-4 py-1.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 transition cursor-pointer" onclick="window.location.href='/profile.html'">
+                        <span class="text-slate-900 font-bold text-xs">${user.name.split(' ')[0]}</span>
+                        <div class="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-white">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                         </div>
                     </div>
                 </div>
             `;
 
-            // Update Hero if on Index page
             updateHeroForRole(user);
         }
         updateCartBadge();
@@ -67,45 +68,28 @@ function updateHeroForRole(user) {
     const heroSub = document.querySelector('.hero-content p');
     const heroBtns = document.querySelector('.hero-btns');
 
-    if (!heroTitle) return; // Not on landing page
+    if (!heroTitle) return;
 
-    if (user.role === 'admin' || user.role === 'super-admin') {
-        const searchSection = document.getElementById('search');
-        const productsSection = document.querySelector('.products');
-        const featuresSection = document.getElementById('features');
-        if (searchSection) searchSection.style.display = 'none';
-        if (productsSection) productsSection.style.display = 'none';
-        if (featuresSection) featuresSection.style.display = 'none';
+    if (user.role === 'admin' || user.role === 'super-admin' || user.role === 'vendor') {
+        const sectionsToHide = ['#search', '.products', '#features', '.bg-white.py-24'];
+        sectionsToHide.forEach(s => {
+            const el = document.querySelector(s) || document.getElementById(s.replace('#',''));
+            if (el) el.style.display = 'none';
+        });
 
-        heroTitle.innerText = 'لوحة تحكم الإدارة';
-        heroSub.innerText = `مرحباً ${user.name}. كافة أدوات الإدارة متاحة الآن للتحكم في المنصة.`;
+        heroTitle.innerText = user.role === 'vendor' ? 'مركز إدارة المبيعات' : 'لوحة تحكم المنصة';
+        heroSub.innerText = `أهلاً بك سيد ${user.name}. جميع أدوات الإدارة المتقدمة متاحة لك الآن.`;
         if (heroBtns) {
             heroBtns.innerHTML = `
-                <a href="/super-admin.html" class="cta-primary">فتح لوحة الإدارة</a>
-                <a href="profile.html" class="cta-secondary">الملف الشخصي</a>
-            `;
-        }
-    } else if (user.role === 'vendor') {
-        const searchSection = document.getElementById('search');
-        const productsSection = document.querySelector('.products');
-        const featuresSection = document.getElementById('features');
-        if (searchSection) searchSection.style.display = 'none';
-        if (productsSection) productsSection.style.display = 'none';
-        if (featuresSection) featuresSection.style.display = 'none';
-
-        heroTitle.innerText = 'مركز إدارة المبيعات';
-        heroSub.innerText = `مرحباً ${user.name}. يمكنك متابعة طلبات المبيعات وإدارة المخزون والمنتجات من هنا.`;
-        if (heroBtns) {
-            heroBtns.innerHTML = `
-                <a href="/admin.html" class="cta-primary">فتح لوحة التاجر</a>
-                <a href="profile.html" class="cta-secondary">الملف الشخصي</a>
+                <a href="${user.role === 'vendor' ? '/admin.html' : '/super-admin.html'}" class="btn btn-primary px-12">فتح لوحة التحكم</a>
+                <a href="profile.html" class="btn btn-outline border-white text-white hover:bg-white hover:text-slate-900">الملف الشخصي</a>
             `;
         }
     } else {
         if (heroBtns) {
             heroBtns.innerHTML = `
-                <a href="#search" class="cta-primary">تصفح المنتجات</a>
-                <span class="text-white/80 font-bold mr-4">مرحباً بك ${user.name.split(' ')[0]}</span>
+                <a href="#search" class="btn btn-primary">تصفح المنتجات</a>
+                <span class="text-white font-bold mr-6">مرحباً بك، ${user.name.split(' ')[0]}</span>
             `;
         }
     }
@@ -117,7 +101,7 @@ function handleAccountClick(e) {
         if (typeof openLoginModal === 'function') {
             openLoginModal();
         } else {
-            window.location.href = '/login'; // Fallback
+            window.location.href = '/login';
         }
     }
 }
@@ -136,19 +120,20 @@ function updateCartBadge() {
 }
 
 function setupHeaderScroll() {
-    const header = document.getElementById('mainHeader');
+    const header = document.querySelector('.header');
     if (header) {
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-md');
+                header.style.padding = '8px 0';
             } else {
-                header.classList.remove('scrolled');
+                header.classList.remove('shadow-md');
+                header.style.padding = '16px 0';
             }
         });
     }
 }
 
-// Global closeModal listener
 window.onclick = function (event) {
     const modal = document.getElementById('loginModal');
     if (event.target == modal && typeof closeLoginModal === 'function') {

@@ -17,24 +17,23 @@ function renderFeaturedProducts() {
     const container = document.getElementById('featuredProducts');
     if (!container) return;
     if (partsDatabase.length === 0) {
-        container.innerHTML = '<p style="text-align:center; width:100%;">لا توجد منتجات حالياً.</p>';
+        container.innerHTML = '<p class="text-center w-full py-8 text-slate-500">لا توجد منتجات متوفرة حالياً.</p>';
         return;
     }
     const featured = partsDatabase.slice(0, 8);
     container.innerHTML = featured.map(part => `
-        <div class="search-result-item">
-            <div class="result-image">
+        <div class="card product-card">
+            <div class="product-img-wrapper">
                 <img src="${part.image}" alt="${part.name}">
             </div>
-            <div class="result-info">
-                <span style="font-size:0.8rem; color:var(--text-light); font-weight:700; text-transform:uppercase;">${part.brand}</span>
-                <h4>${part.name}</h4>
-                <div class="result-price">${part.price} ج.م</div>
-                <div class="result-actions">
-                    <button class="result-button details" onclick="showPartDetails('${part.name}')">التفاصيل</button>
-                    <button class="result-button buy btn-animated" onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
-                        <span class="btn-text">إضافة للسلة</span>
-                        <div class="lottie-container"></div>
+            <div class="product-info">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">${part.brand}</span>
+                <h3 class="text-slate-900 mb-4">${part.name}</h3>
+                <div class="product-price mb-6 font-black">${part.price.toLocaleString()} ج.م</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button class="btn btn-outline py-2 text-sm" onclick="showPartDetails('${part.name}')">التفاصيل</button>
+                    <button class="btn btn-primary py-2 text-sm" onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
+                        إضافة للسلة
                     </button>
                 </div>
             </div>
@@ -151,22 +150,24 @@ function displayResults(results) {
     const resultsContainer = document.getElementById('searchResults');
     if (!resultsContainer) return;
     if (results.length === 0) {
-        resultsContainer.innerHTML = '<p style="text-align:center; width:100%; grid-column: 1/-1; padding: 2rem; color:var(--text-light);">لا توجد نتائج مطابقة.</p>';
+        resultsContainer.innerHTML = '<p class="text-center w-full py-12 text-slate-500 col-span-full">عذراً، لم يتم العثور على نتائج تطابق معايير البحث.</p>';
     } else {
         resultsContainer.innerHTML = results.map(part => `
-            <div class="search-result-item">
-                <div class="result-image">
+            <div class="card product-card">
+                <div class="product-img-wrapper">
                     <img src="${part.image}" alt="${part.name}">
                 </div>
-                <div class="result-info">
-                    <span style="font-size:0.8rem; color:var(--text-light); font-weight:700;">${part.brand} | ${part.category}</span>
-                    <h4>${part.name}</h4>
-                    <div class="result-price">${part.price} ج.م</div>
-                    <div class="result-actions">
-                        <button class="result-button details" onclick="showPartDetails('${part.name}')">التفاصيل</button>
-                        <button class="result-button buy btn-animated" onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
-                            <span class="btn-text">إضافة للسلة</span>
-                            <div class="lottie-container"></div>
+                <div class="product-info">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-bold text-amber-600 uppercase">${part.brand}</span>
+                        <span class="text-[10px] bg-slate-100 px-2 py-1 rounded text-slate-500 font-bold">${part.category}</span>
+                    </div>
+                    <h3 class="text-slate-900 mb-4">${part.name}</h3>
+                    <div class="product-price mb-6 font-black">${part.price.toLocaleString()} ج.م</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="btn btn-outline py-2 text-sm" onclick="showPartDetails('${part.name}')">التفاصيل</button>
+                        <button class="btn btn-primary py-2 text-sm" onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
+                            إضافة للسلة
                         </button>
                     </div>
                 </div>
@@ -273,12 +274,12 @@ function togglePremiumAuth(mode) {
     const btn = document.getElementById('submitBtn');
     const toggle = document.getElementById('toggleText');
 
-    if (title) title.innerText = isReg ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
-    if (sub) sub.innerText = isReg ? 'سجل بياناتك للبدء' : 'سجل دخولك باستخدام البريد الإلكتروني';
-    if (btn) btn.innerText = isReg ? 'إنشاء حساب' : 'تسجيل الدخول';
+    if (title) title.innerText = isReg ? 'إنشاء حساب جديد' : 'تسجيل الدخول للنظام';
+    if (sub) sub.innerText = isReg ? 'يرجى إدخال البيانات المطلوبة لإنشاء حسابكم' : 'يرجى إدخال البريد الإلكتروني وكلمة المرور للمتابعة';
+    if (btn) btn.innerText = isReg ? 'تأكيد إنشاء الحساب' : 'دخول النظام';
     if (toggle) toggle.innerHTML = isReg ?
-        `لديك حساب بالفعل؟ <button onclick="togglePremiumAuth('login')" class="text-indigo-300 underline font-bold">تسجيل دخول</button>` :
-        `ليس لديك حساب؟ <button onclick="togglePremiumAuth('register')" class="text-indigo-300 underline font-bold">سجل الآن</button>`;
+        `لديك حساب مفعل بالفعل؟ <button onclick="togglePremiumAuth('login')" class="text-amber-500 font-bold hover:underline">تسجيل الدخول</button>` :
+        `ليس لديك حساب مسجل؟ <button onclick="togglePremiumAuth('register')" class="text-amber-500 font-bold hover:underline">أنشئ حسابك الآن</button>`;
 
     const roleSel = document.getElementById('roleSelector');
     const nameF = document.getElementById('nameField');
@@ -305,8 +306,8 @@ function setPremiumRole(role) {
     if (roleEl) roleEl.value = role;
     const uBtn = document.getElementById('roleUser');
     const vBtn = document.getElementById('roleVendor');
-    if (uBtn) uBtn.style.background = role === 'user' ? '#4f46e5' : 'rgba(255,255,255,0.05)';
-    if (vBtn) vBtn.style.background = role === 'vendor' ? '#4f46e5' : 'rgba(255,255,255,0.05)';
+    if (uBtn) uBtn.style.background = role === 'user' ? '#f59e0b' : 'rgba(255,255,255,0.05)';
+    if (vBtn) vBtn.style.background = role === 'vendor' ? '#f59e0b' : 'rgba(255,255,255,0.05)';
     const vendF = document.getElementById('vendorFields');
     if (vendF) vendF.classList.toggle('hidden', role !== 'vendor');
 }

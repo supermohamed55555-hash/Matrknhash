@@ -46,39 +46,32 @@ async function fetchOtherSellers() {
                 if (pVenderCount) pVenderCount.innerText = `${sellers.length} تجار متاحين`;
 
                 sellersContainer.innerHTML = sellers.map(s => `
-                    <div class="merchant-card">
-                        <div class="merchant-header">
+                    <div class="card p-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </div>
                             <div>
-                                <div class="merchant-name">
-                                    ${s.sellerName} 
-                                    ${s.isTrusted ? '<span class="trusted-badge-v2">موثوق <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg></span>' : ''}
-                                </div>
-                                <div class="merchant-rating-v2" style="display:flex; align-items:center; gap:4px;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#d97706" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                                    ${s.rating} <span style="color:#64748b; font-size:0.8rem;">(متوفر)</span>
+                                <h4 class="font-bold text-slate-900 flex items-center gap-2">
+                                    ${s.sellerName}
+                                    ${s.isTrusted ? '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black uppercase">موثوق</span>' : ''}
+                                </h4>
+                                <div class="flex items-center gap-1 text-amber-500 text-xs font-bold">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                    ${s.rating}
+                                    <span class="text-slate-400 mr-2 font-normal">| ${s.location}</span>
                                 </div>
                             </div>
-                            <div class="merchant-price">${s.price.toLocaleString()} ج.م</div>
                         </div>
-                        
-                        <div class="merchant-meta-grid">
-                            <div class="meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-left:5px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> الموقع: <b>${s.location}</b></div>
-                            <div class="meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-left:5px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> الحالة: <b>جديد</b></div>
-                            <div class="meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-left:5px;"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> الشحن: <b>${s.shipping}</b></div>
-                            <div class="meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; margin-left:5px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> الضمان: <b>${s.warranty}</b></div>
+                        <div class="flex flex-col items-end gap-1">
+                            <div class="text-2xl font-black text-slate-900">${s.price.toLocaleString()} ج.م</div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">توصيل: ${s.shipping}</div>
                         </div>
-
-                        <div class="merchant-footer">
-                            <div class="merchant-btns">
-                                <button class="buy-now-btn btn-animated" onclick="addToCartBySeller(this, '${s.sellerName}', null, null, ${s.price})">
-                                    <span class="btn-text">شراء الآن</span>
-                                    <div class="lottie-container"></div>
-                                </button>
-                                <a href="https://wa.me/201016487547?text=استفسار عن ${encodeURIComponent(partName)} من تاجر ${encodeURIComponent(s.sellerName)}" 
-                                   target="_blank" class="whatsapp-btn-v2">
-                                    واتساب مباشر
-                                </a>
-                            </div>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <button class="btn btn-primary px-8" onclick="addToCartBySeller(this, '${s.sellerName}', null, null, ${s.price})">شراء الآن</button>
+                            <a href="https://wa.me/201016487547" target="_blank" class="btn btn-outline p-3">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                            </a>
                         </div>
                     </div>
                 `).join('');
@@ -98,7 +91,7 @@ async function checkFitAI() {
     const resultBox = document.getElementById('fitResult');
     const productId = urlParams.get('id');
 
-    if (!userTextEl || !userTextEl.value) { alert("من فضلك اكتب بيانات عربيتك الأول!"); return; }
+    if (!userTextEl || !userTextEl.value) { alert("يرجى تزويدنا ببيانات المركبة لإتمام عملية الفحص."); return; }
     const userText = userTextEl.value;
 
     resultBox.style.display = 'block';
