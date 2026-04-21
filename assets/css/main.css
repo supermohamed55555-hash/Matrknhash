@@ -46,8 +46,27 @@
     --radius-lg: 12px;
     --radius-xl: 16px;
 
+<<<<<<< HEAD
     /* Typography */
     --font-main: 'Inter', 'Cairo', sans-serif;
+=======
+    /* Glassmorphism Tokens */
+    --glass: rgba(255, 255, 255, 0.1);
+    --glass-heavy: rgba(255, 255, 255, 0.2);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --blur: blur(12px);
+
+    /* Border Radii */
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-full: 50px;
+
+    /* Semantic Colors */
+    --success: #10b981;
+    --error: #ef4444;
+    --warning: #f59e0b;
+>>>>>>> d06d25946f4ea54f9161d84aa27f0953171bc9d0
 }
 
 /* --- Base Styles --- */
@@ -78,6 +97,7 @@ a {
 /* --- Layout Components --- */
 .container {
     width: 100%;
+<<<<<<< HEAD
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 var(--space-4);
@@ -170,3 +190,9 @@ a {
         padding: 0 var(--space-4);
     }
 }
+=======
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+}
+>>>>>>> d06d25946f4ea54f9161d84aa27f0953171bc9d0
