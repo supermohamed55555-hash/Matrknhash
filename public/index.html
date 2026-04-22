@@ -54,39 +54,43 @@
         </div>
     </section>
 
-    <!-- Search Section (Component Refactor) -->
-    <section id="search" class="section section-dark py-20 bg-primary">
+    <!-- Search Section (Phase 3 Refactor) -->
+    <section id="search" class="section section-dark py-20">
         <div class="container">
-            <h2 class="type-h2 text-center mb-12">ابحث عن قطعة سيارتك</h2>
-            <div class="card bg-white/10 backdrop-blur-md p-8 sm:p-12">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <h2 class="type-h2 text-center mb-12">ابحث عن قطعة سيارتك بدقة</h2>
+            <div class="card bg-white/5 backdrop-blur-xl p-8 sm:p-10 border-white/10">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
                     <div class="input-group">
-                        <label class="input-label">القطعة المطلوبة</label>
-                        <input type="text" class="form-input" id="partName" placeholder="مثلاً: طقم مكابح" autocomplete="off">
-                        <div id="suggestionsBox" class="suggestions-box"></div>
+                        <label class="input-label text-white/70">اسم القطعة</label>
+                        <input type="text" class="form-input !bg-white/10 !text-white !border-white/20 placeholder:text-white/40" id="partName" placeholder="مثلاً: مساعدين، طرمبة مياه..." autocomplete="off">
+                        <div id="suggestionsBox" class="suggestions-box !bg-slate-900 !border-slate-800"></div>
                     </div>
                     <div class="input-group">
-                        <label class="input-label">الماركة</label>
-                        <select class="form-input" id="carBrand">
-                            <option value="">كافة الماركات</option>
-                            <option value="toyota">تويوتا</option>
-                            <option value="nissan">نيسان</option>
-                            <option value="hyundai">هيونداي</option>
+                        <label class="input-label text-white/70">الماركة</label>
+                        <select class="form-input !bg-white/10 !text-white !border-white/20" id="carBrand">
+                            <option value="" class="text-slate-900">كافة الماركات</option>
+                            <option value="toyota" class="text-slate-900">تويوتا (Toyota)</option>
+                            <option value="hyundai" class="text-slate-900">هيونداي (Hyundai)</option>
+                            <option value="kia" class="text-slate-900">كيا (Kia)</option>
+                            <option value="nissan" class="text-slate-900">نيسان (Nissan)</option>
+                            <option value="mitsubishi" class="text-slate-900">ميتسوبيشي</option>
                         </select>
                     </div>
                     <div class="input-group">
-                        <label class="input-label">الفئة</label>
-                        <select class="form-input" id="carCategory">
-                            <option value="">كافة الفئات</option>
-                            <option value="Wheels">جنوط</option>
-                            <option value="Tires">كاوتش</option>
+                        <label class="input-label text-white/70">الفئة</label>
+                        <select class="form-input !bg-white/10 !text-white !border-white/20" id="carCategory">
+                            <option value="" class="text-slate-900">كافة الفئات</option>
+                            <option value="Engine" class="text-slate-900">المحرك (Engine)</option>
+                            <option value="Brakes" class="text-slate-900">المكابح (Brakes)</option>
+                            <option value="Suspension" class="text-slate-900">العفشة (Suspension)</option>
+                            <option value="Electricity" class="text-slate-900">الكهرباء (Electricity)</option>
                         </select>
                     </div>
-                    <div class="flex items-end mb-[16px]">
-                        <button type="button" class="btn btn-primary w-full" onclick="searchParts()">ابحث الآن</button>
+                    <div class="input-group">
+                        <button type="button" class="btn btn-primary w-full shadow-lg" onclick="searchParts()">ابحث الآن</button>
                     </div>
                 </div>
-                <div id="searchResults" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12"></div>
+                <div id="searchResults" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12"></div>
             </div>
         </div>
     </section>

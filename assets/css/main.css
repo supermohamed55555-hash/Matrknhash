@@ -175,32 +175,41 @@ body {
 
 /* --- 7. Component: Forms --- */
 .input-group {
-    margin-bottom: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
 }
 
 .input-label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 800;
     text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: var(--space-1);
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    margin-right: var(--space-1);
 }
 
 .form-input {
     width: 100%;
-    padding: var(--space-3) var(--space-4);
+    padding: var(--space-3_5, 14px) var(--space-4);
     border: 1px solid var(--border-base);
     border-radius: var(--radius-md);
     background-color: var(--white);
     font-family: inherit;
-    transition: all 0.2s;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    transition: all 0.25s ease;
+}
+
+.form-input::placeholder {
+    color: var(--text-muted);
 }
 
 .form-input:focus {
     outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.1);
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 4px rgba(57, 73, 171, 0.15);
 }
 
 /* --- 8. Component: Overlay & Modals --- */
