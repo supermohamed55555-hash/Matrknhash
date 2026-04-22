@@ -22,17 +22,20 @@ function renderFeaturedProducts() {
     }
     const featured = partsDatabase.slice(0, 8);
     container.innerHTML = featured.map(part => `
-        <div class="card product-card">
+        <div class="product-card card">
             <div class="product-img-wrapper">
                 <img src="${part.image}" alt="${part.name}">
             </div>
             <div class="product-info">
-                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">${part.brand}</span>
-                <h3 class="text-slate-900 mb-4">${part.name}</h3>
-                <div class="product-price mb-6 font-black">${part.price.toLocaleString()} ج.م</div>
-                <div class="grid grid-cols-2 gap-2">
-                    <button class="btn btn-outline py-2 text-sm" onclick="showPartDetails('${part.name}')">التفاصيل</button>
-                    <button class="btn btn-primary py-2 text-sm" onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">${part.brand}</span>
+                    <span class="text-[10px] bg-slate-100 px-2 py-1 rounded text-slate-500 font-bold">${part.category}</span>
+                </div>
+                <h3 class="type-h3 text-slate-900">${part.name}</h3>
+                <div class="product-price">${part.price.toLocaleString()} ج.م</div>
+                <div class="product-card-actions">
+                    <button class="btn btn-outline btn-sm !text-primary !border-primary" onclick="showPartDetails('${part.name}')">التفاصيل</button>
+                    <button class="btn btn-primary btn-sm" onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
                         إضافة للسلة
                     </button>
                 </div>
@@ -153,20 +156,20 @@ function displayResults(results) {
         resultsContainer.innerHTML = '<p class="text-center w-full py-12 text-slate-500 col-span-full">عذراً، لم يتم العثور على نتائج تطابق معايير البحث.</p>';
     } else {
         resultsContainer.innerHTML = results.map(part => `
-            <div class="card product-card">
+            <div class="product-card card">
                 <div class="product-img-wrapper">
                     <img src="${part.image}" alt="${part.name}">
                 </div>
                 <div class="product-info">
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-xs font-bold text-amber-600 uppercase">${part.brand}</span>
+                        <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">${part.brand}</span>
                         <span class="text-[10px] bg-slate-100 px-2 py-1 rounded text-slate-500 font-bold">${part.category}</span>
                     </div>
-                    <h3 class="text-slate-900 mb-4">${part.name}</h3>
-                    <div class="product-price mb-6 font-black">${part.price.toLocaleString()} ج.م</div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button class="btn btn-outline py-2 text-sm" onclick="showPartDetails('${part.name}')">التفاصيل</button>
-                        <button class="btn btn-primary py-2 text-sm" onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
+                    <h3 class="type-h3 text-slate-900">${part.name}</h3>
+                    <div class="product-price">${part.price.toLocaleString()} ج.م</div>
+                    <div class="product-card-actions">
+                        <button class="btn btn-outline btn-sm !text-primary !border-primary" onclick="showPartDetails('${part.name}')">التفاصيل</button>
+                        <button class="btn btn-primary btn-sm" onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
                             إضافة للسلة
                         </button>
                     </div>
