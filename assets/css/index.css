@@ -7,8 +7,8 @@
     justify-content: center;
     text-align: center;
     background-color: var(--primary);
-    /* New cinematic high-end automotive visual */
-    background-image: url('https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&q=80&w=1920');
+    /* High-detail cinematic automotive image (Car front with headlights) */
+    background-image: url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1920');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
