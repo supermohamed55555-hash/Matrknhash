@@ -407,6 +407,7 @@ async function seedSampleProducts() {
         await Product.insertMany(samples);
         logger.info('✅ 50 realistic products seeded successfully.');
     } catch (err) {
+        console.error('CRITICAL SEEDING ERROR:', err);
         logger.error('Seeding Error:', err);
     }
 }

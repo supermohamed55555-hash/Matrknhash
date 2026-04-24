@@ -17,7 +17,19 @@ router.get('/', async (req, res) => {
         const products = await Product.find(query).sort({ createdAt: -1 });
         res.json(products);
     } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch products' });
+        logger.error('Fetch Products Error:', err);
+        res.status(500).json({ error: 'Failed to fetch products', details: err.message });
+    }
+});
+
+// Diagnostic route
+router.get('/test-db', async (req, res) => {
+    try {
+        const count = await Product.countDocuments();
+        const first = await Product.findOne();
+        res.json({ count, first });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
