@@ -136,6 +136,7 @@ body {
 
 /* --- 5. Component: Navigation --- */
 .header {
+    background: var(--primary);
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     color: var(--white);
     height: 80px;
@@ -145,13 +146,62 @@ body {
     z-index: 1000;
     display: flex;
     align-items: center;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .header.scrolled {
-    height: 65px;
+    height: 70px;
     background: var(--primary-dark);
     box-shadow: var(--shadow-lg);
+    border-bottom: 1px solid var(--accent);
+}
+
+.nav-container {
+    width: 100%;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 var(--space-6);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: -1px;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu a {
+    color: var(--white);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    opacity: 0.85;
+}
+
+.nav-menu a:hover {
+    color: var(--accent);
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .nav-menu {
+        display: none; /* Mobile menu logic should be implemented if needed */
+    }
 }
 
 /* --- 6. Component: Cards --- */

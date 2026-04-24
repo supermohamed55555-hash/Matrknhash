@@ -13,9 +13,10 @@
     justify-content: center;
     text-align: center;
     color: var(--white);
-    margin-top: 80px;
+    margin-top: 0; /* Changed from 80px to 0 to avoid white gap */
+    padding-top: 120px; /* Added padding instead of margin to accommodate fixed header */
+    padding-bottom: var(--space-16);
     position: relative;
-    padding: var(--space-16) 0;
 }
 
 .hero-content {

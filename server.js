@@ -305,5 +305,60 @@ async function promoteAyaToAdmin() {
 const PORT = process.env.PORT || 3000;
 http.listen(PORT, async () => {
     logger.info(`🚀 Server running on port ${PORT}`);
-    await promoteAyaToAdmin(); // Run the promotion check on startup
+    await promoteAyaToAdmin();
+    await seedSampleProducts();
 });
+
+async function seedSampleProducts() {
+    try {
+        const count = await Product.countDocuments();
+        if (count > 0) return;
+
+        const samples = [
+            {
+                name: "طقم مساعدين أمامى (KYB)",
+                brand: "Toyota",
+                price: 4500,
+                category: "Suspension",
+                image: "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=400",
+                description: "مساعدين ياباني أصلي ماركة KYB متوافقة مع تويوتا كورولا 2014-2022.",
+                stockQuantity: 10,
+                condition: "جديد",
+                warranty: "6 شهور",
+                tags: ["مساعدين", "تويوتا", "عفشة"],
+                vendorName: "متركنهاش"
+            },
+            {
+                name: "تيل فرامل أمامى (Valeo)",
+                brand: "Hyundai",
+                price: 1250,
+                category: "Brakes",
+                image: "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=400",
+                description: "تيل فرامل فرنسي أصلي يضمن أداء متميز وهدوء تام عند الكبح.",
+                stockQuantity: 25,
+                condition: "جديد",
+                warranty: "سنة",
+                tags: ["تيل", "فرامل", "هيونداي"],
+                vendorName: "متركنهاش"
+            },
+            {
+                name: "طقم بوجيهات (NGK Iridium)",
+                brand: "Nissan",
+                price: 950,
+                category: "Engine",
+                image: "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=400",
+                description: "بوجيهات إيريديوم لزيادة كفاءة الاحتراق وتوفير استهلاك الوقود.",
+                stockQuantity: 50,
+                condition: "جديد",
+                warranty: "شهر",
+                tags: ["بوجيهات", "محرك", "نيسان"],
+                vendorName: "متركنهاش"
+            }
+        ];
+
+        await Product.insertMany(samples);
+        logger.info('✅ Sample products seeded successfully.');
+    } catch (err) {
+        logger.error('Seeding Error:', err);
+    }
+}
