@@ -311,12 +311,8 @@ http.listen(PORT, async () => {
 
 async function seedSampleProducts() {
     try {
-        // Clear existing sample products to ensure fresh 50 items
         await Product.deleteMany({ vendorName: 'متركنهاش' });
-        const count = await Product.countDocuments();
-        if (count >= 50) return; 
-
-        // Get the first admin user to assign products to
+        
         let adminUser = await User.findOne({ role: 'admin' });
         if (!adminUser) {
             adminUser = new User({
@@ -329,53 +325,87 @@ async function seedSampleProducts() {
         }
 
         const brands = ["Toyota", "Hyundai", "Nissan", "BMW", "Mercedes", "Kia", "Mitsubishi", "Renault", "Ford", "Honda"];
-        const parts = [
-            { name: "طقم مساعدين أمامى", cat: "Suspension", price: [3000, 7000] },
-            { name: "تيل فرامل أصلي", cat: "Brakes", price: [800, 2500] },
-            { name: "طقم بوجيهات إيريديوم", cat: "Engine", price: [600, 1500] },
-            { name: "فلتر زيت رياضي", cat: "Engine", price: [200, 800] },
-            { name: "رادياتير ألومنيوم", cat: "Engine", price: [2500, 5000] },
-            { name: "كشاف أمامى LED", cat: "Electricity", price: [3500, 9000] },
-            { name: "مراية جانبية كهرباء", cat: "Accessories", price: [1200, 3000] },
-            { name: "إطارات ميشلان", cat: "Tires", price: [2000, 5000] },
-            { name: "جنوط سبور 17", cat: "Wheels", price: [8000, 15000] },
-            { name: "بطارية 70 أمبير", cat: "Electricity", price: [1500, 3500] },
-            { name: "طقم دبرياج كامل", cat: "Engine", price: [4000, 9000] },
-            { name: "طلمبة بنزين", cat: "Engine", price: [1000, 2500] }
-        ];
+        const categories = {
+            "Engine": {
+                parts: ["محرك كامل استيراد", "طقم شمبر", "طلمبة زيت", "سير كاتينة جيتس", "طقم جوانات موتور"],
+                priceRange: [8000, 25000],
+                desc: "أداء فائق واعتمادية عالية لمحرك سيارتك مع قطع غيار أصلية."
+            },
+            "Brakes": {
+                parts: ["تيل فرامل أمامى", "طنبورة فرامل", "ماستر فرامل عمومي", "تيل فرامل خلفي", "خراطيم فرامل"],
+                priceRange: [300, 2000],
+                desc: "أمانك يبدأ من هنا. قطع غيار فرامل تضمن لك كبحاً آمناً وهادئاً."
+            },
+            "Battery": {
+                parts: ["بطارية 70 أمبير", "بطارية 60 أمبير جافة", "بطارية AC Delco", "بطارية فارتا"],
+                priceRange: [500, 1500],
+                desc: "طاقة لا تنقطع. بطاريات أصلية بضمان حقيقي لأطول عمر افتراضي."
+            },
+            "Tires": {
+                parts: ["إطارات ميشلان 15", "إطارات بريدجستون 16", "إطارات هانكوك 14", "إطار بيرللي سبورت"],
+                priceRange: [600, 2000],
+                desc: "ثبات على الطريق وتحكم كامل في جميع الظروف الجوية."
+            },
+            "Electricity": {
+                parts: ["دينامو شحن", "مارش استيراد", "طقم بوجيهات ليزر", "حساس أكسجين", "موبينة إشعال"],
+                priceRange: [200, 1500],
+                desc: "أنظمة كهربائية متطورة تضمن كفاءة تشغيل كافة وظائف السيارة."
+            },
+            "Suspension": {
+                parts: ["طقم مساعدين KYB", "مقص أمامى يمين", "بيض طرف دركسيون", "جلب مقصات", "مساعدين خلفي"],
+                priceRange: [1000, 5000],
+                desc: "راحة تامة في القيادة وامتصاص مثالي للصدمات على الطرق الوعرة."
+            },
+            "Cooling": {
+                parts: ["رادياتير ألومنيوم", "طلمبة مياه", "ترموستات كوعة", "مروحة تبريد", "قربة مياه"],
+                priceRange: [500, 3000],
+                desc: "نظام تبريد متطور يحمي محركك من الحرارة الزائدة في أصعب الظروف."
+            }
+        };
 
         const images = [
             "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=400",
             "https://images.unsplash.com/photo-1590674899484-13da0d1b58f5?auto=format&fit=crop&q=80&w=400",
             "https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&q=80&w=400",
-            "https://images.unsplash.com/photo-1597404294360-fedede443080?auto=format&fit=crop&q=80&w=400"
+            "https://images.unsplash.com/photo-1597404294360-fedede443080?auto=format&fit=crop&q=80&w=400",
+            "https://images.unsplash.com/photo-1517524004832-55095d66665f?auto=format&fit=crop&q=80&w=400"
         ];
 
         const samples = [];
+        const catKeys = Object.keys(categories);
+
         for (let i = 0; i < 50; i++) {
             const brand = brands[Math.floor(Math.random() * brands.length)];
-            const part = parts[Math.floor(Math.random() * parts.length)];
+            const catKey = catKeys[Math.floor(Math.random() * catKeys.length)];
+            const catData = categories[catKey];
+            const partName = catData.parts[Math.floor(Math.random() * catData.parts.length)];
+            const price = Math.floor(Math.random() * (catData.priceRange[1] - catData.priceRange[0])) + catData.priceRange[0];
             const image = images[Math.floor(Math.random() * images.length)];
-            const price = Math.floor(Math.random() * (part.price[1] - part.price[0])) + part.price[0];
+            
+            const badges = [null, "جديد", "الأكثر طلباً", null, null];
+            const badge = badges[Math.floor(Math.random() * badges.length)];
+            const availability = Math.random() > 0.1 ? "متوفر" : "غير متوفر";
+            const stock = availability === "متوفر" ? Math.floor(Math.random() * 30) + 5 : 0;
 
             samples.push({
-                name: `${part.name} - ${brand}`,
+                name: `${partName} - ${brand}`,
                 brand: brand,
                 price: price,
-                category: part.cat,
+                category: catKey,
                 vendorId: adminUser._id,
                 image: image,
-                description: `قطعة غيار أصلية متوافقة مع موديلات ${brand} المختلفة. جودة مضمونة وأداء فائق.`,
-                stockQuantity: Math.floor(Math.random() * 20) + 5,
+                description: catData.desc,
+                stockQuantity: stock,
                 condition: "جديد",
                 warranty: "6 شهور",
-                tags: [part.name.split(' ')[0], brand, "قطع_غيار"],
+                badge: badge,
+                tags: [catKey, brand, availability],
                 vendorName: "متركنهاش"
             });
         }
 
         await Product.insertMany(samples);
-        logger.info('✅ 50 Sample products seeded successfully.');
+        logger.info('✅ 50 realistic products seeded successfully.');
     } catch (err) {
         logger.error('Seeding Error:', err);
     }

@@ -212,7 +212,36 @@ body {
     box-shadow: var(--shadow-sm);
     overflow: hidden;
     transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
+
+.product-badge {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    font-weight: 800;
+    z-index: 10;
+    color: var(--white);
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.badge-new { background-color: #00bcd4; }
+.badge-popular { background-color: #ffc107; color: var(--primary); }
+
+.availability-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+}
+
+.status-available { color: #2e7d32; }
+.status-unavailable { color: #d32f2f; }
 
 .card:hover {
     transform: translateY(-4px);

@@ -25,27 +25,38 @@ function renderFeaturedProducts() {
         return;
     }
     const featured = partsDatabase.slice(0, 8);
-    container.innerHTML = featured.map(part => `
+    container.innerHTML = featured.map(part => {
+        const badgeHtml = part.badge ? `
+            <div class="product-badge ${part.badge === 'جديد' ? 'badge-new' : 'badge-popular'}">
+                ${part.badge}
+            </div>` : '';
+        
+        const availability = part.stockQuantity > 0 ? 'متوفر' : 'غير متوفر';
+        const statusClass = part.stockQuantity > 0 ? 'status-available' : 'status-unavailable';
+
+        return `
         <div class="product-card card">
+            ${badgeHtml}
             <div class="product-img-wrapper">
                 <img src="${part.image}" alt="${part.name}">
             </div>
             <div class="product-info">
-                <div class="flex justify-between items-start mb-2">
+                <div class="flex justify-between items-start mb-1">
                     <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">${part.brand}</span>
                     <span class="text-[10px] bg-slate-100 px-2 py-1 rounded text-slate-500 font-bold">${part.category}</span>
                 </div>
-                <h3 class="type-h3 text-slate-900">${part.name}</h3>
-                <div class="product-price">${part.price.toLocaleString()} ج.م</div>
+                <div class="availability-tag ${statusClass}">${availability}</div>
+                <h3 class="type-h3 text-slate-900 mb-2">${part.name}</h3>
+                <div class="product-price mb-4">${part.price.toLocaleString()} ج.م</div>
                 <div class="product-card-actions">
                     <button class="btn btn-outline btn-sm !text-primary !border-primary" onclick="showPartDetails('${part.name}')">التفاصيل</button>
-                    <button class="btn btn-primary btn-sm" onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
-                        إضافة للسلة
+                    <button class="btn btn-primary btn-sm" ${part.stockQuantity === 0 ? 'disabled' : ''} onclick="addToCart(this, '${part.name}', ${part.price}, '${part._id}')">
+                        ${part.stockQuantity === 0 ? 'نفذت الكمية' : 'إضافة للسلة'}
                     </button>
                 </div>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function setupSearchListeners() {
