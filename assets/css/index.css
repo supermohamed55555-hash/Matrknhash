@@ -7,36 +7,35 @@
     justify-content: center;
     text-align: center;
     background-color: var(--primary);
-    /* High-detail cinematic automotive image (Car front with headlights) */
-    background-image: url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1920');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
     color: var(--white);
     padding-top: 80px;
     overflow: hidden;
 }
 
-/* Branded overlay with improved opacity for visibility */
+/* Base image layer with cinematic filters */
 .hero::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-        135deg, 
-        rgba(13, 22, 66, 0.85) 0%, 
-        rgba(26, 35, 126, 0.75) 100%
-    );
+    background-image: url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1920');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    filter: contrast(1.1) brightness(0.9); /* Enhancing contrast and depth */
     z-index: 1;
 }
 
-/* Subtle industrial texture overlay */
+/* Layered depth: Vignette + Branded Gradient + Texture */
 .hero::after {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-    opacity: 0.15;
+    background: 
+        radial-gradient(circle at center, transparent 20%, rgba(13, 22, 66, 0.4) 100%), /* Focal Vignette */
+        linear-gradient(135deg, rgba(13, 22, 66, 0.85) 0%, rgba(26, 35, 126, 0.75) 100%), /* Brand Gradient */
+        url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); /* Industrial Texture */
+    background-blend-mode: normal, normal, overlay;
+    opacity: 0.95;
     z-index: 1;
     pointer-events: none;
 }
