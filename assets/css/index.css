@@ -1,4 +1,4 @@
-/* --- 1. Hero Section (Premium Enhancement) --- */
+/* --- 1. Hero Section (Premium Branded Redesign) --- */
 .hero {
     position: relative;
     min-height: 100vh;
@@ -7,7 +7,8 @@
     justify-content: center;
     text-align: center;
     background-color: var(--primary);
-    background-image: url('https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=1920');
+    /* New cinematic high-end automotive visual */
+    background-image: url('https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&q=80&w=1920');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -16,29 +17,26 @@
     overflow: hidden;
 }
 
-/* Enhanced professional overlay with depth */
+/* Branded overlay with improved opacity for visibility */
 .hero::before {
     content: '';
     position: absolute;
     inset: 0;
     background: linear-gradient(
         135deg, 
-        rgba(13, 22, 66, 0.9) 0%, 
-        rgba(26, 35, 126, 0.7) 100%
+        rgba(13, 22, 66, 0.85) 0%, 
+        rgba(26, 35, 126, 0.75) 100%
     );
     z-index: 1;
 }
 
-/* Radial highlight for depth */
+/* Subtle industrial texture overlay */
 .hero::after {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80%;
-    height: 80%;
-    background: radial-gradient(circle, rgba(57, 73, 171, 0.2) 0%, transparent 70%);
+    inset: 0;
+    background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+    opacity: 0.15;
     z-index: 1;
     pointer-events: none;
 }
