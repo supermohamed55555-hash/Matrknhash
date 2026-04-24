@@ -312,12 +312,11 @@ http.listen(PORT, async () => {
 async function seedSampleProducts() {
     try {
         const count = await Product.countDocuments();
-        if (count > 0) return;
+        if (count >= 50) return; // Already seeded enough
 
         // Get the first admin user to assign products to
         let adminUser = await User.findOne({ role: 'admin' });
         if (!adminUser) {
-            // Create a dummy admin if none exists
             adminUser = new User({
                 name: 'متركنهاش',
                 email: 'admin@matrknhash.com',
@@ -327,53 +326,54 @@ async function seedSampleProducts() {
             await adminUser.save();
         }
 
-        const samples = [
-            {
-                name: "طقم مساعدين أمامى (KYB)",
-                brand: "Toyota",
-                price: 4500,
-                category: "Suspension",
-                vendorId: adminUser._id,
-                image: "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=400",
-                description: "مساعدين ياباني أصلي ماركة KYB متوافقة مع تويوتا كورولا 2014-2022.",
-                stockQuantity: 10,
-                condition: "جديد",
-                warranty: "6 شهور",
-                tags: ["مساعدين", "تويوتا", "عفشة"],
-                vendorName: "متركنهاش"
-            },
-            {
-                name: "تيل فرامل أمامى (Valeo)",
-                brand: "Hyundai",
-                price: 1250,
-                category: "Brakes",
-                vendorId: adminUser._id,
-                image: "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=400",
-                description: "تيل فرامل فرنسي أصلي يضمن أداء متميز وهدوء تام عند الكبح.",
-                stockQuantity: 25,
-                condition: "جديد",
-                warranty: "سنة",
-                tags: ["تيل", "فرامل", "هيونداي"],
-                vendorName: "متركنهاش"
-            },
-            {
-                name: "طقم بوجيهات (NGK Iridium)",
-                brand: "Nissan",
-                price: 950,
-                category: "Engine",
-                vendorId: adminUser._id,
-                image: "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=400",
-                description: "بوجيهات إيريديوم لزيادة كفاءة الاحتراق وتوفير استهلاك الوقود.",
-                stockQuantity: 50,
-                condition: "جديد",
-                warranty: "شهر",
-                tags: ["بوجيهات", "محرك", "نيسان"],
-                vendorName: "متركنهاش"
-            }
+        const brands = ["Toyota", "Hyundai", "Nissan", "BMW", "Mercedes", "Kia", "Mitsubishi", "Renault", "Ford", "Honda"];
+        const parts = [
+            { name: "طقم مساعدين أمامى", cat: "Suspension", price: [3000, 7000] },
+            { name: "تيل فرامل أصلي", cat: "Brakes", price: [800, 2500] },
+            { name: "طقم بوجيهات إيريديوم", cat: "Engine", price: [600, 1500] },
+            { name: "فلتر زيت رياضي", cat: "Engine", price: [200, 800] },
+            { name: "رادياتير ألومنيوم", cat: "Engine", price: [2500, 5000] },
+            { name: "كشاف أمامى LED", cat: "Electricity", price: [3500, 9000] },
+            { name: "مراية جانبية كهرباء", cat: "Accessories", price: [1200, 3000] },
+            { name: "إطارات ميشلان", cat: "Tires", price: [2000, 5000] },
+            { name: "جنوط سبور 17", cat: "Wheels", price: [8000, 15000] },
+            { name: "بطارية 70 أمبير", cat: "Electricity", price: [1500, 3500] },
+            { name: "طقم دبرياج كامل", cat: "Engine", price: [4000, 9000] },
+            { name: "طلمبة بنزين", cat: "Engine", price: [1000, 2500] }
         ];
 
+        const images = [
+            "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=400",
+            "https://images.unsplash.com/photo-1590674899484-13da0d1b58f5?auto=format&fit=crop&q=80&w=400",
+            "https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&q=80&w=400",
+            "https://images.unsplash.com/photo-1597404294360-fedede443080?auto=format&fit=crop&q=80&w=400"
+        ];
+
+        const samples = [];
+        for (let i = 0; i < 50; i++) {
+            const brand = brands[Math.floor(Math.random() * brands.length)];
+            const part = parts[Math.floor(Math.random() * parts.length)];
+            const image = images[Math.floor(Math.random() * images.length)];
+            const price = Math.floor(Math.random() * (part.price[1] - part.price[0])) + part.price[0];
+
+            samples.push({
+                name: `${part.name} - ${brand}`,
+                brand: brand,
+                price: price,
+                category: part.cat,
+                vendorId: adminUser._id,
+                image: image,
+                description: `قطعة غيار أصلية متوافقة مع موديلات ${brand} المختلفة. جودة مضمونة وأداء فائق.`,
+                stockQuantity: Math.floor(Math.random() * 20) + 5,
+                condition: "جديد",
+                warranty: "6 شهور",
+                tags: [part.name.split(' ')[0], brand, "قطع_غيار"],
+                vendorName: "متركنهاش"
+            });
+        }
+
         await Product.insertMany(samples);
-        logger.info('✅ Sample products seeded successfully.');
+        logger.info('✅ 50 Sample products seeded successfully.');
     } catch (err) {
         logger.error('Seeding Error:', err);
     }
