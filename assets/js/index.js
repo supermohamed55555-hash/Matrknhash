@@ -6,10 +6,13 @@ let searchTimeout;
 async function loadProducts() {
     try {
         const res = await fetch('/api/products');
-        partsDatabase = await res.json();
+        const data = await res.json();
+        partsDatabase = Array.isArray(data) ? data : [];
         renderFeaturedProducts();
     } catch (err) {
         console.error('Failed to load products:', err);
+        partsDatabase = [];
+        renderFeaturedProducts();
     }
 }
 

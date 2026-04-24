@@ -314,12 +314,26 @@ async function seedSampleProducts() {
         const count = await Product.countDocuments();
         if (count > 0) return;
 
+        // Get the first admin user to assign products to
+        let adminUser = await User.findOne({ role: 'admin' });
+        if (!adminUser) {
+            // Create a dummy admin if none exists
+            adminUser = new User({
+                name: 'متركنهاش',
+                email: 'admin@matrknhash.com',
+                password: 'placeholder_password',
+                role: 'admin'
+            });
+            await adminUser.save();
+        }
+
         const samples = [
             {
                 name: "طقم مساعدين أمامى (KYB)",
                 brand: "Toyota",
                 price: 4500,
                 category: "Suspension",
+                vendorId: adminUser._id,
                 image: "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=400",
                 description: "مساعدين ياباني أصلي ماركة KYB متوافقة مع تويوتا كورولا 2014-2022.",
                 stockQuantity: 10,
@@ -333,6 +347,7 @@ async function seedSampleProducts() {
                 brand: "Hyundai",
                 price: 1250,
                 category: "Brakes",
+                vendorId: adminUser._id,
                 image: "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=400",
                 description: "تيل فرامل فرنسي أصلي يضمن أداء متميز وهدوء تام عند الكبح.",
                 stockQuantity: 25,
@@ -346,6 +361,7 @@ async function seedSampleProducts() {
                 brand: "Nissan",
                 price: 950,
                 category: "Engine",
+                vendorId: adminUser._id,
                 image: "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=400",
                 description: "بوجيهات إيريديوم لزيادة كفاءة الاحتراق وتوفير استهلاك الوقود.",
                 stockQuantity: 50,
