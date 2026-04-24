@@ -261,7 +261,7 @@ let currentAuthMode = 'login';
 function openLoginModal() {
     const modal = document.getElementById('loginModal');
     if (modal) {
-        modal.style.display = 'block';
+        modal.style.display = 'flex';
         togglePremiumAuth('login');
     }
 }

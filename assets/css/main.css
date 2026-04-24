@@ -263,13 +263,24 @@ body {
 }
 
 /* --- 8. Component: Overlay & Modals --- */
-.overlay {
+.overlay, .modal {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    z-index: 2000;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 3000;
     display: none;
     align-items: center;
     justify-content: center;
+    padding: var(--space-4);
+}
+
+.modal-content {
+    background: var(--primary-dark);
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--shadow-xl);
 }
