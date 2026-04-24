@@ -8,6 +8,7 @@ async function loadProducts() {
         const res = await fetch('/api/products');
         const data = await res.json();
         partsDatabase = Array.isArray(data) ? data : [];
+        console.log(`Loaded ${partsDatabase.length} products from API`);
         renderFeaturedProducts();
     } catch (err) {
         console.error('Failed to load products:', err);

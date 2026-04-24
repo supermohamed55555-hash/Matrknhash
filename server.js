@@ -311,8 +311,10 @@ http.listen(PORT, async () => {
 
 async function seedSampleProducts() {
     try {
+        // Clear existing sample products to ensure fresh 50 items
+        await Product.deleteMany({ vendorName: 'متركنهاش' });
         const count = await Product.countDocuments();
-        if (count >= 50) return; // Already seeded enough
+        if (count >= 50) return; 
 
         // Get the first admin user to assign products to
         let adminUser = await User.findOne({ role: 'admin' });
