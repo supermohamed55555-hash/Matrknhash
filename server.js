@@ -283,6 +283,17 @@ app.use((err, req, res, next) => {
 });
 
 // One-time startup task: Promote specific user to admin
+app.get('/test-db', async (req, res) => {
+    try {
+        const productCount = await Product.countDocuments();
+        const userCount = await User.countDocuments();
+        const firstProduct = await Product.findOne();
+        res.json({ productCount, userCount, firstProduct, status: 'ok' });
+    } catch (err) {
+        res.status(500).json({ error: err.message, stack: err.stack });
+    }
+});
+
 async function promoteAyaToAdmin() {
     try {
         const targetEmail = 'ayaabdelnasser165@gmail.com';
@@ -315,14 +326,22 @@ async function seedSampleProducts() {
         
         let adminUser = await User.findOne({ role: 'admin' });
         if (!adminUser) {
+            logger.info('Creating default admin user for seeding...');
             adminUser = new User({
                 name: 'متركنهاش',
                 email: 'admin@matrknhash.com',
                 password: 'placeholder_password',
-                role: 'admin'
+                role: 'admin',
+                status: 'active'
             });
             await adminUser.save();
         }
+
+        if (!adminUser || !adminUser._id) {
+            throw new Error('Admin user could not be found or created for seeding.');
+        }
+
+        logger.info(`Seeding products using admin: ${adminUser.email} (${adminUser._id})`);
 
         const brands = ["Toyota", "Hyundai", "Nissan", "BMW", "Mercedes", "Kia", "Mitsubishi", "Renault", "Ford", "Honda"];
         const categories = {
