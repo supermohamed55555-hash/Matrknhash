@@ -65,7 +65,7 @@ router.get('/suggestions', async (req, res) => {
 router.post('/', isAuthenticated, [
     body('name').notEmpty().withMessage('اسم المنتج مطلوب').trim().escape(),
     body('price').isNumeric().withMessage('السعر يجب أن يكون رقماً'),
-    body('category').isIn(['Wheels', 'Tires', 'Accessories']).withMessage('فئة غير صحيحة'),
+    body('category').isIn(['Wheels', 'Tires', 'Accessories', 'Engine', 'Brakes', 'Suspension', 'Electricity', 'Cooling', 'Battery']).withMessage('فئة غير صحيحة'),
     body('image').isURL().withMessage('رابط الصورة غير صحيح')
 ], async (req, res) => {
     const errors = validationResult(req);

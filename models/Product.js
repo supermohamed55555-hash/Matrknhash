@@ -5,13 +5,14 @@ const productSchema = new mongoose.Schema({
     brand: { type: String, required: true },
     price: { type: Number, required: true },
     image: { type: String, required: true }, // URL of the image
-    category: { type: String, enum: ['Wheels', 'Tires', 'Accessories', 'Engine', 'Brakes', 'Suspension', 'Electricity'], default: 'Wheels' },
+    category: { type: String, enum: ['Wheels', 'Tires', 'Accessories', 'Engine', 'Brakes', 'Suspension', 'Electricity', 'Cooling', 'Battery'], default: 'Wheels' },
     description: { type: String },
     vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    vendorName: { type: String }, // Cache vendor name for display
+    vendorName: { type: String }, 
     condition: { type: String, default: "جديد" },
     warranty: { type: String, default: "لا يوجد" },
     stockQuantity: { type: Number, default: 0 },
+    badge: { type: String }, 
     tags: [String],
     compatibility: [{
         brand: String,
