@@ -106,6 +106,27 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// --- Diagnostic Route ---
+app.get('/test-db', async (req, res) => {
+    try {
+        const productCount = await mongoose.model('Product').countDocuments();
+        const userCount = await mongoose.model('User').countDocuments();
+        res.json({
+            status: 'ok',
+            database: mongoose.connection.readyState === 1 ? 'connected' : 'connecting/disconnected',
+            productCount,
+            userCount,
+            envUriSet: !!(process.env.MONGO_URI || process.env.MONGODB_URI)
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: err.message,
+            dbState: mongoose.connection.readyState
+        });
+    }
+});
+
 // Ensure logs directory exists
 const logDir = path.join(__dirname, 'logs');
 if (!fs.existsSync(logDir)) {
