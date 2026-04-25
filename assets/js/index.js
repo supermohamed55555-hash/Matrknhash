@@ -193,14 +193,28 @@ function displayResults(results) {
     }
 }
 
+function updateCartBadge() {
+    const badge = document.getElementById('cartBadge');
+    if (!badge) return;
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const totalCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    badge.innerText = totalCount;
+    badge.style.display = totalCount > 0 ? 'flex' : 'none';
+}
+
 let isProcessingAdd = false;
 
 async function addToCart(btn, partName, price, partId) {
     if (isProcessingAdd) return;
     isProcessingAdd = true;
 
+    // Find part in local database
     const part = partsDatabase.find(p => p._id === partId || p.name === partName);
-    if (!part) { isProcessingAdd = false; return; }
+    if (!part) { 
+        console.error('Product not found in local database');
+        isProcessingAdd = false; 
+        return; 
+    }
 
     const overlay = document.getElementById('truckOverlay');
     const truckAnimBox = document.getElementById('truckAnimation');
@@ -208,44 +222,68 @@ async function addToCart(btn, partName, price, partId) {
 
     if (overlay && truckAnimBox && statusText) {
         overlay.style.display = 'flex';
-        statusText.innerText = `جاري معالجة طلب [${partName}]...`;
+        statusText.innerText = `جاري إضافة [${partName}] للسلة...`;
         truckAnimBox.innerHTML = '';
-        const anim = lottie.loadAnimation({
-            container: truckAnimBox,
-            renderer: 'svg',
-            loop: true,
-            autoplay: true,
-            path: 'https://assets1.lottiefiles.com/packages/lf20_jpxsS6.json'
-        });
-
-        setTimeout(async () => {
-            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            cart.push({
-                productId: part._id,
-                _id: part._id,
-                name: part.name,
-                price: part.price,
-                image: part.image,
-                seller: part.vendorName || 'متركنهاش',
-                quantity: 1
+        
+        // Load Lottie Animation
+        try {
+            lottie.loadAnimation({
+                container: truckAnimBox,
+                renderer: 'svg',
+                loop: true,
+                autoplay: true,
+                path: 'https://assets1.lottiefiles.com/packages/lf20_jpxsS6.json'
             });
+        } catch (e) { console.warn('Lottie failed to load'); }
+
+        // Simulated processing for premium feel
+        setTimeout(() => {
+            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const existing = cart.find(item => item.productId === part._id);
+            
+            if (existing) {
+                existing.quantity = (existing.quantity || 1) + 1;
+            } else {
+                cart.push({
+                    productId: part._id,
+                    _id: part._id,
+                    name: part.name,
+                    price: part.price,
+                    image: part.image,
+                    seller: part.vendorName || 'متركنهاش',
+                    quantity: 1
+                });
+            }
+            
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartBadge();
 
-            statusText.innerText = 'تمت الإضافة بنجاح';
+            statusText.innerText = 'تمت الإضافة بنجاح!';
             statusText.style.color = '#10b981';
 
             setTimeout(() => {
                 overlay.style.display = 'none';
-                anim.destroy();
                 isProcessingAdd = false;
                 statusText.style.color = 'white';
-            }, 1500);
-        }, 2500);
+            }, 800);
+        }, 1200);
     } else {
         // Fallback if elements not found
         let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        cart.push({ productId: part._id, _id: part._id, name: part.name, price: part.price, image: part.image, seller: part.vendorName || 'متركنهاش', quantity: 1 });
+        const existing = cart.find(item => item.productId === part._id);
+        if (existing) {
+            existing.quantity = (existing.quantity || 1) + 1;
+        } else {
+            cart.push({ 
+                productId: part._id, 
+                _id: part._id, 
+                name: part.name, 
+                price: part.price, 
+                image: part.image, 
+                seller: part.vendorName || 'متركنهاش', 
+                quantity: 1 
+            });
+        }
         localStorage.setItem('cart', JSON.stringify(cart));
         updateCartBadge();
         isProcessingAdd = false;
@@ -336,6 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkLoginStatus();
     loadProducts();
     setupSearchListeners();
+    updateCartBadge();
 
     // Password strength listener
     const authPass = document.getElementById('authPassword');
