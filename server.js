@@ -207,11 +207,42 @@ function isAdmin(req, res, next) {
     res.status(403).json({ error: 'Forbidden: Admin access only' });
 }
 
-// 2. Database Connection
-mongoose.connect(process.env.MONGO_URI, {
-    serverSelectionTimeoutMS: 30000
-}).then(() => logger.info('✅ MongoDB Connected'))
-    .catch(err => logger.error('❌ DB Error:', err));
+// 2. Database Connection & Server Start
+async function startServer() {
+    try {
+        const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+        if (!mongoUri) {
+            throw new Error('❌ MONGO_URI is not defined in environment variables!');
+        }
+
+        logger.info('⏳ Connecting to MongoDB...');
+        await mongoose.connect(mongoUri, {
+            serverSelectionTimeoutMS: 30000,
+        });
+        logger.info('✅ MongoDB Connected Successfully');
+
+        const PORT = process.env.PORT || 3000;
+        http.listen(PORT, async () => {
+            logger.info(`🚀 Server running on port ${PORT}`);
+            
+            // Post-connection tasks
+            try {
+                await promoteAyaToAdmin();
+                await seedSampleProducts();
+                logger.info('✨ Initial startup tasks completed');
+            } catch (taskErr) {
+                logger.error('⚠️ Startup tasks failed:', taskErr);
+            }
+        });
+
+    } catch (err) {
+        logger.error('❌ Database Connection Failed:', err);
+        process.exit(1);
+    }
+}
+
+// Start the sequence
+startServer();
 
 // --- Routes Modularization ---
 const authRoutes = require('./routes/auth').router;
@@ -312,13 +343,7 @@ async function promoteAyaToAdmin() {
     }
 }
 
-// Start Server
-const PORT = process.env.PORT || 3000;
-http.listen(PORT, async () => {
-    logger.info(`🚀 Server running on port ${PORT}`);
-    await promoteAyaToAdmin();
-    await seedSampleProducts();
-});
+// (Server start logic moved to startServer function above)
 
 async function seedSampleProducts() {
     try {
