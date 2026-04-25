@@ -246,9 +246,8 @@ async function startServer() {
         mongoose.connection.on('disconnected', () => logger.warn('⚠️ Mongoose disconnected'));
 
         await mongoose.connect(mongoUri, {
-            serverSelectionTimeoutMS: 10000, // Reduced to 10s to avoid Railway boot timeout
+            serverSelectionTimeoutMS: 15000, // 15 seconds
             socketTimeoutMS: 45000,
-            family: 4,
             maxPoolSize: 10
         });
         
@@ -339,9 +338,7 @@ app.use((err, req, res, next) => {
     const statusCode = err.status || 500;
     res.status(statusCode).json({
         success: false,
-        error: process.env.NODE_ENV === 'production'
-            ? 'Internal Server Error'
-            : err.message,
+        error: err.message, // Verbose for debugging
         timestamp: new Date().toISOString()
     });
 });
