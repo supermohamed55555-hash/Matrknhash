@@ -367,65 +367,61 @@ async function seedSampleProducts() {
             throw new Error('Admin user could not be found or created for seeding.');
         }
 
-        logger.info(`Seeding products using admin: ${adminUser.email} (${adminUser._id})`);
-
         const brands = ["Toyota", "Hyundai", "Nissan", "BMW", "Mercedes", "Kia", "Mitsubishi", "Renault", "Ford", "Honda"];
-        const categories = {
+        const categoryConfig = {
             "Engine": {
                 parts: ["محرك كامل استيراد", "طقم شمبر", "طلمبة زيت", "سير كاتينة جيتس", "طقم جوانات موتور"],
                 priceRange: [8000, 25000],
+                image: "https://images.unsplash.com/photo-1486006396193-471034e3e6f8?auto=format&fit=crop&q=80&w=400",
                 desc: "أداء فائق واعتمادية عالية لمحرك سيارتك مع قطع غيار أصلية."
             },
             "Brakes": {
                 parts: ["تيل فرامل أمامى", "طنبورة فرامل", "ماستر فرامل عمومي", "تيل فرامل خلفي", "خراطيم فرامل"],
                 priceRange: [300, 2000],
+                image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&q=80&w=400",
                 desc: "أمانك يبدأ من هنا. قطع غيار فرامل تضمن لك كبحاً آمناً وهادئاً."
             },
             "Battery": {
                 parts: ["بطارية 70 أمبير", "بطارية 60 أمبير جافة", "بطارية AC Delco", "بطارية فارتا"],
-                priceRange: [500, 1500],
+                priceRange: [1500, 4500],
+                image: "https://images.unsplash.com/photo-1620939511593-db9ba87d74c1?auto=format&fit=crop&q=80&w=400",
                 desc: "طاقة لا تنقطع. بطاريات أصلية بضمان حقيقي لأطول عمر افتراضي."
             },
             "Tires": {
                 parts: ["إطارات ميشلان 15", "إطارات بريدجستون 16", "إطارات هانكوك 14", "إطار بيرللي سبورت"],
-                priceRange: [600, 2000],
+                priceRange: [2000, 6000],
+                image: "https://images.unsplash.com/photo-1549441412-1045244391d6?auto=format&fit=crop&q=80&w=400",
                 desc: "ثبات على الطريق وتحكم كامل في جميع الظروف الجوية."
             },
             "Electricity": {
                 parts: ["دينامو شحن", "مارش استيراد", "طقم بوجيهات ليزر", "حساس أكسجين", "موبينة إشعال"],
-                priceRange: [200, 1500],
+                priceRange: [500, 2500],
+                image: "https://images.unsplash.com/photo-1555837580-430173ac7a03?auto=format&fit=crop&q=80&w=400",
                 desc: "أنظمة كهربائية متطورة تضمن كفاءة تشغيل كافة وظائف السيارة."
             },
             "Suspension": {
                 parts: ["طقم مساعدين KYB", "مقص أمامى يمين", "بيض طرف دركسيون", "جلب مقصات", "مساعدين خلفي"],
                 priceRange: [1000, 5000],
+                image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=400",
                 desc: "راحة تامة في القيادة وامتصاص مثالي للصدمات على الطرق الوعرة."
             },
             "Cooling": {
-                parts: ["رادياتير ألومنيوم", "طلمبة مياه", "ترموستات كوعة", "مروحة تبريد", "قربة مياه"],
-                priceRange: [500, 3000],
+                parts: ["رادياتير مياه", "طلمبة مياه", "ترموستات كوعة", "مروحة تبريد", "قربة مياه"],
+                priceRange: [600, 3500],
+                image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=400",
                 desc: "نظام تبريد متطور يحمي محركك من الحرارة الزائدة في أصعب الظروف."
             }
         };
 
-        const images = [
-            "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&q=80&w=400",
-            "https://images.unsplash.com/photo-1590674899484-13da0d1b58f5?auto=format&fit=crop&q=80&w=400",
-            "https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&q=80&w=400",
-            "https://images.unsplash.com/photo-1597404294360-fedede443080?auto=format&fit=crop&q=80&w=400",
-            "https://images.unsplash.com/photo-1517524004832-55095d66665f?auto=format&fit=crop&q=80&w=400"
-        ];
-
         const samples = [];
-        const catKeys = Object.keys(categories);
+        const catKeys = Object.keys(categoryConfig);
 
         for (let i = 0; i < 50; i++) {
             const brand = brands[Math.floor(Math.random() * brands.length)];
             const catKey = catKeys[Math.floor(Math.random() * catKeys.length)];
-            const catData = categories[catKey];
-            const partName = catData.parts[Math.floor(Math.random() * catData.parts.length)];
-            const price = Math.floor(Math.random() * (catData.priceRange[1] - catData.priceRange[0])) + catData.priceRange[0];
-            const image = images[Math.floor(Math.random() * images.length)];
+            const config = categoryConfig[catKey];
+            const partName = config.parts[Math.floor(Math.random() * config.parts.length)];
+            const price = Math.floor(Math.random() * (config.priceRange[1] - config.priceRange[0])) + config.priceRange[0];
             
             const badges = [null, "جديد", "الأكثر طلباً", null, null];
             const badge = badges[Math.floor(Math.random() * badges.length)];
@@ -438,21 +434,21 @@ async function seedSampleProducts() {
                 price: price,
                 category: catKey,
                 vendorId: adminUser._id,
-                image: image,
-                description: catData.desc,
+                image: config.image,
+                description: config.desc,
                 stockQuantity: stock,
                 condition: "جديد",
                 warranty: "6 شهور",
                 badge: badge,
                 tags: [catKey, brand, availability],
-                vendorName: "متركنهاش"
+                vendorName: "متركنهاش",
+                status: 'active'
             });
         }
 
         await Product.insertMany(samples);
-        logger.info('✅ 50 realistic products seeded successfully.');
+        logger.info('✅ 50 realistic automotive products seeded successfully.');
     } catch (err) {
-        console.error('CRITICAL SEEDING ERROR:', err);
-        logger.error('Seeding Error:', err);
+        logger.error('❌ Error seeding products:', err);
     }
 }
