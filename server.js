@@ -231,15 +231,19 @@ function isAdmin(req, res, next) {
 let dbError = null;
 
 async function connectDB() {
-    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+    let mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+    
     if (!mongoUri || mongoUri.includes('your_password')) {
         dbError = '❌ Invalid or missing MONGO_URI in environment variables!';
-        logger.error(dbError);
+        console.error(dbError);
         return;
     }
 
+    // CRITICAL: Trim any hidden whitespace from the URI
+    mongoUri = mongoUri.trim();
+
     const sanitizedUri = mongoUri.replace(/\/\/(.*):(.*)@/, '//***:***@');
-    logger.info(`⏳ Background connecting to: ${sanitizedUri}`);
+    console.log(`⏳ Background connecting to: ${sanitizedUri}`);
 
     try {
         await mongoose.connect(mongoUri, {
@@ -247,23 +251,26 @@ async function connectDB() {
             socketTimeoutMS: 45000,
             maxPoolSize: 10
         });
-        logger.info('✅ Database Connection Established');
+        console.log('✅ Database Connection Established Successfully');
         dbError = null;
         
         // Run background tasks
-        promoteAyaToAdmin().catch(e => logger.error('Aya Promotion Error:', e));
-        seedSampleProducts().catch(e => logger.error('Seeding Error:', e));
+        promoteAyaToAdmin().catch(e => console.error('Aya Promotion Error:', e));
+        seedSampleProducts().catch(e => console.error('Seeding Error:', e));
     } catch (err) {
         dbError = err.message;
-        logger.error('❌ DB CONNECTION FAILED:', err.message);
+        console.error('❌ DB CONNECTION FAILED!');
+        console.error('Error Details:', err.message);
+        if (err.stack) console.error('Stack Trace:', err.stack);
     }
 }
 
 // Start Server IMMEDIATELY to avoid 502
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => {
-    logger.info(`🚀 Diagnostic Server running on port ${PORT}`);
-    connectDB(); // Attempt connection in background
+http.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Diagnostic Server is now LISTENING on port ${PORT}`);
+    console.log(`🔗 Health Check: https://matrknhash-production.up.railway.app/test-db`);
+    connectDB(); 
 });
 
 // --- Routes Modularization ---
