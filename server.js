@@ -109,20 +109,19 @@ app.use(express.urlencoded({ extended: true }));
 // --- Diagnostic Route ---
 app.get('/test-db', async (req, res) => {
     try {
-        const productCount = await mongoose.model('Product').countDocuments();
-        const userCount = await mongoose.model('User').countDocuments();
+        const productCount = mongoose.connection.readyState === 1 ? await mongoose.model('Product').countDocuments() : 0;
         res.json({
-            status: 'ok',
-            database: mongoose.connection.readyState === 1 ? 'connected' : 'connecting/disconnected',
+            status: mongoose.connection.readyState === 1 ? 'ok' : 'failed',
+            database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+            dbError: dbError || 'None',
             productCount,
-            userCount,
-            envUriSet: !!(process.env.MONGO_URI || process.env.MONGODB_URI)
+            readyState: mongoose.connection.readyState
         });
     } catch (err) {
         res.status(500).json({
             status: 'error',
             message: err.message,
-            dbState: mongoose.connection.readyState
+            dbError: dbError
         });
     }
 });
@@ -228,53 +227,44 @@ function isAdmin(req, res, next) {
     res.status(403).json({ error: 'Forbidden: Admin access only' });
 }
 
-// 2. Database Connection & Server Start
-async function startServer() {
+// 2. Database Connection (Background Diagnostic Mode)
+let dbError = null;
+
+async function connectDB() {
+    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+    if (!mongoUri || mongoUri.includes('your_password')) {
+        dbError = '❌ Invalid or missing MONGO_URI in environment variables!';
+        logger.error(dbError);
+        return;
+    }
+
+    const sanitizedUri = mongoUri.replace(/\/\/(.*):(.*)@/, '//***:***@');
+    logger.info(`⏳ Background connecting to: ${sanitizedUri}`);
+
     try {
-        const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
-        if (!mongoUri || mongoUri.includes('your_password')) {
-            throw new Error('❌ Invalid or missing MONGO_URI in environment variables!');
-        }
-
-        // Obfuscate URI for logging
-        const sanitizedUri = mongoUri.replace(/\/\/(.*):(.*)@/, '//***:***@');
-        logger.info(`⏳ Connecting to MongoDB at: ${sanitizedUri}`);
-
-        // Set up connection event listeners
-        mongoose.connection.on('connected', () => logger.info('✅ Mongoose connected to DB'));
-        mongoose.connection.on('error', (err) => logger.error('❌ Mongoose connection error:', err));
-        mongoose.connection.on('disconnected', () => logger.warn('⚠️ Mongoose disconnected'));
-
         await mongoose.connect(mongoUri, {
-            serverSelectionTimeoutMS: 15000, // 15 seconds
+            serverSelectionTimeoutMS: 15000,
             socketTimeoutMS: 45000,
             maxPoolSize: 10
         });
-        
         logger.info('✅ Database Connection Established');
-
-        const PORT = process.env.PORT || 3000;
-        http.listen(PORT, async () => {
-            logger.info(`🚀 Server running on port ${PORT}`);
-            
-            // Post-connection tasks
-            try {
-                await promoteAyaToAdmin();
-                await seedSampleProducts();
-                logger.info('✨ Initial startup tasks completed');
-            } catch (taskErr) {
-                logger.error('⚠️ Startup tasks failed:', taskErr);
-            }
-        });
-
+        dbError = null;
+        
+        // Run background tasks
+        promoteAyaToAdmin().catch(e => logger.error('Aya Promotion Error:', e));
+        seedSampleProducts().catch(e => logger.error('Seeding Error:', e));
     } catch (err) {
-        logger.error('❌ CRITICAL STARTUP ERROR:', err.message);
-        process.exit(1);
+        dbError = err.message;
+        logger.error('❌ DB CONNECTION FAILED:', err.message);
     }
 }
 
-// Start the sequence
-startServer();
+// Start Server IMMEDIATELY to avoid 502
+const PORT = process.env.PORT || 3000;
+http.listen(PORT, () => {
+    logger.info(`🚀 Diagnostic Server running on port ${PORT}`);
+    connectDB(); // Attempt connection in background
+});
 
 // --- Routes Modularization ---
 const authRoutes = require('./routes/auth').router;
