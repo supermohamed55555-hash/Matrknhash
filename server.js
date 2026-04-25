@@ -208,8 +208,8 @@ function isAuthenticated(req, res, next) {
 
 function isAdmin(req, res, next) {
     if (req.isAuthenticated()) {
-        // FAIL-SAFE: Allow specific email or admin role
-        if (req.user.email === 'supermohamed55555@gmail.com' || req.user.role === 'admin') {
+        const adminEmails = ['supermohamed55555@gmail.com', 'superabdo22222@gmail.com', 'ayaabdelnasser165@gmail.com'];
+        if (adminEmails.includes(req.user.email) || req.user.role === 'admin') {
             return next();
         }
     }
@@ -240,7 +240,7 @@ async function startServer() {
 
             // Post-connection tasks
             try {
-                await promoteAyaToAdmin();
+                await promoteAdmins();
                 await seedSampleProducts();
                 logger.info('✨ Initial startup tasks completed');
             } catch (taskErr) {
@@ -335,18 +335,16 @@ app.get('/test-db', async (req, res) => {
     }
 });
 
-async function promoteAyaToAdmin() {
+async function promoteAdmins() {
     try {
-        const targetEmail = 'ayaabdelnasser165@gmail.com';
-        const user = await User.findOne({ email: targetEmail });
-        if (user) {
-            if (user.role !== 'admin') {
+        const targetEmails = ['ayaabdelnasser165@gmail.com', 'supermohamed55555@gmail.com', 'superabdo22222@gmail.com'];
+        for (const email of targetEmails) {
+            const user = await User.findOne({ email });
+            if (user && user.role !== 'admin') {
                 user.role = 'admin';
                 await user.save();
-                logger.info(`🎉 User ${targetEmail} has been promoted to ADMIN automatically.`);
+                logger.info(`🎉 User ${email} has been promoted to ADMIN.`);
             }
-        } else {
-            logger.warn(`⚠️ Promotion failed: User ${targetEmail} not found. Tell them to register first!`);
         }
     } catch (err) {
         logger.error('Error in auto-promotion:', err);
