@@ -168,9 +168,18 @@ passport.deserializeUser((id, done) => {
     User.findById(id).then(user => done(null, user));
 });
 
+const googleClientId = (process.env.GOOGLE_CLIENT_ID || '').trim();
+const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim();
+
+if (!googleClientId || !googleClientSecret) {
+    logger.warn('⚠️ Google OAuth credentials missing or empty!');
+} else {
+    logger.info(`🔧 Google OAuth initialized (ID length: ${googleClientId.length})`);
+}
+
 passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    clientID: googleClientId,
+    clientSecret: googleClientSecret,
     callbackURL: "https://matrknhash-production.up.railway.app/auth/google/callback",
     proxy: true
 },
