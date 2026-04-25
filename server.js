@@ -247,8 +247,9 @@ async function connectDB() {
 
     try {
         await mongoose.connect(mongoUri, {
-            serverSelectionTimeoutMS: 15000,
+            serverSelectionTimeoutMS: 30000, // 30 seconds for cloud stability
             socketTimeoutMS: 45000,
+            dbName: 'mtrknhash',             // Explicitly set DB name
             maxPoolSize: 10
         });
         console.log('✅ Database Connection Established Successfully');
