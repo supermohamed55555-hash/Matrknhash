@@ -171,7 +171,7 @@ passport.deserializeUser((id, done) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback",
+    callbackURL: "https://matrknhash-production.up.railway.app/auth/google/callback",
     proxy: true
 },
     async (accessToken, refreshToken, profile, done) => {
@@ -218,7 +218,7 @@ async function startServer() {
         mongoUri = mongoUri.trim();
         logger.info('⏳ Connecting to MongoDB Atlas...');
 
-        const connectionOptions = mongoUri.startsWith('mongodb+srv') 
+        const connectionOptions = mongoUri.startsWith('mongodb+srv')
             ? { serverSelectionTimeoutMS: 30000, socketTimeoutMS: 45000, dbName: 'mtrknhash', maxPoolSize: 10 }
             : { serverSelectionTimeoutMS: 30000 };
 
@@ -228,7 +228,7 @@ async function startServer() {
         const PORT = process.env.PORT || 3000;
         http.listen(PORT, async () => {
             logger.info(`🚀 Server is live on port ${PORT}`);
-            
+
             // Post-connection tasks
             try {
                 await promoteAyaToAdmin();
@@ -349,7 +349,7 @@ async function promoteAyaToAdmin() {
 async function seedSampleProducts() {
     try {
         await Product.deleteMany({ vendorName: 'متركنهاش' });
-        
+
         let adminUser = await User.findOne({ role: 'admin' });
         if (!adminUser) {
             logger.info('Creating default admin user for seeding...');
@@ -422,7 +422,7 @@ async function seedSampleProducts() {
             const config = categoryConfig[catKey];
             const partName = config.parts[Math.floor(Math.random() * config.parts.length)];
             const price = Math.floor(Math.random() * (config.priceRange[1] - config.priceRange[0])) + config.priceRange[0];
-            
+
             const badges = [null, "جديد", "الأكثر طلباً", null, null];
             const badge = badges[Math.floor(Math.random() * badges.length)];
             const availability = Math.random() > 0.1 ? "متوفر" : "غير متوفر";
