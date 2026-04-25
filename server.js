@@ -261,7 +261,7 @@ app.set('io', io);
 app.set('connectedUsers', connectedUsers);
 
 // Apply Routes
-@app.use('/auth', authRoutes);
+app.use('/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/user', userRoutes);
