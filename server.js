@@ -109,13 +109,15 @@ app.use(express.urlencoded({ extended: true }));
 // --- Diagnostic Route ---
 app.get('/test-db', async (req, res) => {
     try {
+        const states = { 0: 'Disconnected', 1: 'Connected', 2: 'Connecting', 3: 'Disconnecting' };
         const productCount = mongoose.connection.readyState === 1 ? await mongoose.model('Product').countDocuments() : 0;
         res.json({
-            status: mongoose.connection.readyState === 1 ? 'ok' : 'failed',
-            database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-            dbError: dbError || 'None',
+            status: mongoose.connection.readyState === 1 ? 'ok' : 'pending/failed',
+            database: states[mongoose.connection.readyState] || 'Unknown',
+            dbError: dbError || 'None yet (Waiting for timeout...)',
             productCount,
-            readyState: mongoose.connection.readyState
+            readyState: mongoose.connection.readyState,
+            timestamp: new Date().toISOString()
         });
     } catch (err) {
         res.status(500).json({
@@ -246,12 +248,12 @@ async function connectDB() {
     console.log(`⏳ Background connecting to: ${sanitizedUri}`);
 
     try {
-        await mongoose.connect(mongoUri, {
-            serverSelectionTimeoutMS: 30000, // 30 seconds for cloud stability
-            socketTimeoutMS: 45000,
-            dbName: 'mtrknhash',             // Explicitly set DB name
-            maxPoolSize: 10
-        });
+        // If legacy URI, use fewer options to avoid conflicts with query params
+        const connectionOptions = mongoUri.startsWith('mongodb+srv') 
+            ? { serverSelectionTimeoutMS: 30000, socketTimeoutMS: 45000, dbName: 'mtrknhash', maxPoolSize: 10 }
+            : { serverSelectionTimeoutMS: 30000 }; // Legacy URIs handle their own shard/ssl settings
+
+        await mongoose.connect(mongoUri, connectionOptions);
         console.log('✅ Database Connection Established Successfully');
         dbError = null;
         
