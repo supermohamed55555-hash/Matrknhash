@@ -261,7 +261,7 @@ app.set('io', io);
 app.set('connectedUsers', connectedUsers);
 
 // Apply Routes
-app.use('/auth', authRoutes);
+@app.use('/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/user', userRoutes);
@@ -372,19 +372,19 @@ async function seedSampleProducts() {
             "Engine": {
                 parts: ["محرك كامل استيراد", "طقم شمبر", "طلمبة زيت", "سير كاتينة جيتس", "طقم جوانات موتور"],
                 priceRange: [8000, 25000],
-                image: "https://images.unsplash.com/photo-1486006396193-471034e3e6f8?auto=format&fit=crop&q=80&w=400",
+                image: "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcR-vxMKauivsMwiTGPnHsUvWgCthbbsU7l1xAjRQuIyYch1hM-BS6_epBbwuI0L",
                 desc: "أداء فائق واعتمادية عالية لمحرك سيارتك مع قطع غيار أصلية."
             },
             "Brakes": {
                 parts: ["تيل فرامل أمامى", "طنبورة فرامل", "ماستر فرامل عمومي", "تيل فرامل خلفي", "خراطيم فرامل"],
                 priceRange: [300, 2000],
-                image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&q=80&w=400",
+                image: "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTHfR9LPkL1XoaXHq_iU0OwKgDgB9PhvH-VkjOokn0zx-6tlnTYM7dWbQDRvpx3",
                 desc: "أمانك يبدأ من هنا. قطع غيار فرامل تضمن لك كبحاً آمناً وهادئاً."
             },
             "Battery": {
                 parts: ["بطارية 70 أمبير", "بطارية 60 أمبير جافة", "بطارية AC Delco", "بطارية فارتا"],
                 priceRange: [1500, 4500],
-                image: "https://images.unsplash.com/photo-1620939511593-db9ba87d74c1?auto=format&fit=crop&q=80&w=400",
+                image: "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRlqWHFHoAAcGIqfO85QOfKlkg6i0jl7Djm5yicrzevzZbMQ7KMQim0NFrXDeq_",
                 desc: "طاقة لا تنقطع. بطاريات أصلية بضمان حقيقي لأطول عمر افتراضي."
             },
             "Tires": {
@@ -396,7 +396,7 @@ async function seedSampleProducts() {
             "Electricity": {
                 parts: ["دينامو شحن", "مارش استيراد", "طقم بوجيهات ليزر", "حساس أكسجين", "موبينة إشعال"],
                 priceRange: [500, 2500],
-                image: "https://images.unsplash.com/photo-1555837580-430173ac7a03?auto=format&fit=crop&q=80&w=400",
+                image: "https://js-alternators.com/cdn/shop/files/11237-splitear-angle-337_11e88811-90ce-454e-b5a3-3a8f43e98203.png?v=1708699022&width=720",
                 desc: "أنظمة كهربائية متطورة تضمن كفاءة تشغيل كافة وظائف السيارة."
             },
             "Suspension": {
