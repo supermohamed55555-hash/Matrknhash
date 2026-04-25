@@ -215,11 +215,23 @@ async function startServer() {
             throw new Error('❌ MONGO_URI is not defined in environment variables!');
         }
 
-        logger.info('⏳ Connecting to MongoDB...');
+        // Obfuscate URI for logging
+        const sanitizedUri = mongoUri.replace(/\/\/(.*):(.*)@/, '//***:***@');
+        logger.info(`⏳ Attempting to connect to: ${sanitizedUri}`);
+
+        // Set up connection event listeners
+        mongoose.connection.on('connected', () => logger.info('✅ Mongoose connected to DB'));
+        mongoose.connection.on('error', (err) => logger.error('❌ Mongoose connection error:', err));
+        mongoose.connection.on('disconnected', () => logger.warn('⚠️ Mongoose disconnected'));
+
         await mongoose.connect(mongoUri, {
-            serverSelectionTimeoutMS: 30000,
+            serverSelectionTimeoutMS: 30000, // 30 seconds
+            socketTimeoutMS: 45000,          // 45 seconds
+            family: 4,                       // Force IPv4 (often helps with Atlas/cloud)
+            maxPoolSize: 10                  // Maintain up to 10 socket connections
         });
-        logger.info('✅ MongoDB Connected Successfully');
+        
+        logger.info('✅ Database Connection Established');
 
         const PORT = process.env.PORT || 3000;
         http.listen(PORT, async () => {
@@ -236,8 +248,9 @@ async function startServer() {
         });
 
     } catch (err) {
-        logger.error('❌ Database Connection Failed:', err);
-        process.exit(1);
+        logger.error('❌ CRITICAL: Server failed to start due to DB connection error:', err);
+        // Do not exit immediately in some cloud envs, but here we need a working DB
+        setTimeout(() => process.exit(1), 2000); 
     }
 }
 
